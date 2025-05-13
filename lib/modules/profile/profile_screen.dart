@@ -1,10 +1,14 @@
-// lib/modules/profile/profile_screen.dart - Complete implementation with bottom navigation
+// lib/modules/profile/profile_screen.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/l10n/app_localizations.dart';
 import 'screens/app_settings_screen.dart';
-import '../../shared/widgets/global_burger_menu.dart'; // Import for currentScreenProvider
+import 'screens/hr_zones_screen.dart';
+import 'screens/power_zones_screen.dart';
+import 'screens/pace_zones_screen.dart';
+import 'screens/user_info_screen.dart'; // We'll create this
+import '../../shared/widgets/global_burger_menu.dart';
 
 // Provider to track the current profile section
 final profileSectionProvider = StateProvider<String>((ref) => 'user_info');
@@ -32,18 +36,17 @@ class ProfileScreen extends ConsumerWidget {
   Widget _getProfileContent(String section) {
     switch (section) {
       case 'user_info':
-        // Use user profile section of existing implementation
-        return _UserProfileContent();
+        return const UserInfoScreen();
       case 'hr_zones':
-        return _HRZonesContent();
+        return const HRZonesScreen();
       case 'power_zones':
-        return _PowerZonesContent();
+        return const PowerZonesScreen();
       case 'pace_zones':
-        return _PaceZonesContent();
+        return const PaceZonesScreen();
       case 'app_settings':
         return const AppSettingsScreen();
       default:
-        return _UserProfileContent();
+        return const UserInfoScreen();
     }
   }
 
@@ -117,42 +120,5 @@ class ProfileScreen extends ConsumerWidget {
       default:
         return 0; // Default to user info
     }
-  }
-}
-
-// Placeholder widgets for the different sections
-class _UserProfileContent extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text('User Info Content - Use Existing Implementation'),
-    );
-  }
-}
-
-class _HRZonesContent extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Heart Rate Zones Content - Use HR zones implementation'),
-    );
-  }
-}
-
-class _PowerZonesContent extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Power Zones Content - Use Power zones implementation'),
-    );
-  }
-}
-
-class _PaceZonesContent extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Pace Zones Content - Use Pace zones implementation'),
-    );
   }
 }

@@ -3,8 +3,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/app_localizations.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/global_app_bar.dart';
 import '../../../shared/widgets/global_burger_menu.dart';
+import '../../../shared/widgets/consistent_bottom_navigation.dart';
 import '../../activity/activity_hub_screen.dart';
 import '../../profile/profile_screen.dart';
 import '../../routes/routes_screen.dart';
@@ -13,7 +15,6 @@ import '../../activity/screens/start_activity_screen.dart';
 import '../../activity/screens/activity_history_screen.dart';
 import '../../activity/screens/activity_settings_screen.dart';
 import '../../activity/screens/sensors_screen.dart';
-// Add the missing import for AppSettingsScreen
 import '../../profile/screens/app_settings_screen.dart';
 
 // Main tab index provider
@@ -435,7 +436,7 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
         return _buildProfilePlaceholder(
             'Pace Zones', 'Configure your pace training zones');
       case 'app_settings':
-        return const AppSettingsScreen(); // Now properly imported
+        return const AppSettingsScreen();
       default:
         return _buildProfilePlaceholder(
             'User Info', 'Your personal details and settings');
@@ -567,7 +568,7 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
   // Main bottom navigation bar
   Widget _buildMainBottomNavBar(
       BuildContext context, int currentIndex, AppLocalizations localizations) {
-    return BottomNavigationBar(
+    return ConsistentBottomNavigationBar(
       currentIndex: currentIndex,
       onTap: (index) {
         // Exit any hub mode if we tap away from it
@@ -609,13 +610,7 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
         ];
         ref.read(currentScreenProvider.notifier).state = screenIds[index];
       },
-      type: BottomNavigationBarType.fixed,
       selectedItemColor: orangeColor,
-      unselectedItemColor: Colors.grey,
-      elevation: 16, // Add elevation for shadow
-      iconSize: 24, // Consistent icon size
-      selectedFontSize: 12, // Font size for selected items
-      unselectedFontSize: 12, // Font size for unselected items
       items: [
         BottomNavigationBarItem(
           icon: const Icon(Icons.dashboard),
@@ -646,7 +641,7 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
       BuildContext context, AppLocalizations localizations) {
     final currentSection = ref.watch(activitySectionProvider);
 
-    return BottomNavigationBar(
+    return ConsistentBottomNavigationBar(
       currentIndex: _getActivityNavIndex(currentSection),
       onTap: (index) {
         // Map the tapped index to the corresponding section
@@ -665,13 +660,7 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
         // Update the current screen ID for the burger menu highlighting
         ref.read(currentScreenProvider.notifier).state = selectedSection;
       },
-      type: BottomNavigationBarType.fixed,
       selectedItemColor: orangeColor,
-      unselectedItemColor: Colors.grey,
-      elevation: 16, // Add elevation for shadow
-      iconSize: 24, // Consistent icon size
-      selectedFontSize: 12, // Font size for selected items
-      unselectedFontSize: 12, // Font size for unselected items
       items: [
         BottomNavigationBarItem(
           icon: const Icon(Icons.history),
@@ -718,7 +707,7 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
       BuildContext context, AppLocalizations localizations) {
     final currentSection = ref.watch(routesSectionProvider);
 
-    return BottomNavigationBar(
+    return ConsistentBottomNavigationBar(
       currentIndex: _getRoutesNavIndex(currentSection),
       onTap: (index) {
         // Map the tapped index to the corresponding section
@@ -737,13 +726,7 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
         // Update the current screen ID for the burger menu highlighting
         ref.read(currentScreenProvider.notifier).state = selectedSection;
       },
-      type: BottomNavigationBarType.fixed,
       selectedItemColor: orangeColor,
-      unselectedItemColor: Colors.grey,
-      elevation: 16, // Add elevation for shadow
-      iconSize: 24, // Consistent icon size
-      selectedFontSize: 12, // Font size for selected items
-      unselectedFontSize: 12, // Font size for unselected items
       items: [
         BottomNavigationBarItem(
           icon: const Icon(Icons.route),
@@ -790,7 +773,7 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
       BuildContext context, AppLocalizations localizations) {
     final currentSection = ref.watch(tribeSectionProvider);
 
-    return BottomNavigationBar(
+    return ConsistentBottomNavigationBar(
       currentIndex: _getTribeNavIndex(currentSection),
       onTap: (index) {
         // Map the tapped index to the corresponding section
@@ -809,13 +792,7 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
         // Update the current screen ID for the burger menu highlighting
         ref.read(currentScreenProvider.notifier).state = selectedSection;
       },
-      type: BottomNavigationBarType.fixed,
       selectedItemColor: orangeColor,
-      unselectedItemColor: Colors.grey,
-      elevation: 16, // Add elevation for shadow
-      iconSize: 24, // Consistent icon size
-      selectedFontSize: 12, // Font size for selected items
-      unselectedFontSize: 12, // Font size for unselected items
       items: [
         BottomNavigationBarItem(
           icon: const Icon(Icons.dynamic_feed),
@@ -862,7 +839,7 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
       BuildContext context, AppLocalizations localizations) {
     final currentSection = ref.watch(profileSectionProvider);
 
-    return BottomNavigationBar(
+    return ConsistentBottomNavigationBar(
       currentIndex: _getProfileNavIndex(currentSection),
       onTap: (index) {
         // Map the tapped index to the corresponding section
@@ -881,13 +858,7 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
         // Update the current screen ID for the burger menu highlighting
         ref.read(currentScreenProvider.notifier).state = selectedSection;
       },
-      type: BottomNavigationBarType.fixed,
       selectedItemColor: orangeColor,
-      unselectedItemColor: Colors.grey,
-      elevation: 16, // Add elevation for shadow
-      iconSize: 24, // Consistent icon size
-      selectedFontSize: 12, // Font size for selected items
-      unselectedFontSize: 12, // Font size for unselected items
       items: [
         BottomNavigationBarItem(
           icon: const Icon(Icons.person),

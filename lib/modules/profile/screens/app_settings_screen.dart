@@ -1,8 +1,12 @@
+// lib/modules/profile/screens/app_settings_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/theme/theme_provider.dart';
+import '../../../shared/widgets/color_picker_dialog.dart';
 import 'dart:io' show Platform;
 
 class AppSettingsScreen extends ConsumerWidget {
@@ -12,6 +16,7 @@ class AppSettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final localizations = AppLocalizations.of(context);
     final themeMode = ref.watch(themeModeProvider);
+    // Using themeSettings variable now in the UI
     final isCupertino = Platform.isIOS;
 
     return ListView(
@@ -19,6 +24,8 @@ class AppSettingsScreen extends ConsumerWidget {
       children: [
         _buildAppSettingsSection(
             context, ref, localizations, themeMode, isCupertino),
+        const SizedBox(height: 24),
+        _buildThemeCustomizationSection(context, ref, localizations),
         const SizedBox(height: 24),
         _buildAboutSection(context, localizations, isCupertino),
       ],
@@ -153,6 +160,126 @@ class AppSettingsScreen extends ConsumerWidget {
               child: content,
             ),
           );
+  }
+
+  Widget _buildThemeCustomizationSection(
+      BuildContext context, WidgetRef ref, AppLocalizations localizations) {
+    final themeSettings = ref.watch(themeSettingsProvider);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Theme Customization',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 16),
+
+            // Primary Color Selector
+            ListTile(
+              title: const Text('Primary Color'),
+              subtitle: const Text('Main accent color for the app'),
+              trailing: Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: themeSettings.primaryColor,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.grey.shade300),
+                ),
+              ),
+              onTap: () => _showColorPicker(
+                context: context,
+                ref: ref,
+                initialColor: themeSettings.primaryColor,
+                title: 'Select Primary Color',
+                onColorSelected: (color) {
+                  ref
+                      .read(themeSettingsProvider.notifier)
+                      .updatePrimaryColor(color);
+                },
+              ),
+            ),
+
+            // Secondary Color Selector
+            ListTile(
+              title: const Text('Secondary Color'),
+              subtitle: const Text('Complementary accent color'),
+              trailing: Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: themeSettings.secondaryColor,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.grey.shade300),
+                ),
+              ),
+              onTap: () => _showColorPicker(
+                context: context,
+                ref: ref,
+                initialColor: themeSettings.secondaryColor,
+                title: 'Select Secondary Color',
+                onColorSelected: (color) {
+                  ref
+                      .read(themeSettingsProvider.notifier)
+                      .updateSecondaryColor(color);
+                },
+              ),
+            ),
+
+            // Material You Toggle
+            SwitchListTile(
+              title: const Text('Use Material You (Android 12+)'),
+              subtitle: const Text('Use dynamic colors from your device theme'),
+              value: themeSettings.useMaterialYou,
+              onChanged: (value) {
+                ref.read(themeSettingsProvider.notifier).toggleMaterialYou();
+              },
+            ),
+
+            const Divider(),
+
+            // Reset to Defaults Button
+            Align(
+              alignment: Alignment.center,
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.refresh),
+                label: const Text('Reset to Default Colors'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.grey.shade200,
+                  foregroundColor: Colors.black87,
+                ),
+                onPressed: () {
+                  ref.read(themeSettingsProvider.notifier).resetToDefaults();
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showColorPicker({
+    required BuildContext context,
+    required WidgetRef ref,
+    required Color initialColor,
+    required String title,
+    required Function(Color) onColorSelected,
+  }) {
+    showDialog(
+      context: context,
+      builder: (context) => ColorPickerDialog(
+        initialColor: initialColor,
+        title: title,
+        onColorSelected: onColorSelected,
+      ),
+    );
   }
 
   Widget _buildAboutSection(

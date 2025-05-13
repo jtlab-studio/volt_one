@@ -1,8 +1,11 @@
+// lib/core/app.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'router.dart';
 import 'theme/app_theme.dart';
+import 'theme/theme_provider.dart'; // Add this import
 import 'l10n/app_localizations.dart';
 
 class VoltApp extends ConsumerWidget {
@@ -12,7 +15,8 @@ class VoltApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final navigatorKey = ref.watch(navigatorKeyProvider);
     final themeMode = ref.watch(themeModeProvider);
-    final materialTheme = ref.watch(materialThemeProvider);
+    // Replace materialThemeProvider with dynamicThemeProvider
+    final materialTheme = ref.watch(dynamicThemeProvider);
     final locale = ref.watch(localeProvider);
 
     // Common localization delegates
