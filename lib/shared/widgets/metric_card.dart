@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class MetricCard extends StatelessWidget {
   final String title;
   final String value;
-  final String? unit; // Added separate unit parameter
+  final String? unit;
   final String? subtitle;
   final Widget? customContent;
   final Color backgroundColor;
@@ -14,26 +14,24 @@ class MetricCard extends StatelessWidget {
     super.key,
     required this.title,
     required this.value,
-    this.unit, // Optional unit text that will be displayed smaller
+    this.unit,
     this.subtitle,
     this.customContent,
     required this.backgroundColor,
     required this.icon,
-    this.height = 70, // Reduced from 140 by 50%
+    this.height = 70,
   });
 
   @override
   Widget build(BuildContext context) {
-    // Using a uniform background color for all cards
-    final uniformColor = Colors.white;
+    final darkColor = const Color(0xFF212121);
 
     return Card(
       elevation: 2,
-      color: uniformColor,
+      color: darkColor,
       child: Container(
         height: height,
-        padding: const EdgeInsets.symmetric(
-            horizontal: 8, vertical: 4), // Reduced vertical padding
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -43,29 +41,34 @@ class MetricCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    title.toUpperCase(), // Explicit uppercase for the title
+                    title.toUpperCase(),
                     maxLines: 1,
                     style: TextStyle(
-                      color:
-                          backgroundColor, // Use the background color for the title too
+                      color: backgroundColor,
                       fontWeight: FontWeight.bold,
-                      fontSize: 10, // Keep small for compact display
-                      letterSpacing:
-                          0.5, // Added letter spacing for better readability
+                      fontSize: 10,
+                      letterSpacing: 0.5,
                     ),
-                    overflow: TextOverflow.ellipsis, // Handle long names
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                Icon(icon, size: 14, color: backgroundColor), // Colored icon
+                Icon(icon, size: 14, color: backgroundColor),
               ],
             ),
 
+            // Divider using color with adjusted alpha
             Divider(
-                height: 4,
-                thickness: 1,
-                color: backgroundColor.withOpacity(0.3)), // Colored divider
+              height: 4,
+              thickness: 1,
+              color: Color.fromARGB(
+                76,
+                backgroundColor.r.toInt(),
+                backgroundColor.g.toInt(),
+                backgroundColor.b.toInt(),
+              ),
+            ),
 
-            // Either custom content or standard value display
+            // Value and optional subtitle or custom content
             Expanded(
               child: customContent ??
                   Center(
@@ -80,16 +83,16 @@ class MetricCard extends StatelessWidget {
                                 text: value,
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 26, // Further increased (was 22)
-                                  color: backgroundColor, // Colored text
+                                  fontSize: 26,
+                                  color: Colors.white,
                                 ),
                               ),
                               if (unit != null)
                                 TextSpan(
                                   text: ' $unit',
                                   style: TextStyle(
-                                    fontSize: 13, // 50% of value text
-                                    color: Colors.grey[600],
+                                    fontSize: 13,
+                                    color: Colors.grey[400],
                                   ),
                                 ),
                             ],
@@ -101,8 +104,8 @@ class MetricCard extends StatelessWidget {
                             child: Text(
                               subtitle!,
                               style: TextStyle(
-                                fontSize: 9, // Keep small for subtitle
-                                color: Colors.grey[600],
+                                fontSize: 9,
+                                color: Colors.grey[400],
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),

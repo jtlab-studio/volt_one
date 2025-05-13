@@ -26,6 +26,15 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+
+    // For demonstration, connect some sensors after a delay
+    Future.delayed(const Duration(seconds: 2), () {
+      ref.read(gpsConnectedProvider.notifier).state = true;
+    });
+
+    Future.delayed(const Duration(seconds: 3), () {
+      ref.read(heartRateConnectedProvider.notifier).state = true;
+    });
   }
 
   @override
@@ -40,6 +49,7 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
     final activityState = ref.watch(activityStateProvider);
 
     return Scaffold(
+      backgroundColor: Colors.black87, // Dark background for the entire screen
       // Removed app bar to avoid duplicate title
       body: Stack(
         children: [
@@ -52,13 +62,13 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
                   Tab(text: localizations.translate('metrics')),
                   Tab(text: localizations.translate('map')),
                 ],
-                // Makes the tab bar visible in light mode
-                labelColor: Theme.of(context).primaryColor,
-                indicatorColor: Theme.of(context).primaryColor,
+                // Makes the tab bar visible in dark mode
+                labelColor: Colors.white,
+                indicatorColor: Colors.white,
               ),
 
-              // Sensor status bar
-              const SensorStatusBar(),
+              // Use the demo version for better interaction
+              const SensorStatusBarDemo(),
 
               // Tab content
               Expanded(
@@ -83,8 +93,8 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
                   width: 80,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: orangeColor
-                        .withOpacity(0.85), // Orange with transparency
+                    color: orangeColor.withValues(
+                        alpha: 0.85 * 255), // Orange with transparency
                   ),
                   child: IconButton(
                     iconSize: 48,
@@ -204,7 +214,10 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
                 children: [
                   Text(
                     localizations.translate('elevation_gain'),
-                    style: const TextStyle(fontSize: 9),
+                    style: TextStyle(
+                      fontSize: 9,
+                      color: AppColors.elevationCardColor, // Colored label
+                    ),
                   ),
                   RichText(
                     text: TextSpan(
@@ -214,14 +227,14 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 24, // Increased font size to match others
-                            color: AppColors.elevationCardColor,
+                            color: Colors.white, // White for dark background
                           ),
                         ),
                         TextSpan(
                           text: ' m',
                           style: TextStyle(
                             fontSize: 12, // 50% of value size
-                            color: Colors.grey[600],
+                            color: Colors.grey[400], // Lighter grey for dark
                           ),
                         ),
                       ],
@@ -232,14 +245,17 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
               Container(
                 height: 30,
                 width: 1,
-                color: Colors.grey[300],
+                color: Colors.grey[700], // Darker divider for dark mode
               ),
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     localizations.translate('elevation_loss'),
-                    style: const TextStyle(fontSize: 9),
+                    style: TextStyle(
+                      fontSize: 9,
+                      color: AppColors.elevationCardColor, // Colored label
+                    ),
                   ),
                   RichText(
                     text: TextSpan(
@@ -249,14 +265,14 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 24, // Increased font size to match others
-                            color: AppColors.elevationCardColor,
+                            color: Colors.white, // White for dark background
                           ),
                         ),
                         TextSpan(
                           text: ' m',
                           style: TextStyle(
                             fontSize: 12, // 50% of value size
-                            color: Colors.grey[600],
+                            color: Colors.grey[400], // Lighter grey for dark
                           ),
                         ),
                       ],
@@ -313,10 +329,10 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
           ),
         ),
 
-        // Map placeholder
+        // Map placeholder - darker for dark mode
         Expanded(
           child: Container(
-            color: Colors.grey[300],
+            color: Colors.grey[900], // Darker for dark mode
             child: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -325,7 +341,8 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
                   const SizedBox(height: 16),
                   Text(
                     'Map will be displayed here',
-                    style: TextStyle(color: Colors.grey[600]),
+                    style: TextStyle(
+                        color: Colors.grey[400]), // Lighter text for dark mode
                   ),
                 ],
               ),
@@ -464,14 +481,25 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(localizations.translate('discard_activity')),
-        content: Text(localizations.translate('discard_confirmation')),
+        backgroundColor: Colors.grey[850], // Dark dialog
+        title: Text(
+          localizations.translate('discard_activity'),
+          style: TextStyle(color: Colors.white), // White text
+        ),
+        content: Text(
+          localizations.translate('discard_confirmation'),
+          style: TextStyle(color: Colors.white70), // Light gray text
+        ),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(context);
             },
-            child: Text(localizations.translate('cancel')),
+            child: Text(
+              localizations.translate('cancel'),
+              style:
+                  TextStyle(color: Colors.grey[400]), // Light gray for cancel
+            ),
           ),
           TextButton(
             onPressed: () {
