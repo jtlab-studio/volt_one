@@ -16,14 +16,15 @@ class SensorStatusBar extends ConsumerWidget {
     final isStrydConnected = ref.watch(strydConnectedProvider);
 
     // Use the same orange color as the start button
-    final orangeColor = Colors.orange;
+    final orangeColor = const Color.fromRGBO(255, 152, 0, 1.0); // Colors.orange
     // Default color for disconnected sensors that matches the dark theme
-    final disconnectedColor = Colors.grey[400];
+    final disconnectedColor =
+        const Color.fromRGBO(200, 200, 200, 0.7); // Gray with RGBA
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-      color:
-          Colors.black54, // Slightly lighter than the background for contrast
+      color: const Color.fromRGBO(
+          0, 0, 0, 0.35), // Using RGBA for semi-transparent black
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
@@ -33,7 +34,7 @@ class SensorStatusBar extends ConsumerWidget {
             isGpsConnected,
             Icons.location_on,
             connectedColor: orangeColor,
-            disconnectedColor: disconnectedColor!,
+            disconnectedColor: disconnectedColor,
           ),
           _buildIndicator(
             context,
@@ -91,14 +92,15 @@ class SensorStatusBarDemo extends ConsumerWidget {
     final isStrydConnected = ref.watch(strydConnectedProvider);
 
     // Use the same orange color as the start button
-    final orangeColor = Colors.orange;
+    final orangeColor = const Color.fromRGBO(255, 152, 0, 1.0); // Colors.orange
     // Default color for disconnected sensors that matches the dark theme
-    final disconnectedColor = Colors.grey[400];
+    final disconnectedColor =
+        const Color.fromRGBO(200, 200, 200, 0.7); // Gray with RGBA
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-      color:
-          Colors.black54, // Slightly lighter than the background for contrast
+      color: const Color.fromRGBO(
+          0, 0, 0, 0.35), // Using RGBA for semi-transparent black
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
@@ -110,7 +112,7 @@ class SensorStatusBarDemo extends ConsumerWidget {
             Icons.location_on,
             gpsConnectedProvider,
             connectedColor: orangeColor,
-            disconnectedColor: disconnectedColor!,
+            disconnectedColor: disconnectedColor,
           ),
           _buildToggleableIndicator(
             context,

@@ -118,6 +118,7 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
       appBar: GlobalAppBar(
         title: _getTitle(currentTabIndex, localizations),
         scaffoldKey: scaffoldKey,
+        // Note: GlobalAppBar already includes the ThemeToggleButton
       ),
       endDrawer: const GlobalBurgerMenu(),
       body: screens[currentTabIndex],
@@ -221,7 +222,12 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
                           width: 50,
                           height: 50,
                           decoration: BoxDecoration(
-                            color: Theme.of(context).primaryColor.withAlpha(51),
+                            color: Color.fromRGBO(
+                              Theme.of(context).primaryColor.r.toInt(),
+                              Theme.of(context).primaryColor.g.toInt(),
+                              Theme.of(context).primaryColor.b.toInt(),
+                              0.2, // Using RGBA for opacity
+                            ),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Icon(
@@ -243,7 +249,12 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
                               Text(
                                 localizations.translate('track_your_progress'),
                                 style: TextStyle(
-                                  color: Colors.grey[600],
+                                  color: Theme.of(context).brightness ==
+                                          Brightness.dark
+                                      ? const Color.fromRGBO(170, 170, 170,
+                                          1.0) // Lighter gray for dark mode
+                                      : const Color.fromRGBO(100, 100, 100,
+                                          1.0), // Darker gray for light mode
                                 ),
                               ),
                             ],
@@ -251,7 +262,11 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
                         ),
                         Icon(
                           Icons.arrow_forward_ios,
-                          color: Colors.grey[400],
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? const Color.fromRGBO(170, 170, 170,
+                                  1.0) // Lighter gray for dark mode
+                              : const Color.fromRGBO(130, 130, 130,
+                                  1.0), // Darker gray for light mode
                           size: 16,
                         ),
                       ],
@@ -274,12 +289,22 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
                 alignment: Alignment.center,
                 height: 120,
                 decoration: BoxDecoration(
-                  color: Colors.grey[200],
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? const Color.fromRGBO(
+                          50, 50, 50, 1.0) // Dark gray for dark mode
+                      : const Color.fromRGBO(
+                          238, 238, 238, 1.0), // Light gray for light mode
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   localizations.translate('no_activities_yet'),
-                  style: TextStyle(color: Colors.grey[600]),
+                  style: TextStyle(
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? const Color.fromRGBO(
+                            200, 200, 200, 1.0) // Light gray for dark mode
+                        : const Color.fromRGBO(
+                            100, 100, 100, 1.0), // Dark gray for light mode
+                  ),
                 ),
               ),
 
@@ -297,12 +322,22 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
                 alignment: Alignment.center,
                 height: 120,
                 decoration: BoxDecoration(
-                  color: Colors.grey[200],
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? const Color.fromRGBO(
+                          50, 50, 50, 1.0) // Dark gray for dark mode
+                      : const Color.fromRGBO(
+                          238, 238, 238, 1.0), // Light gray for light mode
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   localizations.translate('stats_placeholder'),
-                  style: TextStyle(color: Colors.grey[600]),
+                  style: TextStyle(
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? const Color.fromRGBO(
+                            200, 200, 200, 1.0) // Light gray for dark mode
+                        : const Color.fromRGBO(
+                            100, 100, 100, 1.0), // Dark gray for light mode
+                  ),
                 ),
               ),
             ],

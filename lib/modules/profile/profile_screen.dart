@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/l10n/app_localizations.dart';
+import '../../../core/l10n/app_localizations.dart';
 import 'screens/training_zones_screen.dart';
 import 'screens/app_settings_screen.dart';
 import 'models/user_profile.dart';
 import 'providers/user_profile_provider.dart';
+import '../../../shared/widgets/theme_toggle_button.dart';
 
 // Provider to track the current profile section
 final profileSectionProvider = StateProvider<String>((ref) => 'user_info');
@@ -30,7 +31,7 @@ class ProfileScreen extends ConsumerWidget {
 
     return Column(
       children: [
-        // Section selector tabs
+        // Section selector tabs with added theme toggle
         _buildProfileSectionTabs(context, ref, selectedSection, localizations),
 
         // Current section content
@@ -42,37 +43,50 @@ class ProfileScreen extends ConsumerWidget {
   Widget _buildProfileSectionTabs(BuildContext context, WidgetRef ref,
       String currentSection, AppLocalizations localizations) {
     return Container(
-      color: Theme.of(context).primaryColor.withAlpha(20),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: [
-            _buildSectionTab(
-              context,
-              ref,
-              'user_info',
-              localizations.translate('user_info'),
-              Icons.person,
-              currentSection == 'user_info',
+      color: Color.fromRGBO(
+        Theme.of(context).primaryColor.r.toInt(),
+        Theme.of(context).primaryColor.g.toInt(),
+        Theme.of(context).primaryColor.b.toInt(),
+        0.08, // Using RGBA for opacity
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  _buildSectionTab(
+                    context,
+                    ref,
+                    'user_info',
+                    localizations.translate('user_info'),
+                    Icons.person,
+                    currentSection == 'user_info',
+                  ),
+                  _buildSectionTab(
+                    context,
+                    ref,
+                    'training_zones',
+                    localizations.translate('training_zones'),
+                    Icons.favorite,
+                    currentSection == 'training_zones',
+                  ),
+                  _buildSectionTab(
+                    context,
+                    ref,
+                    'app_settings',
+                    localizations.translate('app_settings'),
+                    Icons.settings,
+                    currentSection == 'app_settings',
+                  ),
+                ],
+              ),
             ),
-            _buildSectionTab(
-              context,
-              ref,
-              'training_zones',
-              localizations.translate('training_zones'),
-              Icons.favorite,
-              currentSection == 'training_zones',
-            ),
-            _buildSectionTab(
-              context,
-              ref,
-              'app_settings',
-              localizations.translate('app_settings'),
-              Icons.settings,
-              currentSection == 'app_settings',
-            ),
-          ],
-        ),
+          ),
+          // Add theme toggle button to tabs area
+          const ThemeToggleButton(),
+        ],
       ),
     );
   }
@@ -115,7 +129,7 @@ class ProfileScreen extends ConsumerWidget {
   }
 }
 
-// User Info Screen implementation with actual content - focused only on user information
+// User Info Screen implementation
 class UserInfoScreen extends ConsumerWidget {
   const UserInfoScreen({super.key});
 
@@ -138,8 +152,12 @@ class UserInfoScreen extends ConsumerWidget {
                   // User avatar
                   CircleAvatar(
                     radius: 50,
-                    backgroundColor:
-                        Theme.of(context).primaryColor.withAlpha(25),
+                    backgroundColor: Color.fromRGBO(
+                      Theme.of(context).primaryColor.r.toInt(),
+                      Theme.of(context).primaryColor.g.toInt(),
+                      Theme.of(context).primaryColor.b.toInt(),
+                      0.1, // Using RGBA for opacity
+                    ),
                     child: Icon(
                       Icons.person,
                       size: 60,

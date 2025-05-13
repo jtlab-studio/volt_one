@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/app_localizations.dart';
+import '../../../shared/widgets/theme_toggle_button.dart';
 
 class SensorsScreen extends ConsumerStatefulWidget {
   const SensorsScreen({super.key});
@@ -39,6 +40,10 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
             Tab(text: localizations.translate('gps')),
           ],
         ),
+        actions: const [
+          // Add the theme toggle button here
+          ThemeToggleButton(),
+        ],
       ),
       body: TabBarView(
         controller: _tabController,
@@ -94,7 +99,8 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
               // Connect to all saved devices
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
+              backgroundColor:
+                  const Color.fromRGBO(76, 175, 80, 1.0), // AppColors.success
               foregroundColor: Colors.white,
             ),
           ),

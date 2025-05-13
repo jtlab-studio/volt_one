@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/theme_toggle_button.dart';
 
 class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -18,9 +19,15 @@ class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Combined actions: custom actions plus the burger menu if enabled
+    // Combined actions: theme toggle + custom actions + the burger menu if enabled
     final List<Widget> combinedActions = [
+      // Add theme toggle button first
+      const ThemeToggleButton(),
+
+      // Then add any custom actions
       ...(actions ?? []),
+
+      // Finally add burger menu if enabled
       if (showBurgerMenu)
         IconButton(
           icon: const Icon(Icons.menu),

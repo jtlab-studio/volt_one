@@ -6,6 +6,7 @@ import '../../../shared/widgets/metric_card.dart';
 import '../../../shared/widgets/sensor_status_bar.dart';
 import '../providers/activity_state_provider.dart';
 import '../models/activity_state.dart';
+import '../../../shared/widgets/theme_toggle_button.dart';
 
 class StartActivityScreen extends ConsumerStatefulWidget {
   const StartActivityScreen({super.key});
@@ -19,8 +20,9 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
-  // Define orange color to be used consistently
-  final Color orangeColor = Colors.orange;
+  // Define orange color to be used consistently (using RGBA)
+  final Color orangeColor =
+      const Color.fromRGBO(255, 152, 0, 1.0); // Colors.orange
 
   @override
   void initState() {
@@ -93,8 +95,12 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
                   width: 80,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: orangeColor.withValues(
-                        alpha: 0.85 * 255), // Orange with transparency
+                    color: Color.fromRGBO(
+                      orangeColor.r.toInt(),
+                      orangeColor.g.toInt(),
+                      orangeColor.b.toInt(),
+                      0.85, // Using RGBA for opacity
+                    ),
                   ),
                   child: IconButton(
                     iconSize: 48,
@@ -117,6 +123,20 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
               right: 0,
               child: _buildActivityControls(localizations, activityState),
             ),
+
+          // Add theme toggle button at top-right
+          Positioned(
+            top: 8,
+            right: 8,
+            child: Container(
+              decoration: BoxDecoration(
+                color: const Color.fromRGBO(
+                    0, 0, 0, 0.3), // Semi-transparent black
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const ThemeToggleButton(),
+            ),
+          ),
         ],
       ),
     );
@@ -245,7 +265,8 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
               Container(
                 height: 30,
                 width: 1,
-                color: Colors.grey[700], // Darker divider for dark mode
+                color: const Color.fromRGBO(
+                    200, 200, 200, 0.3), // Using RGBA for dark divider
               ),
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -332,7 +353,8 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
         // Map placeholder - darker for dark mode
         Expanded(
           child: Container(
-            color: Colors.grey[900], // Darker for dark mode
+            color: const Color.fromRGBO(
+                30, 30, 30, 1.0), // Using RGBA for dark mode
             child: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -368,7 +390,8 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
                     _showDiscardConfirmation(context, localizations);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
+                    backgroundColor: const Color.fromRGBO(
+                        244, 67, 54, 1.0), // AppColors.error
                     foregroundColor: Colors.white,
                   ),
                   child: const Icon(Icons.delete), // Icon only
@@ -384,7 +407,8 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
                         ActivityState.paused;
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: orangeColor, // Changed to orange
+                    backgroundColor:
+                        orangeColor, // Using the orangeColor variable
                     foregroundColor:
                         Colors.white, // White text for better contrast
                   ),
@@ -402,7 +426,8 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
                         ActivityState.completed;
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: orangeColor, // Changed to orange
+                    backgroundColor:
+                        orangeColor, // Using the orangeColor variable
                     foregroundColor:
                         Colors.white, // White text for better contrast
                   ),
@@ -425,7 +450,8 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
                     _showDiscardConfirmation(context, localizations);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
+                    backgroundColor: const Color.fromRGBO(
+                        244, 67, 54, 1.0), // AppColors.error
                     foregroundColor: Colors.white,
                   ),
                   child: const Icon(Icons.delete), // Icon only
@@ -441,7 +467,8 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
                         ActivityState.active;
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: orangeColor, // Changed to orange
+                    backgroundColor:
+                        orangeColor, // Using the orangeColor variable
                     foregroundColor: Colors.white,
                   ),
                   child: const Icon(Icons.play_arrow),
@@ -458,7 +485,8 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
                         ActivityState.completed;
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: orangeColor, // Changed to orange
+                    backgroundColor:
+                        orangeColor, // Using the orangeColor variable
                     foregroundColor: Colors.white,
                   ),
                   child: const Icon(Icons.stop),
@@ -481,14 +509,17 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Colors.grey[850], // Dark dialog
+        backgroundColor:
+            const Color.fromRGBO(50, 50, 50, 1.0), // Dark dialog using RGBA
         title: Text(
           localizations.translate('discard_activity'),
-          style: TextStyle(color: Colors.white), // White text
+          style: const TextStyle(color: Colors.white), // White text
         ),
         content: Text(
           localizations.translate('discard_confirmation'),
-          style: TextStyle(color: Colors.white70), // Light gray text
+          style: const TextStyle(
+              color: Color.fromRGBO(
+                  255, 255, 255, 0.7)), // Light gray text using RGBA
         ),
         actions: [
           TextButton(
@@ -497,8 +528,9 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
             },
             child: Text(
               localizations.translate('cancel'),
-              style:
-                  TextStyle(color: Colors.grey[400]), // Light gray for cancel
+              style: const TextStyle(
+                  color: Color.fromRGBO(
+                      200, 200, 200, 1.0)), // Light gray for cancel using RGBA
             ),
           ),
           TextButton(
@@ -508,7 +540,8 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
                   ActivityState.idle;
             },
             style: TextButton.styleFrom(
-              foregroundColor: Colors.red,
+              foregroundColor:
+                  const Color.fromRGBO(244, 67, 54, 1.0), // AppColors.error
             ),
             child: Text(localizations.translate('discard')),
           ),

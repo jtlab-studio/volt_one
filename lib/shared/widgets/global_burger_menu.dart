@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/l10n/app_localizations.dart';
+import '../../../shared/widgets/theme_toggle_button.dart';
 
 // Provider to track the current screen
 final currentScreenProvider = StateProvider<String>((ref) => "dashboard");
@@ -58,7 +59,7 @@ class GlobalBurgerMenu extends ConsumerWidget {
       child: SafeArea(
         child: Column(
           children: [
-            // Drawer header
+            // Drawer header with theme toggle
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Row(
@@ -70,9 +71,16 @@ class GlobalBurgerMenu extends ConsumerWidget {
                           fontWeight: FontWeight.bold,
                         ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.of(context).pop(),
+                  Row(
+                    children: [
+                      // Add theme toggle button here too
+                      const ThemeToggleButton(),
+                      // Close button
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -103,42 +111,56 @@ class GlobalBurgerMenu extends ConsumerWidget {
 
     // Define all navigation modules with their screens
     final modules = [
+      // Dashboard Module
+      NavigationModule(
+        name: localizations.translate('dashboard'),
+        icon: Icons.dashboard,
+        color:
+            const Color.fromRGBO(33, 150, 243, 1.0), // AppColors.primary, blue
+        screens: [
+          NavigationScreen(
+            name: localizations.translate('dashboard'),
+            routeId: "dashboard",
+            icon: Icons.dashboard,
+            builder: (context) => const Placeholder(),
+            isSelected: currentScreenId == "dashboard",
+          ),
+        ],
+      ),
+
       // Activity Module
       NavigationModule(
         name: localizations.translate('activity'),
         icon: Icons.directions_run,
-        color: Colors.blue,
+        color:
+            const Color.fromRGBO(33, 150, 243, 1.0), // AppColors.primary, blue
         screens: [
           NavigationScreen(
             name: localizations.translate('new_activity'),
             routeId: "new_activity",
             icon: Icons.play_circle_outline,
-            builder: (context) =>
-                const Placeholder(), // Replace with actual screen
+            builder: (context) => const Placeholder(),
             isSelected: currentScreenId == "new_activity",
           ),
           NavigationScreen(
             name: localizations.translate('all_activities'),
             routeId: "all_activities",
             icon: Icons.history,
-            builder: (context) =>
-                const Placeholder(), // Replace with actual screen
+            builder: (context) => const Placeholder(),
             isSelected: currentScreenId == "all_activities",
           ),
           NavigationScreen(
             name: localizations.translate('activity_settings'),
             routeId: "activity_settings",
             icon: Icons.settings,
-            builder: (context) =>
-                const Placeholder(), // Replace with actual screen
+            builder: (context) => const Placeholder(),
             isSelected: currentScreenId == "activity_settings",
           ),
           NavigationScreen(
             name: localizations.translate('sensors'),
             routeId: "sensors",
             icon: Icons.bluetooth,
-            builder: (context) =>
-                const Placeholder(), // Replace with actual screen
+            builder: (context) => const Placeholder(),
             isSelected: currentScreenId == "sensors",
           ),
         ],
@@ -148,22 +170,20 @@ class GlobalBurgerMenu extends ConsumerWidget {
       NavigationModule(
         name: localizations.translate('routes'),
         icon: Icons.map,
-        color: Colors.teal,
+        color: const Color.fromRGBO(0, 150, 136, 1.0), // Teal
         screens: [
           NavigationScreen(
             name: localizations.translate('routes'),
             routeId: "routes",
             icon: Icons.map,
-            builder: (context) =>
-                const Placeholder(), // Replace with actual screen
+            builder: (context) => const Placeholder(),
             isSelected: currentScreenId == "routes",
           ),
           NavigationScreen(
             name: localizations.translate('create_route'),
             routeId: "create_route",
             icon: Icons.add_location_alt,
-            builder: (context) =>
-                const Placeholder(), // Replace with actual screen
+            builder: (context) => const Placeholder(),
             isSelected: currentScreenId == "create_route",
           ),
         ],
@@ -173,14 +193,13 @@ class GlobalBurgerMenu extends ConsumerWidget {
       NavigationModule(
         name: localizations.translate('tribe'),
         icon: Icons.people,
-        color: Colors.orange,
+        color: const Color.fromRGBO(255, 152, 0, 1.0), // Orange
         screens: [
           NavigationScreen(
             name: localizations.translate('tribe'),
             routeId: "tribe",
             icon: Icons.people,
-            builder: (context) =>
-                const Placeholder(), // Replace with actual screen
+            builder: (context) => const Placeholder(),
             isSelected: currentScreenId == "tribe",
           ),
         ],
@@ -190,15 +209,35 @@ class GlobalBurgerMenu extends ConsumerWidget {
       NavigationModule(
         name: localizations.translate('profile'),
         icon: Icons.person,
-        color: Colors.red,
+        color: const Color.fromRGBO(244, 67, 54, 1.0), // Red
         screens: [
           NavigationScreen(
             name: localizations.translate('profile'),
             routeId: "profile",
             icon: Icons.person,
-            builder: (context) =>
-                const Placeholder(), // Replace with actual screen
+            builder: (context) => const Placeholder(),
             isSelected: currentScreenId == "profile",
+          ),
+          NavigationScreen(
+            name: localizations.translate('user_info'),
+            routeId: "user_info",
+            icon: Icons.info_outline,
+            builder: (context) => const Placeholder(),
+            isSelected: currentScreenId == "user_info",
+          ),
+          NavigationScreen(
+            name: localizations.translate('training_zones'),
+            routeId: "training_zones",
+            icon: Icons.favorite_border,
+            builder: (context) => const Placeholder(),
+            isSelected: currentScreenId == "training_zones",
+          ),
+          NavigationScreen(
+            name: localizations.translate('app_settings'),
+            routeId: "app_settings",
+            icon: Icons.settings_outlined,
+            builder: (context) => const Placeholder(),
+            isSelected: currentScreenId == "app_settings",
           ),
         ],
       ),
@@ -247,7 +286,12 @@ class GlobalBurgerMenu extends ConsumerWidget {
               ),
             ),
             selected: screen.isSelected,
-            selectedTileColor: module.color.withAlpha(25),
+            selectedTileColor: Color.fromRGBO(
+              module.color.r.toInt(),
+              module.color.g.toInt(),
+              module.color.b.toInt(),
+              0.1, // Using RGBA for opacity
+            ),
             onTap: () {
               // Close the drawer
               Navigator.of(context).pop();

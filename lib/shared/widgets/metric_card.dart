@@ -24,7 +24,7 @@ class MetricCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final darkColor = const Color(0xFF212121);
+    final darkColor = const Color.fromRGBO(33, 33, 33, 1.0); // Using RGBA
 
     return Card(
       elevation: 2,
@@ -56,15 +56,15 @@ class MetricCard extends StatelessWidget {
               ],
             ),
 
-            // Divider using color with adjusted alpha
+            // Divider using color with RGBA
             Divider(
               height: 4,
               thickness: 1,
-              color: Color.fromARGB(
-                76,
-                backgroundColor.r.toInt(),
-                backgroundColor.g.toInt(),
-                backgroundColor.b.toInt(),
+              color: Color.fromRGBO(
+                backgroundColor.r.toInt(), // Convert double to int
+                backgroundColor.g.toInt(), // Convert double to int
+                backgroundColor.b.toInt(), // Convert double to int
+                0.3, // Using explicit RGBA for opacity
               ),
             ),
 
@@ -81,7 +81,7 @@ class MetricCard extends StatelessWidget {
                             children: [
                               TextSpan(
                                 text: value,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 26,
                                   color: Colors.white,
@@ -90,9 +90,10 @@ class MetricCard extends StatelessWidget {
                               if (unit != null)
                                 TextSpan(
                                   text: ' $unit',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 13,
-                                    color: Colors.grey[400],
+                                    color: Color.fromRGBO(200, 200, 200,
+                                        1.0), // Using RGBA for light gray
                                   ),
                                 ),
                             ],
@@ -103,9 +104,10 @@ class MetricCard extends StatelessWidget {
                             padding: const EdgeInsets.only(top: 2),
                             child: Text(
                               subtitle!,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 9,
-                                color: Colors.grey[400],
+                                color: Color.fromRGBO(200, 200, 200,
+                                    1.0), // Using RGBA for light gray
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
