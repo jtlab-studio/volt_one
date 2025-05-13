@@ -265,5 +265,3 @@ class GlobalBurgerMenu extends ConsumerWidget {
     return menuItems;
   }
 }
-
-// Need to add this to make compilation work - would normally be imported

@@ -163,7 +163,6 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
           ),
         ],
       ),
-      // Removed the FloatingActionButton to eliminate the redundant start activity icon
     );
   }
 

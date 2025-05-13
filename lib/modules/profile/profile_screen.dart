@@ -1,13 +1,119 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/l10n/app_localizations.dart';
-import 'models/user_profile.dart';
-import 'providers/user_profile_provider.dart';
 import 'screens/training_zones_screen.dart';
 import 'screens/app_settings_screen.dart';
+import 'models/user_profile.dart';
+import 'providers/user_profile_provider.dart';
 
 // Provider to track the current profile section
 final profileSectionProvider = StateProvider<String>((ref) => 'user_info');
+
+class ProfileScreen extends ConsumerWidget {
+  const ProfileScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedSection = ref.watch(profileSectionProvider);
+    final localizations = AppLocalizations.of(context);
+
+    // Map section IDs to screen widgets
+    final sectionWidgets = {
+      'user_info': const UserInfoScreen(),
+      'training_zones': const TrainingZonesScreen(),
+      'app_settings': const AppSettingsScreen(),
+    };
+
+    // Get the current section's screen - default to user_info if not found
+    final currentScreen =
+        sectionWidgets[selectedSection] ?? const UserInfoScreen();
+
+    return Column(
+      children: [
+        // Section selector tabs
+        _buildProfileSectionTabs(context, ref, selectedSection, localizations),
+
+        // Current section content
+        Expanded(child: currentScreen),
+      ],
+    );
+  }
+
+  Widget _buildProfileSectionTabs(BuildContext context, WidgetRef ref,
+      String currentSection, AppLocalizations localizations) {
+    return Container(
+      color: Theme.of(context).primaryColor.withAlpha(20),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            _buildSectionTab(
+              context,
+              ref,
+              'user_info',
+              localizations.translate('user_info'),
+              Icons.person,
+              currentSection == 'user_info',
+            ),
+            _buildSectionTab(
+              context,
+              ref,
+              'training_zones',
+              localizations.translate('training_zones'),
+              Icons.favorite,
+              currentSection == 'training_zones',
+            ),
+            _buildSectionTab(
+              context,
+              ref,
+              'app_settings',
+              localizations.translate('app_settings'),
+              Icons.settings,
+              currentSection == 'app_settings',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionTab(BuildContext context, WidgetRef ref, String sectionId,
+      String label, IconData icon, bool isSelected) {
+    final color = isSelected ? Theme.of(context).primaryColor : Colors.grey;
+
+    return InkWell(
+      onTap: () {
+        ref.read(profileSectionProvider.notifier).state = sectionId;
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              color: isSelected
+                  ? Theme.of(context).primaryColor
+                  : Colors.transparent,
+              width: 3,
+            ),
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: color, size: 16),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                color: color,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 // User Info Screen implementation with actual content - focused only on user information
 class UserInfoScreen extends ConsumerWidget {
@@ -560,113 +666,6 @@ class UserInfoScreen extends ConsumerWidget {
             child: Text(AppLocalizations.of(context).translate('save')),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class ProfileScreen extends ConsumerWidget {
-  const ProfileScreen({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final selectedSection = ref.watch(profileSectionProvider);
-    final localizations = AppLocalizations.of(context);
-
-    // Map section IDs to screen widgets
-    // Use the actual screens
-    final sectionWidgets = {
-      'user_info': const UserInfoScreen(),
-      'training_zones': const TrainingZonesScreen(),
-      'app_settings': const AppSettingsScreen(),
-    };
-
-    // Get the current section's screen - default to user_info if not found
-    final currentScreen =
-        sectionWidgets[selectedSection] ?? const UserInfoScreen();
-
-    return Column(
-      children: [
-        // Section selector tabs
-        _buildProfileSectionTabs(context, ref, selectedSection, localizations),
-
-        // Current section content
-        Expanded(child: currentScreen),
-      ],
-    );
-  }
-
-  Widget _buildProfileSectionTabs(BuildContext context, WidgetRef ref,
-      String currentSection, AppLocalizations localizations) {
-    return Container(
-      color: Theme.of(context).primaryColor.withAlpha(20),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: [
-            _buildSectionTab(
-              context,
-              ref,
-              'user_info',
-              localizations.translate('user_info'),
-              Icons.person,
-              currentSection == 'user_info',
-            ),
-            _buildSectionTab(
-              context,
-              ref,
-              'training_zones',
-              localizations.translate('training_zones'),
-              Icons.favorite,
-              currentSection == 'training_zones',
-            ),
-            _buildSectionTab(
-              context,
-              ref,
-              'app_settings',
-              localizations.translate('app_settings'),
-              Icons.settings,
-              currentSection == 'app_settings',
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSectionTab(BuildContext context, WidgetRef ref, String sectionId,
-      String label, IconData icon, bool isSelected) {
-    final color = isSelected ? Theme.of(context).primaryColor : Colors.grey;
-
-    return InkWell(
-      onTap: () {
-        ref.read(profileSectionProvider.notifier).state = sectionId;
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
-              color: isSelected
-                  ? Theme.of(context).primaryColor
-                  : Colors.transparent,
-              width: 3,
-            ),
-          ),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: color, size: 16),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: TextStyle(
-                color: color,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

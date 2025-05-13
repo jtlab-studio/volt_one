@@ -498,9 +498,10 @@ class TrainingZonesScreen extends ConsumerWidget {
             zoneInfo['name'] as String,
             zoneInfo['range'] as String,
             _getZoneColor(index + 1),
-            (String name, String range) {
+            (String name, String lowerBound, String upperBound) {
               // In a real implementation, this would update the zone values
               // But for this example, we'll just show a snackbar
+              final range = '$lowerBound - $upperBound bpm';
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                     content: Text('Updated Zone ${index + 1}: $name ($range)')),
@@ -578,9 +579,10 @@ class TrainingZonesScreen extends ConsumerWidget {
             zoneInfo['name'] as String,
             zoneInfo['range'] as String,
             _getPowerZoneColor(index + 1),
-            (String name, String range) {
+            (String name, String lowerBound, String upperBound) {
               // In a real implementation, this would update the zone values
               // But for this example, we'll just show a snackbar
+              final range = '$lowerBound - $upperBound watts';
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                     content: Text(
@@ -675,7 +677,7 @@ class TrainingZonesScreen extends ConsumerWidget {
     String zoneName,
     String zoneRange,
     Color zoneColor,
-    Function(String, String) onSave,
+    Function(String, String, String) onSave,
   ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -731,11 +733,28 @@ class TrainingZonesScreen extends ConsumerWidget {
     );
   }
 
-  // Edit zone dialog
+  // Extract lower and upper bounds from a range string like "120 - 150 bpm" or "200 - 250 watts"
+  List<String> _extractRangeBounds(String rangeString) {
+    // Remove units and extract just the numbers
+    final rangeOnly = rangeString.replaceAll(RegExp(r'[a-zA-Z]'), '').trim();
+    final parts = rangeOnly.split('-').map((s) => s.trim()).toList();
+
+    if (parts.length == 2) {
+      return parts;
+    }
+    // Default values if parsing fails
+    return ['0', '0'];
+  }
+
+  // Edit zone dialog with separate inputs for lower and upper bounds
   void _editZone(BuildContext context, String currentName, String currentRange,
-      Function(String, String) onSave) {
+      Function(String, String, String) onSave) {
     final nameController = TextEditingController(text: currentName);
-    final rangeController = TextEditingController(text: currentRange);
+
+    // Extract lower and upper bounds from the range string
+    final bounds = _extractRangeBounds(currentRange);
+    final lowerBoundController = TextEditingController(text: bounds[0]);
+    final upperBoundController = TextEditingController(text: bounds[1]);
 
     showDialog(
       context: context,
@@ -751,11 +770,30 @@ class TrainingZonesScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 16),
-            TextField(
-              controller: rangeController,
-              decoration: const InputDecoration(
-                labelText: 'Zone Range',
-              ),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: lowerBoundController,
+                    decoration: const InputDecoration(
+                      labelText: 'Lower Bound',
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Text('to'),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TextField(
+                    controller: upperBoundController,
+                    decoration: const InputDecoration(
+                      labelText: 'Upper Bound',
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -769,8 +807,13 @@ class TrainingZonesScreen extends ConsumerWidget {
           TextButton(
             onPressed: () {
               if (nameController.text.isNotEmpty &&
-                  rangeController.text.isNotEmpty) {
-                onSave(nameController.text, rangeController.text);
+                  lowerBoundController.text.isNotEmpty &&
+                  upperBoundController.text.isNotEmpty) {
+                onSave(
+                  nameController.text,
+                  lowerBoundController.text,
+                  upperBoundController.text,
+                );
               }
               Navigator.pop(context);
             },
