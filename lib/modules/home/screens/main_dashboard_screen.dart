@@ -13,6 +13,8 @@ import '../../activity/screens/start_activity_screen.dart';
 import '../../activity/screens/activity_history_screen.dart';
 import '../../activity/screens/activity_settings_screen.dart';
 import '../../activity/screens/sensors_screen.dart';
+// Add the missing import for AppSettingsScreen
+import '../../profile/screens/app_settings_screen.dart';
 
 // Main tab index provider
 final mainTabIndexProvider = StateProvider<int>((ref) => 0);
@@ -433,7 +435,7 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
         return _buildProfilePlaceholder(
             'Pace Zones', 'Configure your pace training zones');
       case 'app_settings':
-        return const AppSettingsScreen();
+        return const AppSettingsScreen(); // Now properly imported
       default:
         return _buildProfilePlaceholder(
             'User Info', 'Your personal details and settings');
