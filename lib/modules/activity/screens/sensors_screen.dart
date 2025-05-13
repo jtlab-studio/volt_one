@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/app_localizations.dart';
-import '../../../shared/widgets/theme_toggle_button.dart';
+// The theme toggle button import has been removed
 
 class SensorsScreen extends ConsumerStatefulWidget {
   const SensorsScreen({super.key});
@@ -40,10 +40,7 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
             Tab(text: localizations.translate('gps')),
           ],
         ),
-        actions: const [
-          // Add the theme toggle button here
-          ThemeToggleButton(),
-        ],
+        // Theme toggle button removed from actions
       ),
       body: TabBarView(
         controller: _tabController,

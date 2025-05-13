@@ -6,7 +6,8 @@ import '../../../shared/widgets/metric_card.dart';
 import '../../../shared/widgets/sensor_status_bar.dart';
 import '../providers/activity_state_provider.dart';
 import '../models/activity_state.dart';
-import '../../../shared/widgets/theme_toggle_button.dart';
+// Remove the theme toggle button import
+// import '../../../shared/widgets/theme_toggle_button.dart';
 
 class StartActivityScreen extends ConsumerStatefulWidget {
   const StartActivityScreen({super.key});
@@ -124,19 +125,7 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
               child: _buildActivityControls(localizations, activityState),
             ),
 
-          // Add theme toggle button at top-right
-          Positioned(
-            top: 8,
-            right: 8,
-            child: Container(
-              decoration: BoxDecoration(
-                color: const Color.fromRGBO(
-                    0, 0, 0, 0.3), // Semi-transparent black
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: const ThemeToggleButton(),
-            ),
-          ),
+          // Theme toggle button removed from top-right
         ],
       ),
     );
@@ -222,89 +211,23 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
           height: metricCardHeight,
         ),
 
-        // Elevation metric card with gain and loss - custom layout
+        // Elevation Gain metric card - SPLIT INTO SEPARATE CARD
         MetricCard(
-          title: localizations.translate('elevation'),
-          value: '',
-          customContent: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    localizations.translate('elevation_gain'),
-                    style: TextStyle(
-                      fontSize: 9,
-                      color: AppColors.elevationCardColor, // Colored label
-                    ),
-                  ),
-                  RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: '0',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 24, // Increased font size to match others
-                            color: Colors.white, // White for dark background
-                          ),
-                        ),
-                        TextSpan(
-                          text: ' m',
-                          style: TextStyle(
-                            fontSize: 12, // 50% of value size
-                            color: Colors.grey[400], // Lighter grey for dark
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              Container(
-                height: 30,
-                width: 1,
-                color: const Color.fromRGBO(
-                    200, 200, 200, 0.3), // Using RGBA for dark divider
-              ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    localizations.translate('elevation_loss'),
-                    style: TextStyle(
-                      fontSize: 9,
-                      color: AppColors.elevationCardColor, // Colored label
-                    ),
-                  ),
-                  RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: '0',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 24, // Increased font size to match others
-                            color: Colors.white, // White for dark background
-                          ),
-                        ),
-                        TextSpan(
-                          text: ' m',
-                          style: TextStyle(
-                            fontSize: 12, // 50% of value size
-                            color: Colors.grey[400], // Lighter grey for dark
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+          title: localizations.translate('elevation_gain'),
+          value: '0',
+          unit: 'm',
           backgroundColor: AppColors.elevationCardColor,
-          icon: Icons.terrain,
+          icon: Icons.trending_up,
+          height: metricCardHeight,
+        ),
+
+        // Elevation Loss metric card - SPLIT INTO SEPARATE CARD
+        MetricCard(
+          title: localizations.translate('elevation_loss'),
+          value: '0',
+          unit: 'm',
+          backgroundColor: AppColors.elevationCardColor,
+          icon: Icons.trending_down,
           height: metricCardHeight,
         ),
       ],

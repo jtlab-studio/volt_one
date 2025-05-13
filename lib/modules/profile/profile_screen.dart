@@ -5,7 +5,7 @@ import 'screens/training_zones_screen.dart';
 import 'screens/app_settings_screen.dart';
 import 'models/user_profile.dart';
 import 'providers/user_profile_provider.dart';
-import '../../../shared/widgets/theme_toggle_button.dart';
+// The theme toggle button import has been removed
 
 // Provider to track the current profile section
 final profileSectionProvider = StateProvider<String>((ref) => 'user_info');
@@ -31,7 +31,7 @@ class ProfileScreen extends ConsumerWidget {
 
     return Column(
       children: [
-        // Section selector tabs with added theme toggle
+        // Section selector tabs without theme toggle
         _buildProfileSectionTabs(context, ref, selectedSection, localizations),
 
         // Current section content
@@ -49,44 +49,36 @@ class ProfileScreen extends ConsumerWidget {
         Theme.of(context).primaryColor.b.toInt(),
         0.08, // Using RGBA for opacity
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  _buildSectionTab(
-                    context,
-                    ref,
-                    'user_info',
-                    localizations.translate('user_info'),
-                    Icons.person,
-                    currentSection == 'user_info',
-                  ),
-                  _buildSectionTab(
-                    context,
-                    ref,
-                    'training_zones',
-                    localizations.translate('training_zones'),
-                    Icons.favorite,
-                    currentSection == 'training_zones',
-                  ),
-                  _buildSectionTab(
-                    context,
-                    ref,
-                    'app_settings',
-                    localizations.translate('app_settings'),
-                    Icons.settings,
-                    currentSection == 'app_settings',
-                  ),
-                ],
-              ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            _buildSectionTab(
+              context,
+              ref,
+              'user_info',
+              localizations.translate('user_info'),
+              Icons.person,
+              currentSection == 'user_info',
             ),
-          ),
-          // Add theme toggle button to tabs area
-          const ThemeToggleButton(),
-        ],
+            _buildSectionTab(
+              context,
+              ref,
+              'training_zones',
+              localizations.translate('training_zones'),
+              Icons.favorite,
+              currentSection == 'training_zones',
+            ),
+            _buildSectionTab(
+              context,
+              ref,
+              'app_settings',
+              localizations.translate('app_settings'),
+              Icons.settings,
+              currentSection == 'app_settings',
+            ),
+          ],
+        ),
       ),
     );
   }
