@@ -641,194 +641,282 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
       BuildContext context, AppLocalizations localizations) {
     final currentSection = ref.watch(activitySectionProvider);
 
-    return ConsistentBottomNavigationBar(
-      currentIndex: _getActivityNavIndex(currentSection),
-      onTap: (index) {
-        // Map the tapped index to the corresponding section
-        final sections = [
-          'all_activities',
-          'sensors',
-          'new_activity',
-          'analytics',
-          'activity_settings'
-        ];
-        final selectedSection = sections[index];
+    return Stack(
+      alignment: Alignment.bottomCenter,
+      children: [
+        // Regular bottom navigation bar
+        ConsistentBottomNavigationBar(
+          currentIndex: _getActivityNavIndex(currentSection),
+          onTap: (index) {
+            // Map the tapped index to the corresponding section
+            final sections = [
+              'all_activities',
+              'sensors',
+              'new_activity',
+              'analytics',
+              'activity_settings'
+            ];
+            final selectedSection = sections[index];
 
-        // Update the activity section
-        ref.read(activitySectionProvider.notifier).state = selectedSection;
+            // Update the activity section
+            ref.read(activitySectionProvider.notifier).state = selectedSection;
 
-        // Update the current screen ID for the burger menu highlighting
-        ref.read(currentScreenProvider.notifier).state = selectedSection;
-      },
-      selectedItemColor: orangeColor,
-      items: [
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.history),
-          label: 'Activities',
+            // Update the current screen ID for the burger menu highlighting
+            ref.read(currentScreenProvider.notifier).state = selectedSection;
+          },
+          selectedItemColor: orangeColor,
+          items: [
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.history),
+              label: 'Activities',
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.bluetooth),
+              label: 'Sensors',
+            ),
+            // Center item (New) - Make it invisible in the bottom bar
+            BottomNavigationBarItem(
+              icon: const SizedBox(),
+              label: '',
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.analytics),
+              label: 'Analytics',
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.settings),
+              label: 'Config',
+            ),
+          ],
         ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.bluetooth),
-          label: 'Sensors',
-        ),
-        // Center item (New)
-        BottomNavigationBarItem(
-          icon: Container(
+
+        // Floating center button positioned on top and shifted upward by 4px
+        Positioned(
+          bottom: 4, // Increased from 0 to 4px to lift the button up
+          child: Container(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: _getActivityNavIndex(currentSection) == 2
                   ? orangeColor.withAlpha(50)
                   : orangeColor.withAlpha(30),
+              // Add a subtle shadow
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  spreadRadius: 1,
+                  blurRadius: 2,
+                  offset: const Offset(0, 1),
+                ),
+              ],
             ),
-            padding: const EdgeInsets.all(8),
-            child: Icon(
-              Icons.add,
-              color: _getActivityNavIndex(currentSection) == 2
-                  ? orangeColor
-                  : Colors.grey,
-              size: 28, // Slightly larger icon
+            padding: const EdgeInsets.all(12),
+            child: InkWell(
+              onTap: () {
+                // Set to new activity section
+                ref.read(activitySectionProvider.notifier).state =
+                    'new_activity';
+                // Update the current screen ID for the burger menu highlighting
+                ref.read(currentScreenProvider.notifier).state = 'new_activity';
+              },
+              child: Icon(
+                Icons.add,
+                color: _getActivityNavIndex(currentSection) == 2
+                    ? orangeColor
+                    : Colors.grey,
+                size: 28, // Slightly larger icon
+              ),
             ),
           ),
-          label: 'New',
-        ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.analytics),
-          label: 'Analytics',
-        ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.settings),
-          label: 'Config',
         ),
       ],
     );
   }
 
-  // Routes-specific bottom navigation bar
+  // Routes-specific bottom navigation bar with raised middle button
   Widget _buildRoutesBottomNavBar(
       BuildContext context, AppLocalizations localizations) {
     final currentSection = ref.watch(routesSectionProvider);
 
-    return ConsistentBottomNavigationBar(
-      currentIndex: _getRoutesNavIndex(currentSection),
-      onTap: (index) {
-        // Map the tapped index to the corresponding section
-        final sections = [
-          'my_routes',
-          'discover',
-          'create_route',
-          'favorites',
-          'history'
-        ];
-        final selectedSection = sections[index];
+    return Stack(
+      alignment: Alignment.bottomCenter,
+      children: [
+        // Regular bottom navigation bar
+        ConsistentBottomNavigationBar(
+          currentIndex: _getRoutesNavIndex(currentSection),
+          onTap: (index) {
+            // Map the tapped index to the corresponding section
+            final sections = [
+              'my_routes',
+              'discover',
+              'create_route',
+              'favorites',
+              'history'
+            ];
+            final selectedSection = sections[index];
 
-        // Update the routes section
-        ref.read(routesSectionProvider.notifier).state = selectedSection;
+            // Update the routes section
+            ref.read(routesSectionProvider.notifier).state = selectedSection;
 
-        // Update the current screen ID for the burger menu highlighting
-        ref.read(currentScreenProvider.notifier).state = selectedSection;
-      },
-      selectedItemColor: orangeColor,
-      items: [
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.route),
-          label: 'My Routes',
+            // Update the current screen ID for the burger menu highlighting
+            ref.read(currentScreenProvider.notifier).state = selectedSection;
+          },
+          selectedItemColor: orangeColor,
+          items: [
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.route),
+              label: 'My Routes',
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.explore),
+              label: 'Discover',
+            ),
+            // Center item (Create) - Make it invisible in the bottom bar
+            BottomNavigationBarItem(
+              icon: const SizedBox(),
+              label: '',
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.favorite),
+              label: 'Favorites',
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.history),
+              label: 'History',
+            ),
+          ],
         ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.explore),
-          label: 'Discover',
-        ),
-        // Center item (Create)
-        BottomNavigationBarItem(
-          icon: Container(
+
+        // Floating center button positioned on top and shifted upward by 4px
+        Positioned(
+          bottom: 4, // Increased from 0 to 4px to lift the button up
+          child: Container(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: _getRoutesNavIndex(currentSection) == 2
                   ? orangeColor.withAlpha(50)
                   : orangeColor.withAlpha(30),
+              // Add a subtle shadow
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  spreadRadius: 1,
+                  blurRadius: 2,
+                  offset: const Offset(0, 1),
+                ),
+              ],
             ),
-            padding: const EdgeInsets.all(8),
-            child: Icon(
-              Icons.add_location_alt,
-              color: _getRoutesNavIndex(currentSection) == 2
-                  ? orangeColor
-                  : Colors.grey,
-              size: 28, // Slightly larger icon
+            padding: const EdgeInsets.all(12),
+            child: InkWell(
+              onTap: () {
+                // Set to create route section
+                ref.read(routesSectionProvider.notifier).state = 'create_route';
+                // Update the current screen ID for the burger menu highlighting
+                ref.read(currentScreenProvider.notifier).state = 'create_route';
+              },
+              child: Icon(
+                Icons.add_location_alt,
+                color: _getRoutesNavIndex(currentSection) == 2
+                    ? orangeColor
+                    : Colors.grey,
+                size: 28, // Slightly larger icon
+              ),
             ),
           ),
-          label: 'Create',
-        ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.favorite),
-          label: 'Favorites',
-        ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.history),
-          label: 'History',
         ),
       ],
     );
   }
 
-  // Tribe-specific bottom navigation bar
+  // Tribe-specific bottom navigation bar with raised middle button
   Widget _buildTribeBottomNavBar(
       BuildContext context, AppLocalizations localizations) {
     final currentSection = ref.watch(tribeSectionProvider);
 
-    return ConsistentBottomNavigationBar(
-      currentIndex: _getTribeNavIndex(currentSection),
-      onTap: (index) {
-        // Map the tapped index to the corresponding section
-        final sections = [
-          'feed',
-          'friends',
-          'challenges',
-          'groups',
-          'leaderboard'
-        ];
-        final selectedSection = sections[index];
+    return Stack(
+      alignment: Alignment.bottomCenter,
+      children: [
+        // Regular bottom navigation bar
+        ConsistentBottomNavigationBar(
+          currentIndex: _getTribeNavIndex(currentSection),
+          onTap: (index) {
+            // Map the tapped index to the corresponding section
+            final sections = [
+              'feed',
+              'friends',
+              'challenges',
+              'groups',
+              'leaderboard'
+            ];
+            final selectedSection = sections[index];
 
-        // Update the tribe section
-        ref.read(tribeSectionProvider.notifier).state = selectedSection;
+            // Update the tribe section
+            ref.read(tribeSectionProvider.notifier).state = selectedSection;
 
-        // Update the current screen ID for the burger menu highlighting
-        ref.read(currentScreenProvider.notifier).state = selectedSection;
-      },
-      selectedItemColor: orangeColor,
-      items: [
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.dynamic_feed),
-          label: 'Feed',
+            // Update the current screen ID for the burger menu highlighting
+            ref.read(currentScreenProvider.notifier).state = selectedSection;
+          },
+          selectedItemColor: orangeColor,
+          items: [
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.dynamic_feed),
+              label: 'Feed',
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.person_add),
+              label: 'Friends',
+            ),
+            // Center item (Challenges) - Make it invisible in the bottom bar
+            BottomNavigationBarItem(
+              icon: const SizedBox(),
+              label: '',
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.group),
+              label: 'Groups',
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.leaderboard),
+              label: 'Ranking',
+            ),
+          ],
         ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.person_add),
-          label: 'Friends',
-        ),
-        // Center item (Challenges)
-        BottomNavigationBarItem(
-          icon: Container(
+
+        // Floating center button positioned on top and shifted upward by 4px
+        Positioned(
+          bottom: 4, // Increased from 0 to 4px to lift the button up
+          child: Container(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: _getTribeNavIndex(currentSection) == 2
                   ? orangeColor.withAlpha(50)
                   : orangeColor.withAlpha(30),
+              // Add a subtle shadow
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  spreadRadius: 1,
+                  blurRadius: 2,
+                  offset: const Offset(0, 1),
+                ),
+              ],
             ),
-            padding: const EdgeInsets.all(8),
-            child: Icon(
-              Icons.emoji_events,
-              color: _getTribeNavIndex(currentSection) == 2
-                  ? orangeColor
-                  : Colors.grey,
-              size: 28, // Slightly larger icon
+            padding: const EdgeInsets.all(12),
+            child: InkWell(
+              onTap: () {
+                // Set to challenges section
+                ref.read(tribeSectionProvider.notifier).state = 'challenges';
+                // Update the current screen ID for the burger menu highlighting
+                ref.read(currentScreenProvider.notifier).state = 'challenges';
+              },
+              child: Icon(
+                Icons.emoji_events,
+                color: _getTribeNavIndex(currentSection) == 2
+                    ? orangeColor
+                    : Colors.grey,
+                size: 28, // Slightly larger icon
+              ),
             ),
           ),
-          label: 'Challenges',
-        ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.group),
-          label: 'Groups',
-        ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.leaderboard),
-          label: 'Ranking',
         ),
       ],
     );
