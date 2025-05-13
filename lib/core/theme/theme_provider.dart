@@ -77,10 +77,10 @@ MaterialColor createMaterialColor(Color color) {
   List<double> strengths = <double>[.05, .1, .2, .3, .4, .5, .6, .7, .8, .9];
   Map<int, Color> swatch = {};
 
-  // Use .r, .g, .b accessors instead of deprecated properties
-  final int r = color.r;
-  final int g = color.g;
-  final int b = color.b;
+  // Get RGB components directly as integers
+  final int r = color.red;
+  final int g = color.green;
+  final int b = color.blue;
 
   for (var strength in strengths) {
     final double ds = 0.5 - strength;
@@ -92,8 +92,8 @@ MaterialColor createMaterialColor(Color color) {
     );
   }
 
-  // Create the primary swatch using ARGB values instead of .value
-  return MaterialColor(Color.fromARGB(255, r, g, b).hashCode, swatch);
+  // Create the primary swatch
+  return MaterialColor(color.hashCode, swatch);
 }
 
 /// Provider for dynamically updating the theme based on user selections

@@ -136,12 +136,12 @@ class _ColorPickerDialogState extends State<ColorPickerDialog> {
     super.dispose();
   }
 
-  // Convert color to hex string - avoiding deprecated properties
+  // Convert color to hex string
   String colorToHex(Color color, {bool includeHashSign = true}) {
-    // Get individual RGB components with .r, .g, .b accessors
-    String hexR = color.r.toRadixString(16).padLeft(2, '0');
-    String hexG = color.g.toRadixString(16).padLeft(2, '0');
-    String hexB = color.b.toRadixString(16).padLeft(2, '0');
+    // Get individual RGB components as integers
+    String hexR = color.red.toRadixString(16).padLeft(2, '0');
+    String hexG = color.green.toRadixString(16).padLeft(2, '0');
+    String hexB = color.blue.toRadixString(16).padLeft(2, '0');
 
     // Combine and return formatted hex string
     return (includeHashSign ? '#' : '') + '$hexR$hexG$hexB'.toUpperCase();
@@ -219,10 +219,10 @@ class _ColorPickerDialogState extends State<ColorPickerDialog> {
                 itemCount: materialColors.length,
                 itemBuilder: (context, index) {
                   final color = materialColors[index];
-                  // Compare individual RGB components instead of using .value
-                  final isSelected = selectedColor.r == color.r &&
-                      selectedColor.g == color.g &&
-                      selectedColor.b == color.b;
+                  // Compare individual RGB components
+                  final isSelected = selectedColor.red == color.red &&
+                      selectedColor.green == color.green &&
+                      selectedColor.blue == color.blue;
 
                   return GestureDetector(
                     onTap: () {
