@@ -25,7 +25,7 @@ class ActivitySettingsScreen extends ConsumerWidget {
                 ),
               ),
               ListTile(
-                title: Text(localizations.translate('pace')),
+                title: Text('Pace'), // Fixed capitalization
                 subtitle: const Text('4:00 - 5:30 min/km'),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
@@ -33,7 +33,7 @@ class ActivitySettingsScreen extends ConsumerWidget {
                 },
               ),
               ListTile(
-                title: Text(localizations.translate('heart_rate')),
+                title: Text('Heart Rate'), // Fixed capitalization
                 subtitle: const Text('120 - 160 bpm'),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
@@ -41,7 +41,7 @@ class ActivitySettingsScreen extends ConsumerWidget {
                 },
               ),
               ListTile(
-                title: Text(localizations.translate('power')),
+                title: Text('Power'), // Fixed capitalization
                 subtitle: const Text('200 - 300 watts'),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
