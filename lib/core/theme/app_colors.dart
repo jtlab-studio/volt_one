@@ -1,14 +1,19 @@
+// File to update: lib/core/theme/app_colors.dart
+
 import 'package:flutter/material.dart';
 import 'dart:io' show Platform;
 import 'package:flutter/cupertino.dart';
 
 class AppColors {
-  // Primary palette
-  static const Color primary = Color(0xFF2196F3);
-  static const Color primaryDark = Color(0xFF1976D2);
+  // Primary palette - CHANGED TO ORANGE
+  static const Color primary =
+      Color.fromRGBO(255, 152, 0, 1.0); // Changed from blue to orange
+  static const Color primaryDark =
+      Color.fromRGBO(235, 132, 0, 1.0); // Darker orange
 
   // Secondary palette
-  static const Color secondary = Color(0xFFFF9800);
+  static const Color secondary =
+      Color.fromRGBO(255, 152, 0, 1.0); // Now matches primary (orange)
 
   // Semantic colors
   static const Color success = Color(0xFF4CAF50);

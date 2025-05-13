@@ -20,34 +20,38 @@ final mainTabIndexProvider = StateProvider<int>((ref) => 0);
 // Provider to track if we're in the Activity Hub view
 final inActivityHubProvider = StateProvider<bool>((ref) => false);
 
+// Provider to track if we're in the Routes Hub view
+final inRoutesHubProvider = StateProvider<bool>((ref) => false);
+
+// Provider to track if we're in the Tribe Hub view
+final inTribeHubProvider = StateProvider<bool>((ref) => false);
+
 // State provider for the current activity section
 final activitySectionProvider = StateProvider<String>((ref) => 'new_activity');
 
 // State provider for the current profile section
 final profileSectionProvider = StateProvider<String>((ref) => 'user_info');
 
-class MainDashboardScreen extends ConsumerWidget {
+// State provider for the current routes section
+final routesSectionProvider = StateProvider<String>((ref) => 'my_routes');
+
+// State provider for the current tribe section
+final tribeSectionProvider = StateProvider<String>((ref) => 'feed');
+
+// Orange color to use throughout the app
+final orangeColor = const Color.fromRGBO(255, 152, 0, 1.0);
+
+class MainDashboardScreen extends ConsumerStatefulWidget {
   const MainDashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      body: _MainDashboardContent(),
-    );
-  }
+  ConsumerState<MainDashboardScreen> createState() =>
+      _MainDashboardScreenState();
 }
 
-class _MainDashboardContent extends ConsumerStatefulWidget {
-  @override
-  ConsumerState<_MainDashboardContent> createState() =>
-      _MainDashboardContentState();
-}
-
-class _MainDashboardContentState extends ConsumerState<_MainDashboardContent> {
+class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
   // Create a scaffold key to control the drawer
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  final Color orangeColor =
-      const Color.fromRGBO(255, 152, 0, 1.0); // Consistent orange color
 
   @override
   void initState() {
@@ -71,6 +75,7 @@ class _MainDashboardContentState extends ConsumerState<_MainDashboardContent> {
 
     // Handle navigation based on route ID
     switch (routeId) {
+      // Activity Hub navigation
       case 'new_activity':
         // Switch to Activity tab (index 1) in main view
         ref.read(mainTabIndexProvider.notifier).state = 1;
@@ -81,6 +86,7 @@ class _MainDashboardContentState extends ConsumerState<_MainDashboardContent> {
         break;
 
       case 'all_activities':
+      case 'analytics':
       case 'activity_settings':
       case 'sensors':
         // Switch to Activity tab in main view
@@ -91,41 +97,47 @@ class _MainDashboardContentState extends ConsumerState<_MainDashboardContent> {
         ref.read(activitySectionProvider.notifier).state = routeId;
         break;
 
-      case 'routes':
+      // Routes Hub navigation
+      case 'my_routes':
+      case 'discover':
       case 'create_route':
-        // Leave Activity Hub if we were in it
-        ref.read(inActivityHubProvider.notifier).state = false;
+      case 'favorites':
+      case 'history':
         // Switch to Routes tab (index 2) in main view
         ref.read(mainTabIndexProvider.notifier).state = 2;
+        // Enter Routes Hub
+        ref.read(inRoutesHubProvider.notifier).state = true;
+        // Set the specific section in Routes Hub
+        ref.read(routesSectionProvider.notifier).state = routeId;
         break;
 
-      case 'tribe':
-        // Leave Activity Hub if we were in it
-        ref.read(inActivityHubProvider.notifier).state = false;
+      // Tribe Hub navigation
+      case 'feed':
+      case 'friends':
+      case 'challenges':
+      case 'groups':
+      case 'leaderboard':
         // Switch to Tribe tab (index 3) in main view
         ref.read(mainTabIndexProvider.notifier).state = 3;
+        // Enter Tribe Hub
+        ref.read(inTribeHubProvider.notifier).state = true;
+        // Set the specific section in Tribe Hub
+        ref.read(tribeSectionProvider.notifier).state = routeId;
         break;
 
-      case 'profile':
-        // Leave Activity Hub if we were in it
-        ref.read(inActivityHubProvider.notifier).state = false;
-        // Switch to Profile tab (index 4) in main view
-        ref.read(mainTabIndexProvider.notifier).state = 4;
-        // Set profile section to user_info by default
-        ref.read(profileSectionProvider.notifier).state = 'user_info';
-        break;
-
+      // Profile Hub navigation
       case 'user_info':
-      case 'training_zones':
+      case 'hr_zones':
+      case 'power_zones':
+      case 'pace_zones':
       case 'app_settings':
-        // Leave Activity Hub if we were in it
-        ref.read(inActivityHubProvider.notifier).state = false;
         // Switch to Profile tab (index 4) in main view
         ref.read(mainTabIndexProvider.notifier).state = 4;
         // Set the specific section in Profile
         ref.read(profileSectionProvider.notifier).state = routeId;
         break;
 
+      // Main tab navigation
       case 'activity':
         // Switch to Activity Hub
         ref.read(mainTabIndexProvider.notifier).state = 1;
@@ -133,23 +145,64 @@ class _MainDashboardContentState extends ConsumerState<_MainDashboardContent> {
         ref.read(inActivityHubProvider.notifier).state = true;
         break;
 
-      case 'analytics':
-        // Switch to Activity Hub
-        ref.read(mainTabIndexProvider.notifier).state = 1;
-        // Enter Activity Hub
-        ref.read(inActivityHubProvider.notifier).state = true;
-        // Set the analytics section
-        ref.read(activitySectionProvider.notifier).state = 'analytics';
+      case 'routes':
+        // Switch to Routes Hub
+        ref.read(mainTabIndexProvider.notifier).state = 2;
+        // Enter Routes Hub
+        ref.read(inRoutesHubProvider.notifier).state = true;
+        break;
+
+      case 'tribe':
+        // Switch to Tribe Hub
+        ref.read(mainTabIndexProvider.notifier).state = 3;
+        // Enter Tribe Hub
+        ref.read(inTribeHubProvider.notifier).state = true;
+        break;
+
+      case 'profile':
+        // Switch to Profile tab (index 4) in main view
+        ref.read(mainTabIndexProvider.notifier).state = 4;
         break;
 
       case 'dashboard':
       default:
-        // Leave Activity Hub if we were in it
+        // Leave all Hubs if we were in them
         ref.read(inActivityHubProvider.notifier).state = false;
+        ref.read(inRoutesHubProvider.notifier).state = false;
+        ref.read(inTribeHubProvider.notifier).state = false;
         // Switch to Dashboard tab (index 0) in main view
         ref.read(mainTabIndexProvider.notifier).state = 0;
         break;
     }
+  }
+
+  // Custom back button handling - used with WillPopScope
+  Future<bool> _handleBackButton() async {
+    final currentTabIndex = ref.read(mainTabIndexProvider);
+    final inActivityHub = ref.read(inActivityHubProvider);
+    final inRoutesHub = ref.read(inRoutesHubProvider);
+    final inTribeHub = ref.read(inTribeHubProvider);
+
+    // If we're on the dashboard already, allow the app to exit
+    if (currentTabIndex == 0) {
+      return true;
+    }
+
+    // If we're in any hub, exit it first
+    if (inActivityHub) {
+      ref.read(inActivityHubProvider.notifier).state = false;
+    } else if (inRoutesHub) {
+      ref.read(inRoutesHubProvider.notifier).state = false;
+    } else if (inTribeHub) {
+      ref.read(inTribeHubProvider.notifier).state = false;
+    }
+
+    // Navigate to dashboard
+    ref.read(mainTabIndexProvider.notifier).state = 0;
+    ref.read(currentScreenProvider.notifier).state = 'dashboard';
+
+    // Prevent the app from exiting
+    return false;
   }
 
   @override
@@ -157,82 +210,62 @@ class _MainDashboardContentState extends ConsumerState<_MainDashboardContent> {
     final localizations = AppLocalizations.of(context);
     final currentTabIndex = ref.watch(mainTabIndexProvider);
     final inActivityHub = ref.watch(inActivityHubProvider);
+    final inRoutesHub = ref.watch(inRoutesHubProvider);
+    final inTribeHub = ref.watch(inTribeHubProvider);
+    final inProfileHub = currentTabIndex == 4; // Profile tab is at index 4
 
     // Screens for main navigation
     final mainScreens = [
       _buildDashboard(context, localizations),
       inActivityHub ? _buildActivityHub() : const ActivityHubScreen(),
-      const RoutesScreen(),
-      const TribeScreen(),
-      const ProfileScreen(),
+      inRoutesHub ? _buildRoutesHub() : const RoutesScreen(),
+      inTribeHub ? _buildTribeHub() : const TribeScreen(),
+      inProfileHub ? _buildProfileHub() : const ProfileScreen(),
     ];
 
-    return PopScope(
-      canPop: currentTabIndex == 0,
-      onPopInvoked: (didPop) {
-        if (didPop) return;
-
-        // If we're on the dashboard already, let the system handle it (exit app)
-        if (currentTabIndex == 0) return;
-
-        // If we're in activity hub, exit it first
-        if (inActivityHub) {
-          ref.read(inActivityHubProvider.notifier).state = false;
-        }
-
-        // Navigate to dashboard
-        ref.read(mainTabIndexProvider.notifier).state = 0;
-        ref.read(currentScreenProvider.notifier).state = 'dashboard';
-      },
+    // We need to use WillPopScope despite the deprecation warning since it's more reliable
+    return WillPopScope(
+      onWillPop: _handleBackButton,
       child: Scaffold(
         key: scaffoldKey,
         appBar: GlobalAppBar(
-          title: _getTitle(currentTabIndex, inActivityHub, localizations),
+          title: _getTitle(currentTabIndex, inActivityHub, inRoutesHub,
+              inTribeHub, localizations),
           scaffoldKey: scaffoldKey,
         ),
         endDrawer: const GlobalBurgerMenu(),
         body: mainScreens[currentTabIndex],
-        bottomNavigationBar: inActivityHub && currentTabIndex == 1
-            ? _buildActivityBottomNavBar(context, localizations)
-            : _buildMainBottomNavBar(context, currentTabIndex, localizations),
+        bottomNavigationBar: _buildBottomNavigation(
+            context,
+            currentTabIndex,
+            inActivityHub,
+            inRoutesHub,
+            inTribeHub,
+            inProfileHub,
+            localizations),
       ),
     );
   }
 
-  // Helper method to get the title based on current view
-  String _getTitle(
-      int tabIndex, bool inActivityHub, AppLocalizations localizations) {
-    // If we're in the Activity Hub
-    if (inActivityHub && tabIndex == 1) {
-      final activitySection = ref.watch(activitySectionProvider);
-      switch (activitySection) {
-        case 'new_activity':
-          return localizations.translate('new_activity');
-        case 'all_activities':
-          return localizations.translate('all_activities');
-        case 'activity_settings':
-          return localizations.translate('activity_settings');
-        case 'sensors':
-          return localizations.translate('sensors');
-        default:
-          return localizations.translate('activity');
-      }
-    }
-
-    // Standard titles for main tabs
-    switch (tabIndex) {
-      case 0:
-        return localizations.translate('dashboard');
-      case 1:
-        return localizations.translate('activity');
-      case 2:
-        return localizations.translate('routes');
-      case 3:
-        return localizations.translate('tribe');
-      case 4:
-        return localizations.translate('profile');
-      default:
-        return localizations.translate('app_name');
+  // Helper to determine which bottom navigation to show
+  Widget _buildBottomNavigation(
+      BuildContext context,
+      int currentTabIndex,
+      bool inActivityHub,
+      bool inRoutesHub,
+      bool inTribeHub,
+      bool inProfileHub,
+      AppLocalizations localizations) {
+    if (inActivityHub && currentTabIndex == 1) {
+      return _buildActivityBottomNavBar(context, localizations);
+    } else if (inRoutesHub && currentTabIndex == 2) {
+      return _buildRoutesBottomNavBar(context, localizations);
+    } else if (inTribeHub && currentTabIndex == 3) {
+      return _buildTribeBottomNavBar(context, localizations);
+    } else if (inProfileHub) {
+      return _buildProfileBottomNavBar(context, localizations);
+    } else {
+      return _buildMainBottomNavBar(context, currentTabIndex, localizations);
     }
   }
 
@@ -279,25 +312,289 @@ class _MainDashboardContentState extends ConsumerState<_MainDashboardContent> {
     );
   }
 
+  // When in Routes Hub, show the specific content based on the selected section
+  Widget _buildRoutesHub() {
+    final routesSection = ref.watch(routesSectionProvider);
+
+    switch (routesSection) {
+      case 'my_routes':
+        return _buildRoutesPlaceholder(
+            'My Routes', 'View and manage your saved routes');
+      case 'discover':
+        return _buildRoutesPlaceholder(
+            'Discover Routes', 'Explore popular routes nearby');
+      case 'create_route':
+        return _buildRoutesPlaceholder(
+            'Create Route', 'Design new running routes');
+      case 'favorites':
+        return _buildRoutesPlaceholder(
+            'Favorite Routes', 'Your favorite running routes');
+      case 'history':
+        return _buildRoutesPlaceholder(
+            'Route History', 'Routes you\'ve run in the past');
+      default:
+        return _buildRoutesPlaceholder(
+            'My Routes', 'View and manage your saved routes');
+    }
+  }
+
+  // Helper to build routes placeholders
+  Widget _buildRoutesPlaceholder(String title, String description) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.map, size: 64, color: Colors.grey),
+          const SizedBox(height: 16),
+          Text(
+            title,
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Text(
+              description,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // When in Tribe Hub, show the specific content based on the selected section
+  Widget _buildTribeHub() {
+    final tribeSection = ref.watch(tribeSectionProvider);
+
+    switch (tribeSection) {
+      case 'feed':
+        return _buildTribePlaceholder(
+            'Activity Feed', 'See what your friends are up to');
+      case 'friends':
+        return _buildTribePlaceholder('Friends', 'Manage your connections');
+      case 'challenges':
+        return _buildTribePlaceholder(
+            'Challenges', 'Compete with friends and groups');
+      case 'groups':
+        return _buildTribePlaceholder(
+            'Groups', 'Your running groups and clubs');
+      case 'leaderboard':
+        return _buildTribePlaceholder(
+            'Leaderboards', 'See how you rank among your peers');
+      default:
+        return _buildTribePlaceholder(
+            'Activity Feed', 'See what your friends are up to');
+    }
+  }
+
+  // Helper to build tribe placeholders
+  Widget _buildTribePlaceholder(String title, String description) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.people, size: 64, color: Colors.grey),
+          const SizedBox(height: 16),
+          Text(
+            title,
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Text(
+              description,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // When in Profile Hub, show the content based on the selected section
+  Widget _buildProfileHub() {
+    final profileSection = ref.watch(profileSectionProvider);
+
+    switch (profileSection) {
+      case 'user_info':
+        return _buildProfilePlaceholder(
+            'User Info', 'Your personal details and settings');
+      case 'hr_zones':
+        return _buildProfilePlaceholder(
+            'Heart Rate Zones', 'Configure your heart rate training zones');
+      case 'power_zones':
+        return _buildProfilePlaceholder(
+            'Power Zones', 'Configure your power training zones');
+      case 'pace_zones':
+        return _buildProfilePlaceholder(
+            'Pace Zones', 'Configure your pace training zones');
+      case 'app_settings':
+        return const AppSettingsScreen();
+      default:
+        return _buildProfilePlaceholder(
+            'User Info', 'Your personal details and settings');
+    }
+  }
+
+  // Helper to build profile placeholders
+  Widget _buildProfilePlaceholder(String title, String description) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.person, size: 64, color: Colors.grey),
+          const SizedBox(height: 16),
+          Text(
+            title,
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Text(
+              description,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Helper method to get the title based on current view
+  String _getTitle(int tabIndex, bool inActivityHub, bool inRoutesHub,
+      bool inTribeHub, AppLocalizations localizations) {
+    // If we're in the Activity Hub
+    if (inActivityHub && tabIndex == 1) {
+      final activitySection = ref.watch(activitySectionProvider);
+      switch (activitySection) {
+        case 'new_activity':
+          return localizations.translate('new_activity');
+        case 'all_activities':
+          return localizations.translate('all_activities');
+        case 'activity_settings':
+          return localizations.translate('activity_settings');
+        case 'sensors':
+          return localizations.translate('sensors');
+        case 'analytics':
+          return 'Analytics';
+        default:
+          return localizations.translate('activity');
+      }
+    }
+
+    // If we're in the Routes Hub
+    if (inRoutesHub && tabIndex == 2) {
+      final routesSection = ref.watch(routesSectionProvider);
+      switch (routesSection) {
+        case 'my_routes':
+          return 'My Routes';
+        case 'discover':
+          return 'Discover Routes';
+        case 'create_route':
+          return 'Create Route';
+        case 'favorites':
+          return 'Favorite Routes';
+        case 'history':
+          return 'Route History';
+        default:
+          return localizations.translate('routes');
+      }
+    }
+
+    // If we're in the Tribe Hub
+    if (inTribeHub && tabIndex == 3) {
+      final tribeSection = ref.watch(tribeSectionProvider);
+      switch (tribeSection) {
+        case 'feed':
+          return 'Activity Feed';
+        case 'friends':
+          return 'Friends';
+        case 'challenges':
+          return 'Challenges';
+        case 'groups':
+          return 'Groups';
+        case 'leaderboard':
+          return 'Leaderboards';
+        default:
+          return localizations.translate('tribe');
+      }
+    }
+
+    // If we're in the Profile Hub
+    if (tabIndex == 4) {
+      final profileSection = ref.watch(profileSectionProvider);
+      switch (profileSection) {
+        case 'user_info':
+          return 'User';
+        case 'hr_zones':
+          return 'Cardio';
+        case 'power_zones':
+          return 'Power';
+        case 'pace_zones':
+          return 'Pacing';
+        case 'app_settings':
+          return 'Settings';
+        default:
+          return localizations.translate('profile');
+      }
+    }
+
+    // Standard titles for main tabs
+    switch (tabIndex) {
+      case 0:
+        return localizations.translate('dashboard');
+      case 1:
+        return localizations.translate('activity');
+      case 2:
+        return localizations.translate('routes');
+      case 3:
+        return localizations.translate('tribe');
+      case 4:
+        return localizations.translate('profile');
+      default:
+        return localizations.translate('app_name');
+    }
+  }
+
   // Main bottom navigation bar
   Widget _buildMainBottomNavBar(
       BuildContext context, int currentIndex, AppLocalizations localizations) {
     return BottomNavigationBar(
       currentIndex: currentIndex,
       onTap: (index) {
-        // Exit Activity Hub mode if we tap away from activity
+        // Exit any hub mode if we tap away from it
         if (index != 1 && ref.read(inActivityHubProvider)) {
           ref.read(inActivityHubProvider.notifier).state = false;
+        }
+        if (index != 2 && ref.read(inRoutesHubProvider)) {
+          ref.read(inRoutesHubProvider.notifier).state = false;
+        }
+        if (index != 3 && ref.read(inTribeHubProvider)) {
+          ref.read(inTribeHubProvider.notifier).state = false;
         }
 
         // Update the tab index
         ref.read(mainTabIndexProvider.notifier).state = index;
 
-        // Enter Activity Hub if we tap the activity tab
+        // Enter Hub if we tap the corresponding tab
         if (index == 1) {
           ref.read(inActivityHubProvider.notifier).state = true;
           // Reset to start activity view
           ref.read(activitySectionProvider.notifier).state = 'new_activity';
+        } else if (index == 2) {
+          ref.read(inRoutesHubProvider.notifier).state = true;
+          // Reset to my routes view
+          ref.read(routesSectionProvider.notifier).state = 'my_routes';
+        } else if (index == 3) {
+          ref.read(inTribeHubProvider.notifier).state = true;
+          // Reset to feed view
+          ref.read(tribeSectionProvider.notifier).state = 'feed';
         }
 
         // Update the current screen ID for the burger menu highlighting
@@ -313,6 +610,10 @@ class _MainDashboardContentState extends ConsumerState<_MainDashboardContent> {
       type: BottomNavigationBarType.fixed,
       selectedItemColor: orangeColor,
       unselectedItemColor: Colors.grey,
+      elevation: 16, // Add elevation for shadow
+      iconSize: 24, // Consistent icon size
+      selectedFontSize: 12, // Font size for selected items
+      unselectedFontSize: 12, // Font size for unselected items
       items: [
         BottomNavigationBarItem(
           icon: const Icon(Icons.dashboard),
@@ -365,6 +666,10 @@ class _MainDashboardContentState extends ConsumerState<_MainDashboardContent> {
       type: BottomNavigationBarType.fixed,
       selectedItemColor: orangeColor,
       unselectedItemColor: Colors.grey,
+      elevation: 16, // Add elevation for shadow
+      iconSize: 24, // Consistent icon size
+      selectedFontSize: 12, // Font size for selected items
+      unselectedFontSize: 12, // Font size for unselected items
       items: [
         BottomNavigationBarItem(
           icon: const Icon(Icons.history),
@@ -406,6 +711,206 @@ class _MainDashboardContentState extends ConsumerState<_MainDashboardContent> {
     );
   }
 
+  // Routes-specific bottom navigation bar
+  Widget _buildRoutesBottomNavBar(
+      BuildContext context, AppLocalizations localizations) {
+    final currentSection = ref.watch(routesSectionProvider);
+
+    return BottomNavigationBar(
+      currentIndex: _getRoutesNavIndex(currentSection),
+      onTap: (index) {
+        // Map the tapped index to the corresponding section
+        final sections = [
+          'my_routes',
+          'discover',
+          'create_route',
+          'favorites',
+          'history'
+        ];
+        final selectedSection = sections[index];
+
+        // Update the routes section
+        ref.read(routesSectionProvider.notifier).state = selectedSection;
+
+        // Update the current screen ID for the burger menu highlighting
+        ref.read(currentScreenProvider.notifier).state = selectedSection;
+      },
+      type: BottomNavigationBarType.fixed,
+      selectedItemColor: orangeColor,
+      unselectedItemColor: Colors.grey,
+      elevation: 16, // Add elevation for shadow
+      iconSize: 24, // Consistent icon size
+      selectedFontSize: 12, // Font size for selected items
+      unselectedFontSize: 12, // Font size for unselected items
+      items: [
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.route),
+          label: 'My Routes',
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.explore),
+          label: 'Discover',
+        ),
+        // Center item (Create)
+        BottomNavigationBarItem(
+          icon: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: _getRoutesNavIndex(currentSection) == 2
+                  ? orangeColor.withAlpha(50)
+                  : orangeColor.withAlpha(30),
+            ),
+            padding: const EdgeInsets.all(8),
+            child: Icon(
+              Icons.add_location_alt,
+              color: _getRoutesNavIndex(currentSection) == 2
+                  ? orangeColor
+                  : Colors.grey,
+              size: 28, // Slightly larger icon
+            ),
+          ),
+          label: 'Create',
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.favorite),
+          label: 'Favorites',
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.history),
+          label: 'History',
+        ),
+      ],
+    );
+  }
+
+  // Tribe-specific bottom navigation bar
+  Widget _buildTribeBottomNavBar(
+      BuildContext context, AppLocalizations localizations) {
+    final currentSection = ref.watch(tribeSectionProvider);
+
+    return BottomNavigationBar(
+      currentIndex: _getTribeNavIndex(currentSection),
+      onTap: (index) {
+        // Map the tapped index to the corresponding section
+        final sections = [
+          'feed',
+          'friends',
+          'challenges',
+          'groups',
+          'leaderboard'
+        ];
+        final selectedSection = sections[index];
+
+        // Update the tribe section
+        ref.read(tribeSectionProvider.notifier).state = selectedSection;
+
+        // Update the current screen ID for the burger menu highlighting
+        ref.read(currentScreenProvider.notifier).state = selectedSection;
+      },
+      type: BottomNavigationBarType.fixed,
+      selectedItemColor: orangeColor,
+      unselectedItemColor: Colors.grey,
+      elevation: 16, // Add elevation for shadow
+      iconSize: 24, // Consistent icon size
+      selectedFontSize: 12, // Font size for selected items
+      unselectedFontSize: 12, // Font size for unselected items
+      items: [
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.dynamic_feed),
+          label: 'Feed',
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.person_add),
+          label: 'Friends',
+        ),
+        // Center item (Challenges)
+        BottomNavigationBarItem(
+          icon: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: _getTribeNavIndex(currentSection) == 2
+                  ? orangeColor.withAlpha(50)
+                  : orangeColor.withAlpha(30),
+            ),
+            padding: const EdgeInsets.all(8),
+            child: Icon(
+              Icons.emoji_events,
+              color: _getTribeNavIndex(currentSection) == 2
+                  ? orangeColor
+                  : Colors.grey,
+              size: 28, // Slightly larger icon
+            ),
+          ),
+          label: 'Challenges',
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.group),
+          label: 'Groups',
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.leaderboard),
+          label: 'Ranking',
+        ),
+      ],
+    );
+  }
+
+  // Profile-specific bottom navigation bar
+  Widget _buildProfileBottomNavBar(
+      BuildContext context, AppLocalizations localizations) {
+    final currentSection = ref.watch(profileSectionProvider);
+
+    return BottomNavigationBar(
+      currentIndex: _getProfileNavIndex(currentSection),
+      onTap: (index) {
+        // Map the tapped index to the corresponding section
+        final sections = [
+          'user_info',
+          'hr_zones',
+          'power_zones',
+          'pace_zones',
+          'app_settings'
+        ];
+        final selectedSection = sections[index];
+
+        // Update the profile section
+        ref.read(profileSectionProvider.notifier).state = selectedSection;
+
+        // Update the current screen ID for the burger menu highlighting
+        ref.read(currentScreenProvider.notifier).state = selectedSection;
+      },
+      type: BottomNavigationBarType.fixed,
+      selectedItemColor: orangeColor,
+      unselectedItemColor: Colors.grey,
+      elevation: 16, // Add elevation for shadow
+      iconSize: 24, // Consistent icon size
+      selectedFontSize: 12, // Font size for selected items
+      unselectedFontSize: 12, // Font size for unselected items
+      items: [
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.person),
+          label: 'User',
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.favorite),
+          label: 'Cardio',
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.flash_on),
+          label: 'Power',
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.speed),
+          label: 'Pacing',
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.settings),
+          label: 'Settings',
+        ),
+      ],
+    );
+  }
+
   // Helper to determine which index is active in the activity navigation bar
   int _getActivityNavIndex(String section) {
     switch (section) {
@@ -421,6 +926,60 @@ class _MainDashboardContentState extends ConsumerState<_MainDashboardContent> {
         return 4;
       default:
         return 2; // Default to new activity (center)
+    }
+  }
+
+  // Helper to determine which index is active in the routes navigation bar
+  int _getRoutesNavIndex(String section) {
+    switch (section) {
+      case 'my_routes':
+        return 0;
+      case 'discover':
+        return 1;
+      case 'create_route':
+        return 2; // Center position
+      case 'favorites':
+        return 3;
+      case 'history':
+        return 4;
+      default:
+        return 0; // Default to my routes
+    }
+  }
+
+  // Helper to determine which index is active in the tribe navigation bar
+  int _getTribeNavIndex(String section) {
+    switch (section) {
+      case 'feed':
+        return 0;
+      case 'friends':
+        return 1;
+      case 'challenges':
+        return 2; // Center position
+      case 'groups':
+        return 3;
+      case 'leaderboard':
+        return 4;
+      default:
+        return 0; // Default to feed
+    }
+  }
+
+  // Helper to determine which index is active in the profile navigation bar
+  int _getProfileNavIndex(String section) {
+    switch (section) {
+      case 'user_info':
+        return 0;
+      case 'hr_zones':
+        return 1;
+      case 'power_zones':
+        return 2;
+      case 'pace_zones':
+        return 3;
+      case 'app_settings':
+        return 4;
+      default:
+        return 0; // Default to user info
     }
   }
 
@@ -461,17 +1020,13 @@ class _MainDashboardContentState extends ConsumerState<_MainDashboardContent> {
                           width: 50,
                           height: 50,
                           decoration: BoxDecoration(
-                            color: Color.fromRGBO(
-                              Theme.of(context).primaryColor.r.toInt(),
-                              Theme.of(context).primaryColor.g.toInt(),
-                              Theme.of(context).primaryColor.b.toInt(),
-                              0.2, // Using RGBA for opacity
-                            ),
+                            color: const Color.fromRGBO(
+                                255, 152, 0, 0.2), // Orange with transparency
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: Icon(
+                          child: const Icon(
                             Icons.play_arrow_rounded,
-                            color: Theme.of(context).primaryColor,
+                            color: Color.fromRGBO(255, 152, 0, 1.0), // Orange
                             size: 30,
                           ),
                         ),
