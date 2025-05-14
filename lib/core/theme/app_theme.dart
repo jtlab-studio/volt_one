@@ -4,7 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app_colors.dart';
 import 'app_text_theme.dart';
 
-final themeModeProvider = StateProvider<ThemeMode>((ref) => ThemeMode.system);
+// Set default theme to light mode
+final themeModeProvider = StateProvider<ThemeMode>((ref) => ThemeMode.light);
 
 class AppTheme {
   final ThemeData light;
@@ -57,17 +58,17 @@ final materialThemeProvider = Provider<AppTheme>((ref) {
       colorScheme: ColorScheme.dark(
         primary: AppColors.primary,
         secondary: AppColors.secondary,
-        surface: const Color(0xFF121212), // Changed from background to surface
+        surface: AppColors.darkBackground, // Using our RGBA color
         error: AppColors.error,
       ),
       textTheme: appTextTheme,
       appBarTheme: AppBarTheme(
-        backgroundColor: const Color(0xFF1E1E1E),
+        backgroundColor: AppColors.darkSurface, // Using our RGBA color
         foregroundColor: Colors.white,
         elevation: .0,
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: const Color(0xFF1E1E1E),
+        backgroundColor: AppColors.darkSurface, // Using our RGBA color
         selectedItemColor: AppColors.primary,
         unselectedItemColor: Colors.grey,
       ),
@@ -82,7 +83,7 @@ final materialThemeProvider = Provider<AppTheme>((ref) {
       ),
       cardTheme: CardTheme(
         elevation: 2,
-        color: const Color(0xFF2C2C2C),
+        color: AppColors.darkCard, // Using our RGBA color
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),

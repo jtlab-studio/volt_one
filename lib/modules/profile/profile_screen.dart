@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/l10n/app_localizations.dart';
+import '../../core/theme/theme_provider.dart';
 import 'screens/app_settings_screen.dart';
 import 'screens/hr_zones_screen.dart';
 import 'screens/power_zones_screen.dart' as power_zones;
@@ -12,9 +13,6 @@ import '../../shared/widgets/global_burger_menu.dart';
 
 // Provider to track the current profile section
 final profileSectionProvider = StateProvider<String>((ref) => 'user_info');
-
-// Orange color to use throughout the app
-final orangeColor = const Color.fromRGBO(255, 152, 0, 1.0);
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -52,6 +50,8 @@ class ProfileScreen extends ConsumerWidget {
 
   Widget _buildProfileBottomNavBar(BuildContext context, WidgetRef ref,
       String currentSection, AppLocalizations localizations) {
+    final themeSettings = ref.watch(themeSettingsProvider);
+
     return BottomNavigationBar(
       currentIndex: _getProfileNavIndex(currentSection),
       onTap: (index) {
@@ -74,8 +74,8 @@ class ProfileScreen extends ConsumerWidget {
         }
       },
       type: BottomNavigationBarType.fixed,
-      selectedItemColor: orangeColor,
-      unselectedItemColor: Colors.grey,
+      selectedItemColor: themeSettings.navSelectedTextColor,
+      unselectedItemColor: themeSettings.navUnselectedTextColor,
       elevation: 16, // Add elevation for shadow
       iconSize: 24, // Consistent icon size
       selectedFontSize: 12, // Font size for selected items

@@ -21,6 +21,10 @@ class ThemeNotifier extends StateNotifier<ThemeSettings> {
           successColor: AppColors.success,
           warningColor: AppColors.warning,
           errorColor: AppColors.error,
+          backgroundColorLight: Colors.white,
+          backgroundColorDark: AppColors.darkBackground,
+          navSelectedTextColor: AppColors.primary,
+          navUnselectedTextColor: Colors.grey,
           useMaterialYou: false,
         ));
 
@@ -44,6 +48,22 @@ class ThemeNotifier extends StateNotifier<ThemeSettings> {
     state = state.copyWith(errorColor: color);
   }
 
+  void updateBackgroundColorLight(Color color) {
+    state = state.copyWith(backgroundColorLight: color);
+  }
+
+  void updateBackgroundColorDark(Color color) {
+    state = state.copyWith(backgroundColorDark: color);
+  }
+
+  void updateNavSelectedTextColor(Color color) {
+    state = state.copyWith(navSelectedTextColor: color);
+  }
+
+  void updateNavUnselectedTextColor(Color color) {
+    state = state.copyWith(navUnselectedTextColor: color);
+  }
+
   void toggleMaterialYou() {
     state = state.copyWith(useMaterialYou: !state.useMaterialYou);
   }
@@ -55,6 +75,10 @@ class ThemeNotifier extends StateNotifier<ThemeSettings> {
       successColor: AppColors.success,
       warningColor: AppColors.warning,
       errorColor: AppColors.error,
+      backgroundColorLight: Colors.white,
+      backgroundColorDark: AppColors.darkBackground,
+      navSelectedTextColor: AppColors.primary,
+      navUnselectedTextColor: Colors.grey,
       useMaterialYou: false,
     );
   }
@@ -73,6 +97,10 @@ class ThemeSettings {
   final Color successColor;
   final Color warningColor;
   final Color errorColor;
+  final Color backgroundColorLight;
+  final Color backgroundColorDark;
+  final Color navSelectedTextColor;
+  final Color navUnselectedTextColor;
   final bool useMaterialYou;
 
   ThemeSettings({
@@ -81,6 +109,10 @@ class ThemeSettings {
     required this.successColor,
     required this.warningColor,
     required this.errorColor,
+    required this.backgroundColorLight,
+    required this.backgroundColorDark,
+    required this.navSelectedTextColor,
+    required this.navUnselectedTextColor,
     required this.useMaterialYou,
   });
 
@@ -90,6 +122,10 @@ class ThemeSettings {
     Color? successColor,
     Color? warningColor,
     Color? errorColor,
+    Color? backgroundColorLight,
+    Color? backgroundColorDark,
+    Color? navSelectedTextColor,
+    Color? navUnselectedTextColor,
     bool? useMaterialYou,
   }) {
     return ThemeSettings(
@@ -98,6 +134,11 @@ class ThemeSettings {
       successColor: successColor ?? this.successColor,
       warningColor: warningColor ?? this.warningColor,
       errorColor: errorColor ?? this.errorColor,
+      backgroundColorLight: backgroundColorLight ?? this.backgroundColorLight,
+      backgroundColorDark: backgroundColorDark ?? this.backgroundColorDark,
+      navSelectedTextColor: navSelectedTextColor ?? this.navSelectedTextColor,
+      navUnselectedTextColor:
+          navUnselectedTextColor ?? this.navUnselectedTextColor,
       useMaterialYou: useMaterialYou ?? this.useMaterialYou,
     );
   }
@@ -151,18 +192,19 @@ final dynamicThemeProvider = Provider<AppTheme>((ref) {
       colorScheme: ColorScheme.light(
         primary: themeSettings.primaryColor,
         secondary: themeSettings.secondaryColor,
-        surface: Colors.white,
+        surface: themeSettings.backgroundColorLight,
         error: themeSettings.errorColor,
       ),
+      scaffoldBackgroundColor: themeSettings.backgroundColorLight,
       appBarTheme: AppBarTheme(
         backgroundColor: themeSettings.primaryColor,
         foregroundColor: Colors.white,
         elevation: 0.0,
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: Colors.white,
-        selectedItemColor: themeSettings.primaryColor,
-        unselectedItemColor: Colors.grey,
+        backgroundColor: themeSettings.backgroundColorLight,
+        selectedItemColor: themeSettings.navSelectedTextColor,
+        unselectedItemColor: themeSettings.navUnselectedTextColor,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -199,6 +241,7 @@ final dynamicThemeProvider = Provider<AppTheme>((ref) {
         surface: AppColors.darkSurface,
         error: darkenColor(themeSettings.errorColor, 0.1),
       ),
+      scaffoldBackgroundColor: themeSettings.backgroundColorDark,
       appBarTheme: AppBarTheme(
         backgroundColor: AppColors.darkSurface,
         foregroundColor: Colors.white,
@@ -206,8 +249,8 @@ final dynamicThemeProvider = Provider<AppTheme>((ref) {
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: AppColors.darkSurface,
-        selectedItemColor: themeSettings.primaryColor,
-        unselectedItemColor: Colors.grey,
+        selectedItemColor: themeSettings.navSelectedTextColor,
+        unselectedItemColor: themeSettings.navUnselectedTextColor,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(

@@ -6,6 +6,7 @@ import '../../../core/l10n/app_localizations.dart';
 import '../../../shared/widgets/global_app_bar.dart';
 import '../../../shared/widgets/global_burger_menu.dart';
 import '../../../shared/widgets/bottom_navigation_helper.dart';
+import '../../../core/theme/theme_provider.dart';
 import '../../activity/activity_hub_screen.dart';
 import '../../profile/profile_screen.dart';
 import '../../routes/routes_screen.dart';
@@ -292,6 +293,8 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
   // Main bottom navigation bar
   Widget _buildMainBottomNavBar(
       BuildContext context, int currentIndex, AppLocalizations localizations) {
+    final themeSettings = ref.watch(themeSettingsProvider);
+
     return BottomNavigationHelper.createMainBottomNavBar(
       context,
       currentIndex,
@@ -357,7 +360,8 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
         ];
         ref.read(currentScreenProvider.notifier).state = screenIds[index];
       },
-      selectedItemColor: orangeColor,
+      selectedItemColor: themeSettings.navSelectedTextColor,
+      unselectedItemColor: themeSettings.navUnselectedTextColor,
     );
   }
 
@@ -365,21 +369,22 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
   Widget _buildActivityBottomNavBar(
       BuildContext context, AppLocalizations localizations) {
     final currentSection = ref.watch(activitySectionProvider);
+    final themeSettings = ref.watch(themeSettingsProvider);
 
     // Create a center floating action button for the 'New' action
     final centerButton = Container(
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: _getActivityNavIndex(currentSection) == 2
-            ? orangeColor.withAlpha(50)
-            : orangeColor.withAlpha(30),
+            ? themeSettings.navSelectedTextColor.withAlpha(50)
+            : themeSettings.navUnselectedTextColor.withAlpha(30),
       ),
       padding: const EdgeInsets.all(8),
       child: Icon(
         Icons.add,
         color: _getActivityNavIndex(currentSection) == 2
-            ? orangeColor
-            : Colors.grey,
+            ? themeSettings.navSelectedTextColor
+            : themeSettings.navUnselectedTextColor,
         size: 28, // Slightly larger icon
       ),
     );
@@ -427,7 +432,8 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
         // Update the current screen ID for the burger menu highlighting
         ref.read(currentScreenProvider.notifier).state = selectedSection;
       },
-      selectedItemColor: orangeColor,
+      selectedItemColor: themeSettings.navSelectedTextColor,
+      unselectedItemColor: themeSettings.navUnselectedTextColor,
       centerButton: centerButton,
     );
   }
@@ -436,20 +442,22 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
   Widget _buildRoutesBottomNavBar(
       BuildContext context, AppLocalizations localizations) {
     final currentSection = ref.watch(routesSectionProvider);
+    final themeSettings = ref.watch(themeSettingsProvider);
 
     // Create a center button for create route
     final centerButton = Container(
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: _getRoutesNavIndex(currentSection) == 2
-            ? orangeColor.withAlpha(50)
-            : orangeColor.withAlpha(30),
+            ? themeSettings.navSelectedTextColor.withAlpha(50)
+            : themeSettings.navUnselectedTextColor.withAlpha(30),
       ),
       padding: const EdgeInsets.all(8),
       child: Icon(
         Icons.add_location_alt,
-        color:
-            _getRoutesNavIndex(currentSection) == 2 ? orangeColor : Colors.grey,
+        color: _getRoutesNavIndex(currentSection) == 2
+            ? themeSettings.navSelectedTextColor
+            : themeSettings.navUnselectedTextColor,
         size: 28,
       ),
     );
@@ -497,7 +505,8 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
         // Update the current screen ID for the burger menu highlighting
         ref.read(currentScreenProvider.notifier).state = selectedSection;
       },
-      selectedItemColor: orangeColor,
+      selectedItemColor: themeSettings.navSelectedTextColor,
+      unselectedItemColor: themeSettings.navUnselectedTextColor,
       centerButton: centerButton,
     );
   }
@@ -506,20 +515,22 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
   Widget _buildTribeBottomNavBar(
       BuildContext context, AppLocalizations localizations) {
     final currentSection = ref.watch(tribeSectionProvider);
+    final themeSettings = ref.watch(themeSettingsProvider);
 
     // Create a center button for challenges
     final centerButton = Container(
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: _getTribeNavIndex(currentSection) == 2
-            ? orangeColor.withAlpha(50)
-            : orangeColor.withAlpha(30),
+            ? themeSettings.navSelectedTextColor.withAlpha(50)
+            : themeSettings.navUnselectedTextColor.withAlpha(30),
       ),
       padding: const EdgeInsets.all(8),
       child: Icon(
         Icons.emoji_events,
-        color:
-            _getTribeNavIndex(currentSection) == 2 ? orangeColor : Colors.grey,
+        color: _getTribeNavIndex(currentSection) == 2
+            ? themeSettings.navSelectedTextColor
+            : themeSettings.navUnselectedTextColor,
         size: 28,
       ),
     );
@@ -567,7 +578,8 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
         // Update the current screen ID for the burger menu highlighting
         ref.read(currentScreenProvider.notifier).state = selectedSection;
       },
-      selectedItemColor: orangeColor,
+      selectedItemColor: themeSettings.navSelectedTextColor,
+      unselectedItemColor: themeSettings.navUnselectedTextColor,
       centerButton: centerButton,
     );
   }
@@ -576,6 +588,7 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
   Widget _buildProfileBottomNavBar(
       BuildContext context, AppLocalizations localizations) {
     final currentSection = ref.watch(profileSectionProvider);
+    final themeSettings = ref.watch(themeSettingsProvider);
 
     return BottomNavigationHelper.createMainBottomNavBar(
       context,
@@ -619,7 +632,8 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
         // Update the current screen ID for the burger menu highlighting
         ref.read(currentScreenProvider.notifier).state = selectedSection;
       },
-      selectedItemColor: orangeColor,
+      selectedItemColor: themeSettings.navSelectedTextColor,
+      unselectedItemColor: themeSettings.navUnselectedTextColor,
     );
   }
 

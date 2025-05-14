@@ -1,9 +1,11 @@
 // lib/shared/widgets/consistent_bottom_navigation.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/theme/theme_provider.dart';
 
 /// A reusable bottom navigation bar component that maintains consistent styling across the app
-class ConsistentBottomNavigationBar extends StatelessWidget {
+class ConsistentBottomNavigationBar extends ConsumerWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
   final List<BottomNavigationBarItem> items;
@@ -28,9 +30,10 @@ class ConsistentBottomNavigationBar extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isLargeScreen = MediaQuery.of(context).size.width >= 768;
+    final themeSettings = ref.watch(themeSettingsProvider);
 
     // Use the standard Flutter BottomNavigationBar for consistent behavior
     return BottomNavigationBar(
@@ -38,8 +41,10 @@ class ConsistentBottomNavigationBar extends StatelessWidget {
       onTap: onTap,
       items: items, // Uses translated strings from the parent widget
       type: BottomNavigationBarType.fixed,
-      selectedItemColor: selectedItemColor ?? theme.primaryColor,
-      unselectedItemColor: unselectedItemColor ?? Colors.grey,
+      selectedItemColor:
+          selectedItemColor ?? themeSettings.navSelectedTextColor,
+      unselectedItemColor:
+          unselectedItemColor ?? themeSettings.navUnselectedTextColor,
       backgroundColor:
           backgroundColor ?? theme.bottomNavigationBarTheme.backgroundColor,
       elevation: elevation,

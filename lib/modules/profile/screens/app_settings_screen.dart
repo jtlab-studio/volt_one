@@ -224,76 +224,96 @@ class AppSettingsScreen extends ConsumerWidget {
                   },
                 ),
 
-                // Success Color Selector
+                // Background Color Light Selector
                 ListTile(
-                  title: const Text('Success Color'),
-                  subtitle:
-                      const Text('Used for positive actions and confirmations'),
+                  title: const Text('Background Color (Light)'),
+                  subtitle: const Text('Used for app background in light mode'),
                   trailing: Container(
                     width: 24,
                     height: 24,
                     decoration: BoxDecoration(
-                      color: themeSettings.successColor,
+                      color: themeSettings.backgroundColorLight,
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.grey.shade300),
                     ),
                   ),
                   onTap: () {
-                    _showColorPicker(
-                        context, 'Success Color', themeSettings.successColor,
-                        (color) {
+                    _showColorPicker(context, 'Background Color (Light)',
+                        themeSettings.backgroundColorLight, (color) {
                       ref
                           .read(themeSettingsProvider.notifier)
-                          .updateSuccessColor(color);
+                          .updateBackgroundColorLight(color);
                     });
                   },
                 ),
 
-                // Warning Color Selector
+                // Background Color Dark Selector
                 ListTile(
-                  title: const Text('Warning Color'),
-                  subtitle: const Text('Used for alerts that need attention'),
+                  title: const Text('Background Color (Dark)'),
+                  subtitle: const Text('Used for app background in dark mode'),
                   trailing: Container(
                     width: 24,
                     height: 24,
                     decoration: BoxDecoration(
-                      color: themeSettings.warningColor,
+                      color: themeSettings.backgroundColorDark,
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.grey.shade300),
                     ),
                   ),
                   onTap: () {
-                    _showColorPicker(
-                        context, 'Warning Color', themeSettings.warningColor,
-                        (color) {
+                    _showColorPicker(context, 'Background Color (Dark)',
+                        themeSettings.backgroundColorDark, (color) {
                       ref
                           .read(themeSettingsProvider.notifier)
-                          .updateWarningColor(color);
+                          .updateBackgroundColorDark(color);
                     });
                   },
                 ),
 
-                // Error Color Selector
+                // Navigation Selected Text Color Selector
                 ListTile(
-                  title: const Text('Error Color'),
-                  subtitle:
-                      const Text('Used for errors and destructive actions'),
+                  title: const Text('Navigation Selected Text'),
+                  subtitle: const Text(
+                      'Color for selected items in bottom navigation'),
                   trailing: Container(
                     width: 24,
                     height: 24,
                     decoration: BoxDecoration(
-                      color: themeSettings.errorColor,
+                      color: themeSettings.navSelectedTextColor,
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.grey.shade300),
                     ),
                   ),
                   onTap: () {
-                    _showColorPicker(
-                        context, 'Error Color', themeSettings.errorColor,
-                        (color) {
+                    _showColorPicker(context, 'Navigation Selected Text',
+                        themeSettings.navSelectedTextColor, (color) {
                       ref
                           .read(themeSettingsProvider.notifier)
-                          .updateErrorColor(color);
+                          .updateNavSelectedTextColor(color);
+                    });
+                  },
+                ),
+
+                // Navigation Unselected Text Color Selector
+                ListTile(
+                  title: const Text('Navigation Unselected Text'),
+                  subtitle: const Text(
+                      'Color for unselected items in bottom navigation'),
+                  trailing: Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: themeSettings.navUnselectedTextColor,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                  ),
+                  onTap: () {
+                    _showColorPicker(context, 'Navigation Unselected Text',
+                        themeSettings.navUnselectedTextColor, (color) {
+                      ref
+                          .read(themeSettingsProvider.notifier)
+                          .updateNavUnselectedTextColor(color);
                     });
                   },
                 ),
@@ -419,9 +439,14 @@ class AppSettingsScreen extends ConsumerWidget {
     final primaryColor = isLight
         ? settings.primaryColor
         : _darkenColor(settings.primaryColor, 0.2);
-    final backgroundColor = isLight ? Colors.white : const Color(0xFF121212);
+    final backgroundColor =
+        isLight ? settings.backgroundColorLight : settings.backgroundColorDark;
     final textColor = isLight ? Colors.black87 : Colors.white;
     final cardColor = isLight ? Colors.white : const Color(0xFF2C2C2C);
+
+    // Navigation preview colors
+    final navSelectedColor = settings.navSelectedTextColor;
+    final navUnselectedColor = settings.navUnselectedTextColor;
 
     return Container(
       padding: const EdgeInsets.all(8),
@@ -484,6 +509,25 @@ class AppSettingsScreen extends ConsumerWidget {
                     ),
                   ),
                 ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
+          // Navigation Preview
+          Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: cardColor,
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Icon(Icons.home, color: navUnselectedColor, size: 16),
+                Icon(Icons.directions_run, color: navSelectedColor, size: 16),
+                Icon(Icons.map, color: navUnselectedColor, size: 16),
               ],
             ),
           ),
