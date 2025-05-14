@@ -4,9 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'router.dart';
-import 'theme/app_theme.dart';
-import 'theme/theme_provider.dart';
-import 'l10n/app_localizations.dart';
+import 'theme/theme_provider.dart'; // Removed 'core/' since we're already in the core directory
+import 'l10n/app_localizations.dart'; // Removed 'core/' since we're already in the core directory
 
 class VoltApp extends ConsumerWidget {
   const VoltApp({super.key});
