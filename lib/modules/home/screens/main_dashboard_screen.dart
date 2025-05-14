@@ -18,6 +18,7 @@ import '../../profile/screens/hr_zones_screen.dart';
 import '../../profile/screens/power_zones_screen.dart';
 import '../../profile/screens/pace_zones_screen.dart';
 import '../../profile/screens/user_info_screen.dart';
+import '../../profile/screens/app_settings_screen.dart';
 
 // Main tab index provider
 final mainTabIndexProvider = StateProvider<int>((ref) => 0);
@@ -775,9 +776,8 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
       case 'pace_zones':
         return const PaceZonesScreen();
       case 'app_settings':
-        // Use a placeholder for app settings
-        return _buildProfilePlaceholder(
-            'App Settings', 'Configure application settings');
+        // Use the actual AppSettingsScreen instead of a placeholder
+        return const AppSettingsScreen();
       default:
         return const UserInfoScreen();
     }

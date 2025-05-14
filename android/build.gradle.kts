@@ -1,7 +1,6 @@
 allprojects {
-    repositories {
-        google()
-        mavenCentral()
+    tasks.withType<JavaCompile>().configureEach {
+        options.compilerArgs.add("-Xlint:deprecation")
     }
 }
 
