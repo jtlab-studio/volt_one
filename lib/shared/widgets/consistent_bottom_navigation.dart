@@ -33,7 +33,7 @@ class ConsistentBottomNavigationBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isLargeScreen = MediaQuery.of(context).size.width >= 768;
-    final themeSettings = ref.watch(themeSettingsProvider);
+    final palette = ref.watch(colorPaletteProvider);
 
     // Use the standard Flutter BottomNavigationBar for consistent behavior
     return BottomNavigationBar(
@@ -41,10 +41,9 @@ class ConsistentBottomNavigationBar extends ConsumerWidget {
       onTap: onTap,
       items: items, // Uses translated strings from the parent widget
       type: BottomNavigationBarType.fixed,
-      selectedItemColor:
-          selectedItemColor ?? themeSettings.navSelectedTextColor,
+      selectedItemColor: selectedItemColor ?? palette.navSelectedTextColor,
       unselectedItemColor:
-          unselectedItemColor ?? themeSettings.navUnselectedTextColor,
+          unselectedItemColor ?? palette.navUnselectedTextColor,
       backgroundColor:
           backgroundColor ?? theme.bottomNavigationBarTheme.backgroundColor,
       elevation: elevation,

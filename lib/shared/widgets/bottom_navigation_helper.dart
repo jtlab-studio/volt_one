@@ -14,16 +14,15 @@ class BottomNavigationHelper {
     // Items should already have translated labels from the parent calling widget
     return Consumer(
       builder: (context, ref, child) {
-        final themeSettings = ref.watch(themeSettingsProvider);
+        final palette = ref.watch(colorPaletteProvider);
 
         return ConsistentBottomNavigationBar(
           currentIndex: currentIndex,
           onTap: onTap,
           items: items,
-          selectedItemColor:
-              selectedItemColor ?? themeSettings.navSelectedTextColor,
+          selectedItemColor: selectedItemColor ?? palette.navSelectedTextColor,
           unselectedItemColor:
-              unselectedItemColor ?? themeSettings.navUnselectedTextColor,
+              unselectedItemColor ?? palette.navUnselectedTextColor,
         );
       },
     );
@@ -42,7 +41,7 @@ class BottomNavigationHelper {
   }) {
     return Consumer(
       builder: (context, ref, child) {
-        final themeSettings = ref.watch(themeSettingsProvider);
+        final palette = ref.watch(colorPaletteProvider);
 
         // If there's a special center button, we'll create a Stack with both elements
         if (centerButton != null) {
@@ -70,9 +69,9 @@ class BottomNavigationHelper {
                 onTap: onTap,
                 items: modifiedItems,
                 selectedItemColor:
-                    selectedItemColor ?? themeSettings.navSelectedTextColor,
+                    selectedItemColor ?? palette.navSelectedTextColor,
                 unselectedItemColor:
-                    unselectedItemColor ?? themeSettings.navUnselectedTextColor,
+                    unselectedItemColor ?? palette.navUnselectedTextColor,
                 backgroundColor: backgroundColor,
               ),
 
@@ -90,10 +89,9 @@ class BottomNavigationHelper {
           currentIndex: currentIndex,
           onTap: onTap,
           items: items,
-          selectedItemColor:
-              selectedItemColor ?? themeSettings.navSelectedTextColor,
+          selectedItemColor: selectedItemColor ?? palette.navSelectedTextColor,
           unselectedItemColor:
-              unselectedItemColor ?? themeSettings.navUnselectedTextColor,
+              unselectedItemColor ?? palette.navUnselectedTextColor,
           backgroundColor: backgroundColor,
         );
       },

@@ -4,145 +4,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app_colors.dart';
 import 'app_text_theme.dart';
+import 'color_palettes.dart';
 
-/// Provider for storing the primary color
-final primaryColorProvider = StateProvider<Color>((ref) => AppColors.primary);
+// Set default theme to light mode (moved from app_theme.dart to prevent ambiguity)
+final themeModeProvider = StateProvider<ThemeMode>((ref) => ThemeMode.light);
 
-/// Provider for storing the secondary color
-final secondaryColorProvider =
-    StateProvider<Color>((ref) => AppColors.secondary);
+// Provider for storing the selected color palette
+final selectedPaletteProvider = StateProvider<AppColorPalette>(
+    (ref) => ColorPalettes.blue); // Blue is the default palette
 
-/// Provider to handle custom theme updating
-class ThemeNotifier extends StateNotifier<ThemeSettings> {
-  ThemeNotifier()
-      : super(ThemeSettings(
-          primaryColor: AppColors.primary,
-          secondaryColor: AppColors.secondary,
-          successColor: AppColors.success,
-          warningColor: AppColors.warning,
-          errorColor: AppColors.error,
-          backgroundColorLight: Colors.white,
-          backgroundColorDark: AppColors.darkBackground,
-          navSelectedTextColor: AppColors.primary,
-          navUnselectedTextColor: Colors.grey,
-          useMaterialYou: false,
-        ));
+/// Provider to handle theme settings
+class ThemeNotifier extends StateNotifier<AppColorPalette> {
+  ThemeNotifier() : super(ColorPalettes.blue);
 
-  void updatePrimaryColor(Color color) {
-    state = state.copyWith(primaryColor: color);
-  }
-
-  void updateSecondaryColor(Color color) {
-    state = state.copyWith(secondaryColor: color);
-  }
-
-  void updateSuccessColor(Color color) {
-    state = state.copyWith(successColor: color);
-  }
-
-  void updateWarningColor(Color color) {
-    state = state.copyWith(warningColor: color);
-  }
-
-  void updateErrorColor(Color color) {
-    state = state.copyWith(errorColor: color);
-  }
-
-  void updateBackgroundColorLight(Color color) {
-    state = state.copyWith(backgroundColorLight: color);
-  }
-
-  void updateBackgroundColorDark(Color color) {
-    state = state.copyWith(backgroundColorDark: color);
-  }
-
-  void updateNavSelectedTextColor(Color color) {
-    state = state.copyWith(navSelectedTextColor: color);
-  }
-
-  void updateNavUnselectedTextColor(Color color) {
-    state = state.copyWith(navUnselectedTextColor: color);
-  }
-
-  void toggleMaterialYou() {
-    state = state.copyWith(useMaterialYou: !state.useMaterialYou);
-  }
-
-  void resetToDefaults() {
-    state = ThemeSettings(
-      primaryColor: AppColors.primary,
-      secondaryColor: AppColors.secondary,
-      successColor: AppColors.success,
-      warningColor: AppColors.warning,
-      errorColor: AppColors.error,
-      backgroundColorLight: Colors.white,
-      backgroundColorDark: AppColors.darkBackground,
-      navSelectedTextColor: AppColors.primary,
-      navUnselectedTextColor: Colors.grey,
-      useMaterialYou: false,
-    );
+  void setPalette(AppColorPalette palette) {
+    state = palette;
   }
 }
 
 /// State provider for theme settings
-final themeSettingsProvider =
-    StateNotifierProvider<ThemeNotifier, ThemeSettings>((ref) {
+final colorPaletteProvider =
+    StateNotifierProvider<ThemeNotifier, AppColorPalette>((ref) {
   return ThemeNotifier();
 });
-
-/// Enhanced Theme settings model
-class ThemeSettings {
-  final Color primaryColor;
-  final Color secondaryColor;
-  final Color successColor;
-  final Color warningColor;
-  final Color errorColor;
-  final Color backgroundColorLight;
-  final Color backgroundColorDark;
-  final Color navSelectedTextColor;
-  final Color navUnselectedTextColor;
-  final bool useMaterialYou;
-
-  ThemeSettings({
-    required this.primaryColor,
-    required this.secondaryColor,
-    required this.successColor,
-    required this.warningColor,
-    required this.errorColor,
-    required this.backgroundColorLight,
-    required this.backgroundColorDark,
-    required this.navSelectedTextColor,
-    required this.navUnselectedTextColor,
-    required this.useMaterialYou,
-  });
-
-  ThemeSettings copyWith({
-    Color? primaryColor,
-    Color? secondaryColor,
-    Color? successColor,
-    Color? warningColor,
-    Color? errorColor,
-    Color? backgroundColorLight,
-    Color? backgroundColorDark,
-    Color? navSelectedTextColor,
-    Color? navUnselectedTextColor,
-    bool? useMaterialYou,
-  }) {
-    return ThemeSettings(
-      primaryColor: primaryColor ?? this.primaryColor,
-      secondaryColor: secondaryColor ?? this.secondaryColor,
-      successColor: successColor ?? this.successColor,
-      warningColor: warningColor ?? this.warningColor,
-      errorColor: errorColor ?? this.errorColor,
-      backgroundColorLight: backgroundColorLight ?? this.backgroundColorLight,
-      backgroundColorDark: backgroundColorDark ?? this.backgroundColorDark,
-      navSelectedTextColor: navSelectedTextColor ?? this.navSelectedTextColor,
-      navUnselectedTextColor:
-          navUnselectedTextColor ?? this.navUnselectedTextColor,
-      useMaterialYou: useMaterialYou ?? this.useMaterialYou,
-    );
-  }
-}
 
 /// Helper function to generate a MaterialColor from a Color
 MaterialColor createMaterialColor(Color color) {
@@ -181,35 +65,38 @@ Color darkenColor(Color color, double factor) {
 
 /// Provider for dynamically updating the theme based on user selections
 final dynamicThemeProvider = Provider<AppTheme>((ref) {
-  final themeSettings = ref.watch(themeSettingsProvider);
+  final palette = ref.watch(colorPaletteProvider);
+  final themeMode = ref.watch(themeModeProvider);
 
   return AppTheme(
     light: ThemeData(
-      useMaterial3: themeSettings.useMaterialYou,
+      useMaterial3: true,
       brightness: Brightness.light,
-      primaryColor: themeSettings.primaryColor,
-      primarySwatch: createMaterialColor(themeSettings.primaryColor),
+      primaryColor: palette.primaryColor,
+      primarySwatch: createMaterialColor(palette.primaryColor),
       colorScheme: ColorScheme.light(
-        primary: themeSettings.primaryColor,
-        secondary: themeSettings.secondaryColor,
-        surface: themeSettings.backgroundColorLight,
-        error: themeSettings.errorColor,
+        primary: palette.primaryColor,
+        secondary: palette.secondaryColor,
+        tertiary: palette.accentColor,
+        surface: palette.cardColorLight,
+        background: palette.backgroundColorLight,
+        error: palette.errorColor,
       ),
-      scaffoldBackgroundColor: themeSettings.backgroundColorLight,
+      scaffoldBackgroundColor: palette.backgroundColorLight,
       appBarTheme: AppBarTheme(
-        backgroundColor: themeSettings.primaryColor,
-        foregroundColor: Colors.white,
+        backgroundColor: palette.appBarBackgroundLight,
+        foregroundColor: palette.appBarTextLight,
         elevation: 0.0,
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: themeSettings.backgroundColorLight,
-        selectedItemColor: themeSettings.navSelectedTextColor,
-        unselectedItemColor: themeSettings.navUnselectedTextColor,
+        backgroundColor: palette.navBarBackgroundLight,
+        selectedItemColor: palette.navSelectedTextColor,
+        unselectedItemColor: palette.navUnselectedTextColor,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          foregroundColor: Colors.white,
-          backgroundColor: themeSettings.primaryColor,
+          foregroundColor: palette.buttonTextColor,
+          backgroundColor: palette.buttonBackgroundColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
@@ -217,45 +104,57 @@ final dynamicThemeProvider = Provider<AppTheme>((ref) {
       ),
       cardTheme: CardTheme(
         elevation: 2,
+        color: palette.cardColorLight,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
+      ),
+      textTheme: appTextTheme.apply(
+        bodyColor: palette.textColorLight,
+        displayColor: palette.textColorLight,
+      ),
+      iconTheme: IconThemeData(
+        color: palette.iconInactiveColor,
       ),
       // Apply other custom color settings
       extensions: [
         CustomColorTheme(
-          success: themeSettings.successColor,
-          warning: themeSettings.warningColor,
-          error: themeSettings.errorColor,
+          success: palette.successColor,
+          warning: palette.warningColor,
+          error: palette.errorColor,
+          iconActive: palette.iconActiveColor,
+          iconInactive: palette.iconInactiveColor,
         ),
       ],
     ),
     dark: ThemeData(
-      useMaterial3: themeSettings.useMaterialYou,
+      useMaterial3: true,
       brightness: Brightness.dark,
-      primaryColor: darkenColor(themeSettings.primaryColor, 0.2),
-      primarySwatch: createMaterialColor(themeSettings.primaryColor),
+      primaryColor: palette.primaryColor,
+      primarySwatch: createMaterialColor(palette.primaryColor),
       colorScheme: ColorScheme.dark(
-        primary: themeSettings.primaryColor,
-        secondary: darkenColor(themeSettings.secondaryColor, 0.1),
-        surface: AppColors.darkSurface,
-        error: darkenColor(themeSettings.errorColor, 0.1),
+        primary: palette.primaryColor,
+        secondary: palette.secondaryColor,
+        tertiary: palette.accentColor,
+        surface: palette.cardColorDark,
+        background: palette.backgroundColorDark,
+        error: palette.errorColor,
       ),
-      scaffoldBackgroundColor: themeSettings.backgroundColorDark,
+      scaffoldBackgroundColor: palette.backgroundColorDark,
       appBarTheme: AppBarTheme(
-        backgroundColor: AppColors.darkSurface,
-        foregroundColor: Colors.white,
+        backgroundColor: palette.appBarBackgroundDark,
+        foregroundColor: palette.appBarTextDark,
         elevation: 0.0,
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: AppColors.darkSurface,
-        selectedItemColor: themeSettings.navSelectedTextColor,
-        unselectedItemColor: themeSettings.navUnselectedTextColor,
+        backgroundColor: palette.navBarBackgroundDark,
+        selectedItemColor: palette.navSelectedTextColor,
+        unselectedItemColor: palette.navUnselectedTextColor,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          foregroundColor: Colors.white,
-          backgroundColor: themeSettings.primaryColor,
+          foregroundColor: palette.buttonTextColor,
+          backgroundColor: palette.buttonBackgroundColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
@@ -263,17 +162,26 @@ final dynamicThemeProvider = Provider<AppTheme>((ref) {
       ),
       cardTheme: CardTheme(
         elevation: 2,
-        color: AppColors.darkCard,
+        color: palette.cardColorDark,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
       ),
-      // Apply other custom color settings with dark variants
+      textTheme: appTextTheme.apply(
+        bodyColor: palette.textColorDark,
+        displayColor: palette.textColorDark,
+      ),
+      iconTheme: IconThemeData(
+        color: palette.iconInactiveColor,
+      ),
+      // Apply custom color settings
       extensions: [
         CustomColorTheme(
-          success: darkenColor(themeSettings.successColor, 0.2),
-          warning: darkenColor(themeSettings.warningColor, 0.2),
-          error: darkenColor(themeSettings.errorColor, 0.2),
+          success: palette.successColor,
+          warning: palette.warningColor,
+          error: palette.errorColor,
+          iconActive: palette.iconActiveColor,
+          iconInactive: palette.iconInactiveColor,
         ),
       ],
     ),
@@ -285,11 +193,15 @@ class CustomColorTheme extends ThemeExtension<CustomColorTheme> {
   final Color success;
   final Color warning;
   final Color error;
+  final Color iconActive;
+  final Color iconInactive;
 
   CustomColorTheme({
     required this.success,
     required this.warning,
     required this.error,
+    required this.iconActive,
+    required this.iconInactive,
   });
 
   @override
@@ -297,11 +209,15 @@ class CustomColorTheme extends ThemeExtension<CustomColorTheme> {
     Color? success,
     Color? warning,
     Color? error,
+    Color? iconActive,
+    Color? iconInactive,
   }) {
     return CustomColorTheme(
       success: success ?? this.success,
       warning: warning ?? this.warning,
       error: error ?? this.error,
+      iconActive: iconActive ?? this.iconActive,
+      iconInactive: iconInactive ?? this.iconInactive,
     );
   }
 
@@ -318,6 +234,8 @@ class CustomColorTheme extends ThemeExtension<CustomColorTheme> {
       success: Color.lerp(success, other.success, t)!,
       warning: Color.lerp(warning, other.warning, t)!,
       error: Color.lerp(error, other.error, t)!,
+      iconActive: Color.lerp(iconActive, other.iconActive, t)!,
+      iconInactive: Color.lerp(iconInactive, other.iconInactive, t)!,
     );
   }
 }

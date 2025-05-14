@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/l10n/app_localizations.dart';
-import '../../core/theme/theme_provider.dart';
+import '../../core/theme/theme_provider.dart'; // Updated import
 import 'screens/app_settings_screen.dart';
 import 'screens/hr_zones_screen.dart';
 import 'screens/power_zones_screen.dart' as power_zones;
@@ -50,7 +50,7 @@ class ProfileScreen extends ConsumerWidget {
 
   Widget _buildProfileBottomNavBar(BuildContext context, WidgetRef ref,
       String currentSection, AppLocalizations localizations) {
-    final themeSettings = ref.watch(themeSettingsProvider);
+    final palette = ref.watch(colorPaletteProvider);
 
     return BottomNavigationBar(
       currentIndex: _getProfileNavIndex(currentSection),
@@ -74,8 +74,8 @@ class ProfileScreen extends ConsumerWidget {
         }
       },
       type: BottomNavigationBarType.fixed,
-      selectedItemColor: themeSettings.navSelectedTextColor,
-      unselectedItemColor: themeSettings.navUnselectedTextColor,
+      selectedItemColor: palette.navSelectedTextColor,
+      unselectedItemColor: palette.navUnselectedTextColor,
       elevation: 16, // Add elevation for shadow
       iconSize: 24, // Consistent icon size
       selectedFontSize: 12, // Font size for selected items

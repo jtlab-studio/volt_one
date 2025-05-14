@@ -1,9 +1,11 @@
+// lib/core/app.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'router.dart';
-import 'theme/app_theme.dart';
-import 'core/l10n/app_localizations.dart'; // Updated import path
+import 'theme/theme_provider.dart'; // Only import theme_provider.dart, not app_theme.dart
+import 'l10n/app_localizations.dart';
 
 class VoltApp extends ConsumerWidget {
   const VoltApp({super.key});
@@ -12,7 +14,8 @@ class VoltApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final navigatorKey = ref.watch(navigatorKeyProvider);
     final themeMode = ref.watch(themeModeProvider);
-    final materialTheme = ref.watch(materialThemeProvider);
+    // Use dynamic theme provider that incorporates palette selection
+    final appTheme = ref.watch(dynamicThemeProvider);
     final locale = ref.watch(localeProvider);
 
     // Common localization delegates
@@ -23,29 +26,36 @@ class VoltApp extends ConsumerWidget {
       GlobalCupertinoLocalizations.delegate,
     ];
 
-    // Updated list of supported locales based on JSON files in assets/lang folder
     final supportedLocales = const [
       Locale('en', ''), // English
-      Locale('de', ''), // German
-      Locale('es', ''), // Spanish
-      Locale('es', 'CL'), // Spanish (Chile)
-      Locale('es', 'LATAM'), // Spanish (Latin America)
-      Locale('fr', ''), // French
-      Locale('it', ''), // Italian
-      Locale('ja', ''), // Japanese
-      Locale('ko', ''), // Korean
-      Locale('pt', 'BR'), // Portuguese (Brazil)
-      Locale('pt', 'PT'), // Portuguese (Portugal)
-      Locale('ru', ''), // Russian
-      Locale('tr', ''), // Turkish
-      Locale('zh', 'Hans'), // Chinese (Simplified)
-      Locale('zh', 'Hant'), // Chinese (Traditional)
+      Locale('es', ''), // Español
+      Locale('de', ''), // Deutsch
+      Locale('fr', ''), // Français
+      Locale('ru', ''), // Русский
+      Locale('pt', 'BR'), // Português (Brasil)
+      Locale('pt', 'PT'), // Português (Portugal)
+      Locale('it', ''), // Italiano
+      Locale('zh', 'Hans'), // 简体中文
+      Locale('zh', 'Hant'), // 繁體中文
+      Locale('ja', ''), // 日本語
+      Locale('ko', ''), // 한국어
+      Locale('hi', ''), // हिन्दी
+      Locale('vi', ''), // Tiếng Việt
+      Locale('id', ''), // Bahasa Indonesia
+      Locale('ms', ''), // Bahasa Melayu
+      Locale('th', ''), // ไทย
+      Locale('tr', ''), // Türkçe
+      Locale('sv', ''), // Svenska
+      Locale('no', ''), // Norsk
+      Locale('da', ''), // Dansk
+      Locale('es', 'CL'), // Español (Chile)
+      Locale('es', 'LATAM'), // Español (Latinoamérica)
     ];
 
     return MaterialApp(
       title: 'Volt Running Tracker',
-      theme: materialTheme.light,
-      darkTheme: materialTheme.dark,
+      theme: appTheme.light,
+      darkTheme: appTheme.dark,
       themeMode: themeMode,
       navigatorKey: navigatorKey,
       home: const VoltRootWidget(),

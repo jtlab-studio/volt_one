@@ -1,11 +1,12 @@
+// lib/core/theme/app_theme.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app_colors.dart';
 import 'app_text_theme.dart';
 
-// Set default theme to light mode
-final themeModeProvider = StateProvider<ThemeMode>((ref) => ThemeMode.light);
+// Note: themeModeProvider was moved to theme_provider.dart to avoid conflict
 
 class AppTheme {
   final ThemeData light;

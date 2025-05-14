@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'router.dart';
 import 'theme/app_theme.dart';
-import 'theme/theme_provider.dart'; // Add this import
+import 'theme/theme_provider.dart';
 import 'l10n/app_localizations.dart';
 
 class VoltApp extends ConsumerWidget {
@@ -15,8 +15,8 @@ class VoltApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final navigatorKey = ref.watch(navigatorKeyProvider);
     final themeMode = ref.watch(themeModeProvider);
-    // Replace materialThemeProvider with dynamicThemeProvider
-    final materialTheme = ref.watch(dynamicThemeProvider);
+    // Use dynamic theme provider that incorporates palette selection
+    final appTheme = ref.watch(dynamicThemeProvider);
     final locale = ref.watch(localeProvider);
 
     // Common localization delegates
@@ -51,18 +51,12 @@ class VoltApp extends ConsumerWidget {
       Locale('da', ''), // Dansk
       Locale('es', 'CL'), // Español (Chile)
       Locale('es', 'LATAM'), // Español (Latinoamérica)
-      Locale('ay', ''), // Aymara
-      Locale('qu', ''), // Quechua
-      Locale('arn', ''), // Mapudungun
-      Locale('gn', ''), // Guarani
-      Locale('sw', ''), // Swahili
-      Locale('nah', ''), // Nahuatl
     ];
 
     return MaterialApp(
       title: 'Volt Running Tracker',
-      theme: materialTheme.light,
-      darkTheme: materialTheme.dark,
+      theme: appTheme.light,
+      darkTheme: appTheme.dark,
       themeMode: themeMode,
       navigatorKey: navigatorKey,
       home: const VoltRootWidget(),

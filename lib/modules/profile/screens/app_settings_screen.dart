@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/app_localizations.dart';
-import '../../../core/theme/app_theme.dart';
-import '../../../core/theme/theme_provider.dart'; // Import the theme provider
-import '../../../shared/widgets/color_picker_dialog.dart';
+import '../../../core/theme/theme_provider.dart'; // Import only theme_provider.dart
+import '../../../core/theme/color_palettes.dart';
+import '../../../core/theme/app_theme_extensions.dart';
+import 'theme_preview_screen.dart';
 import 'dart:io' show Platform;
 
 class AppSettingsScreen extends ConsumerWidget {
@@ -16,7 +17,7 @@ class AppSettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final localizations = AppLocalizations.of(context);
     final themeMode = ref.watch(themeModeProvider);
-    final themeSettings = ref.watch(themeSettingsProvider);
+    final palette = ref.watch(colorPaletteProvider);
     final isCupertino = Platform.isIOS;
 
     return ListView(
@@ -31,9 +32,9 @@ class AppSettingsScreen extends ConsumerWidget {
               children: [
                 Text(
                   localizations.translate('app_settings'),
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  style: context.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 16),
 
@@ -150,7 +151,7 @@ class AppSettingsScreen extends ConsumerWidget {
 
         const SizedBox(height: 24),
 
-        // Enhanced Theme Customization Section
+        // Theme Selection Section
         Card(
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -158,15 +159,15 @@ class AppSettingsScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Theme Customization',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  'Theme Selection',
+                  style: context.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 8),
 
                 Text(
-                  'Customize your app\'s color palette',
+                  'Choose a color palette for your app',
                   style: TextStyle(
                     color: Colors.grey[600],
                     fontSize: 14,
@@ -175,180 +176,29 @@ class AppSettingsScreen extends ConsumerWidget {
 
                 const SizedBox(height: 16),
 
-                // Primary Color Selector
-                ListTile(
-                  title: const Text('Primary Color'),
-                  subtitle: const Text(
-                      'Main accent color for buttons and highlights'),
-                  trailing: Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      color: themeSettings.primaryColor,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.grey.shade300),
-                    ),
-                  ),
-                  onTap: () {
-                    _showColorPicker(
-                        context, 'Primary Color', themeSettings.primaryColor,
-                        (color) {
-                      ref
-                          .read(themeSettingsProvider.notifier)
-                          .updatePrimaryColor(color);
-                    });
-                  },
-                ),
+                // Display available color palettes
+                ...ColorPalettes.allPalettes.map((p) => _buildPaletteOption(
+                      context,
+                      ref,
+                      p,
+                      selectedPalette: palette,
+                    )),
 
-                // Secondary Color Selector
-                ListTile(
-                  title: const Text('Secondary Color'),
-                  subtitle: const Text(
-                      'Used for floating action buttons and accents'),
-                  trailing: Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      color: themeSettings.secondaryColor,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.grey.shade300),
-                    ),
-                  ),
-                  onTap: () {
-                    _showColorPicker(context, 'Secondary Color',
-                        themeSettings.secondaryColor, (color) {
-                      ref
-                          .read(themeSettingsProvider.notifier)
-                          .updateSecondaryColor(color);
-                    });
-                  },
-                ),
+                const SizedBox(height: 16),
 
-                // Background Color Light Selector
-                ListTile(
-                  title: const Text('Background Color (Light)'),
-                  subtitle: const Text('Used for app background in light mode'),
-                  trailing: Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      color: themeSettings.backgroundColorLight,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.grey.shade300),
-                    ),
-                  ),
-                  onTap: () {
-                    _showColorPicker(context, 'Background Color (Light)',
-                        themeSettings.backgroundColorLight, (color) {
-                      ref
-                          .read(themeSettingsProvider.notifier)
-                          .updateBackgroundColorLight(color);
-                    });
-                  },
-                ),
-
-                // Background Color Dark Selector
-                ListTile(
-                  title: const Text('Background Color (Dark)'),
-                  subtitle: const Text('Used for app background in dark mode'),
-                  trailing: Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      color: themeSettings.backgroundColorDark,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.grey.shade300),
-                    ),
-                  ),
-                  onTap: () {
-                    _showColorPicker(context, 'Background Color (Dark)',
-                        themeSettings.backgroundColorDark, (color) {
-                      ref
-                          .read(themeSettingsProvider.notifier)
-                          .updateBackgroundColorDark(color);
-                    });
-                  },
-                ),
-
-                // Navigation Selected Text Color Selector
-                ListTile(
-                  title: const Text('Navigation Selected Text'),
-                  subtitle: const Text(
-                      'Color for selected items in bottom navigation'),
-                  trailing: Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      color: themeSettings.navSelectedTextColor,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.grey.shade300),
-                    ),
-                  ),
-                  onTap: () {
-                    _showColorPicker(context, 'Navigation Selected Text',
-                        themeSettings.navSelectedTextColor, (color) {
-                      ref
-                          .read(themeSettingsProvider.notifier)
-                          .updateNavSelectedTextColor(color);
-                    });
-                  },
-                ),
-
-                // Navigation Unselected Text Color Selector
-                ListTile(
-                  title: const Text('Navigation Unselected Text'),
-                  subtitle: const Text(
-                      'Color for unselected items in bottom navigation'),
-                  trailing: Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      color: themeSettings.navUnselectedTextColor,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.grey.shade300),
-                    ),
-                  ),
-                  onTap: () {
-                    _showColorPicker(context, 'Navigation Unselected Text',
-                        themeSettings.navUnselectedTextColor, (color) {
-                      ref
-                          .read(themeSettingsProvider.notifier)
-                          .updateNavUnselectedTextColor(color);
-                    });
-                  },
-                ),
-
-                // Material You Toggle
-                SwitchListTile(
-                  title: const Text('Use Material You (Android 12+)'),
-                  subtitle:
-                      const Text('Use dynamic colors from your device theme'),
-                  value: themeSettings.useMaterialYou,
-                  onChanged: (value) {
-                    // Toggle Material You
-                    ref
-                        .read(themeSettingsProvider.notifier)
-                        .toggleMaterialYou();
-                  },
-                ),
-
-                const Divider(),
-
-                // Reset to Defaults Button
+                // View Full Theme Preview button
                 Align(
                   alignment: Alignment.center,
                   child: ElevatedButton.icon(
-                    icon: const Icon(Icons.refresh),
-                    label: const Text('Reset to Default Colors'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey.shade200,
-                      foregroundColor: Colors.black87,
-                    ),
+                    icon: const Icon(Icons.palette),
+                    label: const Text('View Full Theme Preview'),
                     onPressed: () {
-                      // Reset to defaults
-                      ref
-                          .read(themeSettingsProvider.notifier)
-                          .resetToDefaults();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ThemePreviewScreen(),
+                        ),
+                      );
                     },
                   ),
                 ),
@@ -358,9 +208,9 @@ class AppSettingsScreen extends ConsumerWidget {
                 // Theme Preview
                 Text(
                   'Theme Preview',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  style: context.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 8),
 
@@ -369,12 +219,12 @@ class AppSettingsScreen extends ConsumerWidget {
                   children: [
                     Expanded(
                       child: _buildThemePreviewCard(
-                          context, 'Light Theme', themeSettings, true),
+                          context, ref, 'Light Theme', true),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: _buildThemePreviewCard(
-                          context, 'Dark Theme', themeSettings, false),
+                          context, ref, 'Dark Theme', false),
                     ),
                   ],
                 ),
@@ -394,9 +244,9 @@ class AppSettingsScreen extends ConsumerWidget {
               children: [
                 Text(
                   localizations.translate('about'),
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  style: context.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 ListTile(
@@ -432,21 +282,66 @@ class AppSettingsScreen extends ConsumerWidget {
     );
   }
 
+  // Build palette selection option
+  Widget _buildPaletteOption(
+      BuildContext context, WidgetRef ref, AppColorPalette palette,
+      {required AppColorPalette selectedPalette}) {
+    final isSelected = palette.name == selectedPalette.name;
+
+    return ListTile(
+      title: Text(palette.name),
+      subtitle: Text(palette.description),
+      leading: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: palette.primaryColor,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black
+                  .withAlpha(25), // Using withAlpha instead of withOpacity
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Center(
+          child: Container(
+            width: 20,
+            height: 20,
+            decoration: BoxDecoration(
+              color: palette.secondaryColor,
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        ),
+      ),
+      trailing: isSelected
+          ? Icon(Icons.check_circle, color: palette.primaryColor)
+          : const Icon(Icons.circle_outlined),
+      onTap: () {
+        // Update the selected palette
+        ref.read(colorPaletteProvider.notifier).setPalette(palette);
+      },
+    );
+  }
+
   // Theme preview card
-  Widget _buildThemePreviewCard(BuildContext context, String title,
-      ThemeSettings settings, bool isLight) {
+  Widget _buildThemePreviewCard(
+      BuildContext context, WidgetRef ref, String title, bool isLight) {
+    final palette = ref.watch(colorPaletteProvider);
+
     // Get colors based on theme type
-    final primaryColor = isLight
-        ? settings.primaryColor
-        : _darkenColor(settings.primaryColor, 0.2);
     final backgroundColor =
-        isLight ? settings.backgroundColorLight : settings.backgroundColorDark;
-    final textColor = isLight ? Colors.black87 : Colors.white;
-    final cardColor = isLight ? Colors.white : const Color(0xFF2C2C2C);
+        isLight ? palette.backgroundColorLight : palette.backgroundColorDark;
+    final cardColor = isLight ? palette.cardColorLight : palette.cardColorDark;
+    final textColor = isLight ? palette.textColorLight : palette.textColorDark;
+    final primaryColor = palette.primaryColor;
 
     // Navigation preview colors
-    final navSelectedColor = settings.navSelectedTextColor;
-    final navUnselectedColor = settings.navUnselectedTextColor;
+    final navSelectedColor = palette.navSelectedTextColor;
+    final navUnselectedColor = palette.navUnselectedTextColor;
 
     return Container(
       padding: const EdgeInsets.all(8),
@@ -473,7 +368,7 @@ class AppSettingsScreen extends ConsumerWidget {
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryColor,
-                foregroundColor: Colors.white,
+                foregroundColor: palette.buttonTextColor,
               ),
               onPressed: null,
               child: const Text('Button'),
@@ -490,7 +385,8 @@ class AppSettingsScreen extends ConsumerWidget {
               borderRadius: BorderRadius.circular(4),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black
+                      .withAlpha(25), // Using withAlpha instead of withOpacity
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
@@ -519,7 +415,9 @@ class AppSettingsScreen extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: cardColor,
+              color: isLight
+                  ? palette.navBarBackgroundLight
+                  : palette.navBarBackgroundDark,
               borderRadius: BorderRadius.circular(4),
             ),
             child: Row(
@@ -532,29 +430,6 @@ class AppSettingsScreen extends ConsumerWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  // Helper method to darken a color
-  Color _darkenColor(Color color, double factor) {
-    assert(factor >= 0 && factor <= 1);
-
-    int r = (color.red * (1 - factor)).round();
-    int g = (color.green * (1 - factor)).round();
-    int b = (color.blue * (1 - factor)).round();
-
-    return Color.fromRGBO(r, g, b, 1.0);
-  }
-
-  void _showColorPicker(BuildContext context, String title, Color initialColor,
-      Function(Color) onColorSelected) {
-    showDialog(
-      context: context,
-      builder: (context) => ColorPickerDialog(
-        title: title,
-        initialColor: initialColor,
-        onColorSelected: onColorSelected,
       ),
     );
   }
