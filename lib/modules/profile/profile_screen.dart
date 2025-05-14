@@ -87,7 +87,7 @@ class ProfileScreen extends ConsumerWidget {
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.favorite),
-          label: localizations.translate('hr_zones'),
+          label: localizations.translate('heart_rate_zones'),
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.flash_on),

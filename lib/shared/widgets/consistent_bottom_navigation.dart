@@ -1,3 +1,5 @@
+// lib/shared/widgets/consistent_bottom_navigation.dart
+
 import 'package:flutter/material.dart';
 
 /// A reusable bottom navigation bar component that maintains consistent styling across the app
@@ -34,7 +36,7 @@ class ConsistentBottomNavigationBar extends StatelessWidget {
     return BottomNavigationBar(
       currentIndex: currentIndex,
       onTap: onTap,
-      items: items, // Uses translated strings from the parent
+      items: items, // Uses translated strings from the parent widget
       type: BottomNavigationBarType.fixed,
       selectedItemColor: selectedItemColor ?? theme.primaryColor,
       unselectedItemColor: unselectedItemColor ?? Colors.grey,

@@ -390,24 +390,24 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
       [
         BottomNavigationBarItem(
           icon: const Icon(Icons.history),
-          label: 'All Activities',
+          label: localizations.translate('all_activities'),
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.bluetooth),
-          label: 'Sensors',
+          label: localizations.translate('sensors'),
         ),
         // Center item (New) - will be replaced by the helper with empty container
         BottomNavigationBarItem(
           icon: Container(), // Empty container to avoid double icons
-          label: 'New Activity',
+          label: localizations.translate('new_activity'),
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.analytics),
-          label: 'Analytics',
+          label: localizations.translate('analytics'),
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.settings),
-          label: 'Activity Settings',
+          label: localizations.translate('activity_settings'),
         ),
       ],
       (index) {
@@ -460,24 +460,24 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
       [
         BottomNavigationBarItem(
           icon: const Icon(Icons.route),
-          label: 'My Routes',
+          label: localizations.translate('my_routes'),
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.explore),
-          label: 'Discover',
+          label: localizations.translate('discover_routes'),
         ),
         // Center item (Create) - will be replaced with empty container
         BottomNavigationBarItem(
           icon: Container(), // Empty container to avoid double icons
-          label: 'Create Route',
+          label: localizations.translate('create_route'),
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.favorite),
-          label: 'Favorites',
+          label: localizations.translate('favorite_routes'),
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.history),
-          label: 'History',
+          label: localizations.translate('route_history'),
         ),
       ],
       (index) {
@@ -530,24 +530,24 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
       [
         BottomNavigationBarItem(
           icon: const Icon(Icons.dynamic_feed),
-          label: 'Feed',
+          label: localizations.translate('activity_feed'),
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.person_add),
-          label: 'Friends',
+          label: localizations.translate('friends'),
         ),
         // Center item (Challenges) - will be replaced with empty container
         BottomNavigationBarItem(
           icon: Container(), // Empty container to avoid double icons
-          label: 'Challenges',
+          label: localizations.translate('challenges'),
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.group),
-          label: 'Groups',
+          label: localizations.translate('groups'),
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.leaderboard),
-          label: 'Leaderboard',
+          label: localizations.translate('leaderboards'),
         ),
       ],
       (index) {
@@ -583,23 +583,23 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
       [
         BottomNavigationBarItem(
           icon: const Icon(Icons.person),
-          label: 'User Info',
+          label: localizations.translate('user_info'),
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.favorite),
-          label: 'HR Zones',
+          label: localizations.translate('heart_rate_zones'),
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.flash_on),
-          label: 'Power Zones',
+          label: localizations.translate('power_zones'),
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.speed),
-          label: 'Pace Zones',
+          label: localizations.translate('pace_zones'),
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.settings),
-          label: 'App Settings',
+          label: localizations.translate('app_settings'),
         ),
       ],
       (index) {
@@ -669,26 +669,29 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
   // When in Routes Hub, show the specific content based on the selected section
   Widget _buildRoutesHub() {
     final routesSection = ref.watch(routesSectionProvider);
+    final localizations = AppLocalizations.of(context);
 
     switch (routesSection) {
       case 'my_routes':
-        return _buildRoutesPlaceholder(
-            'My Routes', 'View and manage your saved routes');
+        return _buildRoutesPlaceholder(localizations.translate('my_routes'),
+            localizations.translate('my_routes_description'));
       case 'discover':
         return _buildRoutesPlaceholder(
-            'Discover Routes', 'Explore popular routes nearby');
+            localizations.translate('discover_routes'),
+            localizations.translate('discover_routes_description'));
       case 'create_route':
-        return _buildRoutesPlaceholder(
-            'Create Route', 'Design new running routes');
+        return _buildRoutesPlaceholder(localizations.translate('create_route'),
+            localizations.translate('create_route_description'));
       case 'favorites':
         return _buildRoutesPlaceholder(
-            'Favorite Routes', 'Your favorite running routes');
+            localizations.translate('favorite_routes'),
+            localizations.translate('favorite_routes_description'));
       case 'history':
-        return _buildRoutesPlaceholder(
-            'Route History', 'Routes you\'ve run in the past');
+        return _buildRoutesPlaceholder(localizations.translate('route_history'),
+            localizations.translate('route_history_description'));
       default:
-        return _buildRoutesPlaceholder(
-            'My Routes', 'View and manage your saved routes');
+        return _buildRoutesPlaceholder(localizations.translate('my_routes'),
+            localizations.translate('my_routes_description'));
     }
   }
 
@@ -721,25 +724,27 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
   // When in Tribe Hub, show the specific content based on the selected section
   Widget _buildTribeHub() {
     final tribeSection = ref.watch(tribeSectionProvider);
+    final localizations = AppLocalizations.of(context);
 
     switch (tribeSection) {
       case 'feed':
-        return _buildTribePlaceholder(
-            'Activity Feed', 'See what your friends are up to');
+        return _buildTribePlaceholder(localizations.translate('activity_feed'),
+            localizations.translate('activity_feed_description'));
       case 'friends':
-        return _buildTribePlaceholder('Friends', 'Manage your connections');
+        return _buildTribePlaceholder(localizations.translate('friends'),
+            localizations.translate('friends_description'));
       case 'challenges':
-        return _buildTribePlaceholder(
-            'Challenges', 'Compete with friends and groups');
+        return _buildTribePlaceholder(localizations.translate('challenges'),
+            localizations.translate('challenges_description'));
       case 'groups':
-        return _buildTribePlaceholder(
-            'Groups', 'Your running groups and clubs');
+        return _buildTribePlaceholder(localizations.translate('groups'),
+            localizations.translate('groups_description'));
       case 'leaderboard':
-        return _buildTribePlaceholder(
-            'Leaderboards', 'See how you rank among your peers');
+        return _buildTribePlaceholder(localizations.translate('leaderboards'),
+            localizations.translate('leaderboards_description'));
       default:
-        return _buildTribePlaceholder(
-            'Activity Feed', 'See what your friends are up to');
+        return _buildTribePlaceholder(localizations.translate('activity_feed'),
+            localizations.translate('activity_feed_description'));
     }
   }
 
@@ -966,7 +971,7 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
         case 'sensors':
           return localizations.translate('sensors');
         case 'analytics':
-          return 'Analytics';
+          return localizations.translate('analytics');
         default:
           return localizations.translate('activity');
       }
@@ -977,15 +982,15 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
       final routesSection = ref.watch(routesSectionProvider);
       switch (routesSection) {
         case 'my_routes':
-          return 'My Routes';
+          return localizations.translate('my_routes');
         case 'discover':
-          return 'Discover Routes';
+          return localizations.translate('discover_routes');
         case 'create_route':
-          return 'Create Route';
+          return localizations.translate('create_route');
         case 'favorites':
-          return 'Favorite Routes';
+          return localizations.translate('favorite_routes');
         case 'history':
-          return 'Route History';
+          return localizations.translate('route_history');
         default:
           return localizations.translate('routes');
       }
@@ -996,15 +1001,15 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
       final tribeSection = ref.watch(tribeSectionProvider);
       switch (tribeSection) {
         case 'feed':
-          return 'Activity Feed';
+          return localizations.translate('activity_feed');
         case 'friends':
-          return 'Friends';
+          return localizations.translate('friends');
         case 'challenges':
-          return 'Challenges';
+          return localizations.translate('challenges');
         case 'groups':
-          return 'Groups';
+          return localizations.translate('groups');
         case 'leaderboard':
-          return 'Leaderboards';
+          return localizations.translate('leaderboards');
         default:
           return localizations.translate('tribe');
       }
@@ -1015,15 +1020,15 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
       final profileSection = ref.watch(profileSectionProvider);
       switch (profileSection) {
         case 'user_info':
-          return 'User';
+          return localizations.translate('user_info');
         case 'hr_zones':
-          return 'Cardio';
+          return localizations.translate('hr_zones');
         case 'power_zones':
-          return 'Power';
+          return localizations.translate('power_zones');
         case 'pace_zones':
-          return 'Pacing';
+          return localizations.translate('pace_zones');
         case 'app_settings':
-          return 'Settings';
+          return localizations.translate('app_settings');
         default:
           return localizations.translate('profile');
       }

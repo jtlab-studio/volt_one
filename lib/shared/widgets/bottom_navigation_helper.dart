@@ -1,3 +1,5 @@
+// lib/shared/widgets/bottom_navigation_helper.dart
+
 import 'package:flutter/material.dart';
 import 'consistent_bottom_navigation.dart';
 
@@ -7,7 +9,7 @@ class BottomNavigationHelper {
   static Widget createMainBottomNavBar(BuildContext context, int currentIndex,
       List<BottomNavigationBarItem> items, ValueChanged<int> onTap,
       {Color? selectedItemColor}) {
-    // Here, items should already contain translated labels
+    // Items should already have translated labels from the parent calling widget
     return ConsistentBottomNavigationBar(
       currentIndex: currentIndex,
       onTap: onTap,

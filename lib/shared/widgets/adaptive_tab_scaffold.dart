@@ -1,3 +1,5 @@
+// lib/shared/widgets/adaptive_tab_scaffold.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:io' show Platform;
