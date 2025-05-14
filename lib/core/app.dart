@@ -51,6 +51,12 @@ class VoltApp extends ConsumerWidget {
       Locale('da', ''), // Dansk
       Locale('es', 'CL'), // Español (Chile)
       Locale('es', 'LATAM'), // Español (Latinoamérica)
+      Locale('ay', ''), // Aymara
+      Locale('qu', ''), // Quechua
+      Locale('arn', ''), // Mapudungun
+      Locale('gn', ''), // Guarani
+      Locale('sw', ''), // Swahili
+      Locale('nah', ''), // Nahuatl
     ];
 
     return MaterialApp(

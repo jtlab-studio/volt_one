@@ -118,7 +118,13 @@ class _AppLocalizationsDelegate
       "tr",
       "sv",
       "no",
-      "da"
+      "da",
+      "ay", // Aymara
+      "qu", // Quechua
+      "arn", // Mapudungun (also previously referenced as 'map')
+      "gn", // Guarani
+      "sw", // Swahili
+      "nah" // Nahuatl
     ];
 
     // Check if the basic language is supported
