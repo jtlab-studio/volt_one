@@ -34,7 +34,7 @@ class AdaptiveTabScaffold extends StatelessWidget {
               items: tabs
                   .map((tab) => BottomNavigationBarItem(
                         icon: Icon(tab.icon),
-                        label: tab.title,
+                        label: tab.title, // Already using the translated string
                       ))
                   .toList(),
               currentIndex: currentIndex,
@@ -53,7 +53,7 @@ class AdaptiveTabScaffold extends StatelessWidget {
               items: tabs
                   .map((tab) => BottomNavigationBarItem(
                         icon: Icon(tab.icon),
-                        label: tab.title,
+                        label: tab.title, // Already using the translated string
                       ))
                   .toList(),
               currentIndex: currentIndex,

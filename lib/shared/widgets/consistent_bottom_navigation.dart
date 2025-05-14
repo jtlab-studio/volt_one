@@ -34,7 +34,7 @@ class ConsistentBottomNavigationBar extends StatelessWidget {
     return BottomNavigationBar(
       currentIndex: currentIndex,
       onTap: onTap,
-      items: items,
+      items: items, // Uses translated strings from the parent
       type: BottomNavigationBarType.fixed,
       selectedItemColor: selectedItemColor ?? theme.primaryColor,
       unselectedItemColor: unselectedItemColor ?? Colors.grey,
