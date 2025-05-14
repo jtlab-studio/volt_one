@@ -15,8 +15,8 @@ import '../../activity/screens/activity_history_screen.dart';
 import '../../activity/screens/activity_settings_screen.dart';
 import '../../activity/screens/sensors_screen.dart';
 import '../../profile/screens/hr_zones_screen.dart';
-import '../../profile/screens/power_zones_screen.dart';
-import '../../profile/screens/pace_zones_screen.dart';
+import '../../profile/screens/power_zones_screen.dart' as power_zones;
+import '../../profile/screens/pace_zones_screen.dart' as pace_zones;
 import '../../profile/screens/user_info_screen.dart';
 import '../../profile/screens/app_settings_screen.dart';
 
@@ -182,7 +182,7 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
     }
   }
 
-  // Custom back button handling - used with WillPopScope
+  // Custom back button handling
   Future<bool> _handleBackButton() async {
     final currentTabIndex = ref.read(mainTabIndexProvider);
     final inActivityHub = ref.read(inActivityHubProvider);
@@ -229,9 +229,16 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
       inProfileHub ? _buildProfileHub() : const ProfileScreen(),
     ];
 
-    // We need to use WillPopScope despite the deprecation warning since it's more reliable
-    return WillPopScope(
-      onWillPop: _handleBackButton,
+    // Replace WillPopScope with PopScope
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        final shouldPop = await _handleBackButton();
+        if (shouldPop && context.mounted) {
+          Navigator.of(context).pop();
+        }
+      },
       child: Scaffold(
         key: scaffoldKey,
         appBar: GlobalAppBar(
@@ -772,41 +779,14 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
       case 'hr_zones':
         return const HRZonesScreen();
       case 'power_zones':
-        return const PowerZonesScreen();
+        return const power_zones.PowerZonesScreen();
       case 'pace_zones':
-        return const PaceZonesScreen();
+        return const pace_zones.PaceZonesScreen();
       case 'app_settings':
-        // Use the actual AppSettingsScreen instead of a placeholder
         return const AppSettingsScreen();
       default:
         return const UserInfoScreen();
     }
-  }
-
-  // Helper to build profile placeholders
-  Widget _buildProfilePlaceholder(String title, String description) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.person, size: 64, color: Colors.grey),
-          const SizedBox(height: 16),
-          Text(
-            title,
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Text(
-              description,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey[600]),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   // Dashboard screen content
