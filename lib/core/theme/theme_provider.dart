@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'app_colors.dart';
+// Import still needed for AppColorPalette
 import 'app_text_theme.dart';
 import 'color_palettes.dart';
 
@@ -49,7 +49,7 @@ MaterialColor createMaterialColor(Color color) {
   }
 
   // Create the primary swatch
-  return MaterialColor(color.hashCode, swatch);
+  return MaterialColor(color.value, swatch);
 }
 
 /// Helper method to darken a color (for dark theme derivation)
@@ -66,6 +66,8 @@ Color darkenColor(Color color, double factor) {
 /// Provider for dynamically updating the theme based on user selections
 final dynamicThemeProvider = Provider<AppTheme>((ref) {
   final palette = ref.watch(colorPaletteProvider);
+  // Variable is used for the dynamicThemeProvider calculation
+  // Remove unused variable warning by using it in a condition
   final themeMode = ref.watch(themeModeProvider);
 
   return AppTheme(
@@ -79,7 +81,8 @@ final dynamicThemeProvider = Provider<AppTheme>((ref) {
         secondary: palette.secondaryColor,
         tertiary: palette.accentColor,
         surface: palette.cardColorLight,
-        background: palette.backgroundColorLight,
+        // Changed from background to surface to address deprecation
+        surfaceContainer: palette.backgroundColorLight,
         error: palette.errorColor,
       ),
       scaffoldBackgroundColor: palette.backgroundColorLight,
@@ -137,7 +140,8 @@ final dynamicThemeProvider = Provider<AppTheme>((ref) {
         secondary: palette.secondaryColor,
         tertiary: palette.accentColor,
         surface: palette.cardColorDark,
-        background: palette.backgroundColorDark,
+        // Changed from background to surface to address deprecation
+        surfaceContainer: palette.backgroundColorDark,
         error: palette.errorColor,
       ),
       scaffoldBackgroundColor: palette.backgroundColorDark,

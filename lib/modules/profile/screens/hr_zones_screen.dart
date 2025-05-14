@@ -41,7 +41,7 @@ class HRZonesScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    localizations.translate('lthr'),
+                    "LTHR", // Changed from "Lactate Threshold Heart Rate"
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -207,7 +207,7 @@ class HRZonesScreen extends ConsumerWidget {
 
           const SizedBox(height: 24),
 
-          // NEW SECTION: About Heart Rate Zones
+          // UPDATED: About Heart Rate Zones with LTHR explanation
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -221,6 +221,40 @@ class HRZonesScreen extends ConsumerWidget {
                         ),
                   ),
                   const SizedBox(height: 16),
+
+                  // Added LTHR explanation
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withAlpha(20),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                          color: Colors.red.withAlpha(120), width: 1),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'What is LTHR?',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red[700],
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'LTHR (Lactate Threshold Heart Rate) is the heart rate at which lactate begins to accumulate in your blood faster than it can be cleared. It represents the highest intensity you can sustain for approximately 1 hour of continuous exercise. Training zones based on LTHR provide a personalized approach that accounts for individual fitness levels. Testing for LTHR can be done with a 30-minute time trial, taking the average heart rate from the final 20 minutes.',
+                          style: TextStyle(
+                            color: Colors.grey[800],
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
                   Text(
                     'Heart rate zones divide your cardio effort into ranges that correspond to different physiological adaptations and training purposes.\n\n'
                     'Zone 1 (Recovery): Very easy effort for active recovery, warm-up/cool-down.\n'
@@ -234,7 +268,9 @@ class HRZonesScreen extends ConsumerWidget {
                       height: 1.5,
                     ),
                   ),
+
                   const SizedBox(height: 16),
+
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(

@@ -202,34 +202,60 @@ class UserInfoScreen extends ConsumerWidget {
     );
   }
 
+  // Simplified Gender Selector with just icons
   Widget _buildGenderSelector(
       BuildContext context, WidgetRef ref, UserProfile profile) {
-    return SegmentedButton<Gender>(
-      segments: [
-        ButtonSegment<Gender>(
-          value: Gender.male,
-          label: Text(AppLocalizations.of(context).translate('male')),
-          icon: const Icon(Icons.male),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Male Option
+        IconButton(
+          icon: Icon(
+            Icons.male,
+            color: profile.gender == Gender.male
+                ? Theme.of(context).primaryColor
+                : Colors.grey,
+            size: 32,
+          ),
+          onPressed: () {
+            ref.read(userProfileProvider.notifier).update(
+                  (state) => state.copyWith(gender: Gender.male),
+                );
+          },
         ),
-        ButtonSegment<Gender>(
-          value: Gender.female,
-          label: Text(AppLocalizations.of(context).translate('female')),
-          icon: const Icon(Icons.female),
+
+        // Female Option
+        IconButton(
+          icon: Icon(
+            Icons.female,
+            color: profile.gender == Gender.female
+                ? Theme.of(context).primaryColor
+                : Colors.grey,
+            size: 32,
+          ),
+          onPressed: () {
+            ref.read(userProfileProvider.notifier).update(
+                  (state) => state.copyWith(gender: Gender.female),
+                );
+          },
         ),
-        ButtonSegment<Gender>(
-          value: Gender.notSpecified,
-          label: Text(AppLocalizations.of(context).translate('not_specified')),
-          icon: const Icon(Icons.person_outline),
+
+        // Not Specified Option
+        IconButton(
+          icon: Icon(
+            Icons.person_outline,
+            color: profile.gender == Gender.notSpecified
+                ? Theme.of(context).primaryColor
+                : Colors.grey,
+            size: 32,
+          ),
+          onPressed: () {
+            ref.read(userProfileProvider.notifier).update(
+                  (state) => state.copyWith(gender: Gender.notSpecified),
+                );
+          },
         ),
       ],
-      selected: {profile.gender},
-      onSelectionChanged: (Set<Gender> newSelection) {
-        if (newSelection.isNotEmpty) {
-          ref.read(userProfileProvider.notifier).update(
-                (state) => state.copyWith(gender: newSelection.first),
-              );
-        }
-      },
     );
   }
 }
