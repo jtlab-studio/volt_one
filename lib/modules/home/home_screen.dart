@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/l10n/app_localizations.dart';
+import '../../core/l10n/app_localizations.dart'; // Updated import path
 import '../../core/router.dart';
 import 'screens/main_dashboard_screen.dart';
 
@@ -80,97 +80,76 @@ class HomeScreen extends ConsumerWidget {
                     }
                   },
                   items: [
+                    // English
                     DropdownMenuItem(
-                      value: Locale('en', ''),
-                      child: Text('English'),
+                      value: const Locale('en', ''),
+                      child: const Text('English'),
+                    ),
+                    // German
+                    DropdownMenuItem(
+                      value: const Locale('de', ''),
+                      child: const Text('Deutsch'),
+                    ),
+                    // Spanish and variants
+                    DropdownMenuItem(
+                      value: const Locale('es', ''),
+                      child: const Text('Español'),
                     ),
                     DropdownMenuItem(
-                      value: Locale('es', ''),
-                      child: Text('Español'),
+                      value: const Locale('es', 'CL'),
+                      child: const Text('Español (Chile)'),
                     ),
                     DropdownMenuItem(
-                      value: Locale('es', 'CL'),
-                      child: Text('Español (Chile)'),
+                      value: const Locale('es', 'LATAM'),
+                      child: const Text('Español (Latinoamérica)'),
+                    ),
+                    // French
+                    DropdownMenuItem(
+                      value: const Locale('fr', ''),
+                      child: const Text('Français'),
+                    ),
+                    // Italian
+                    DropdownMenuItem(
+                      value: const Locale('it', ''),
+                      child: const Text('Italiano'),
+                    ),
+                    // Japanese
+                    DropdownMenuItem(
+                      value: const Locale('ja', ''),
+                      child: const Text('日本語'),
+                    ),
+                    // Korean
+                    DropdownMenuItem(
+                      value: const Locale('ko', ''),
+                      child: const Text('한국어'),
+                    ),
+                    // Portuguese variants
+                    DropdownMenuItem(
+                      value: const Locale('pt', 'BR'),
+                      child: const Text('Português (Brasil)'),
                     ),
                     DropdownMenuItem(
-                      value: Locale('es', 'LATAM'),
-                      child: Text('Español (Latinoamérica)'),
+                      value: const Locale('pt', 'PT'),
+                      child: const Text('Português (Portugal)'),
+                    ),
+                    // Russian
+                    DropdownMenuItem(
+                      value: const Locale('ru', ''),
+                      child: const Text('Русский'),
+                    ),
+                    // Turkish
+                    DropdownMenuItem(
+                      value: const Locale('tr', ''),
+                      child: const Text('Türkçe'),
+                    ),
+                    // Chinese variants
+                    DropdownMenuItem(
+                      value: const Locale('zh', 'Hans'),
+                      child: const Text('简体中文'),
                     ),
                     DropdownMenuItem(
-                      value: Locale('de', ''),
-                      child: Text('Deutsch'),
-                    ),
-                    DropdownMenuItem(
-                      value: Locale('fr', ''),
-                      child: Text('Français'),
-                    ),
-                    DropdownMenuItem(
-                      value: Locale('ru', ''),
-                      child: Text('Русский'),
-                    ),
-                    DropdownMenuItem(
-                      value: Locale('pt', 'BR'),
-                      child: Text('Português (Brasil)'),
-                    ),
-                    DropdownMenuItem(
-                      value: Locale('pt', 'PT'),
-                      child: Text('Português (Portugal)'),
-                    ),
-                    DropdownMenuItem(
-                      value: Locale('it', ''),
-                      child: Text('Italiano'),
-                    ),
-                    DropdownMenuItem(
-                      value: Locale('zh', 'Hans'),
-                      child: Text('简体中文'),
-                    ),
-                    DropdownMenuItem(
-                      value: Locale('zh', 'Hant'),
-                      child: Text('繁體中文'),
-                    ),
-                    DropdownMenuItem(
-                      value: Locale('ja', ''),
-                      child: Text('日本語'),
-                    ),
-                    DropdownMenuItem(
-                      value: Locale('ko', ''),
-                      child: Text('한국어'),
-                    ),
-                    DropdownMenuItem(
-                      value: Locale('hi', ''),
-                      child: Text('हिन्दी'),
-                    ),
-                    DropdownMenuItem(
-                      value: Locale('vi', ''),
-                      child: Text('Tiếng Việt'),
-                    ),
-                    DropdownMenuItem(
-                      value: Locale('id', ''),
-                      child: Text('Bahasa Indonesia'),
-                    ),
-                    DropdownMenuItem(
-                      value: Locale('ms', ''),
-                      child: Text('Bahasa Melayu'),
-                    ),
-                    DropdownMenuItem(
-                      value: Locale('th', ''),
-                      child: Text('ไทย'),
-                    ),
-                    DropdownMenuItem(
-                      value: Locale('tr', ''),
-                      child: Text('Türkçe'),
-                    ),
-                    DropdownMenuItem(
-                      value: Locale('sv', ''),
-                      child: Text('Svenska'),
-                    ),
-                    DropdownMenuItem(
-                      value: Locale('no', ''),
-                      child: Text('Norsk'),
-                    ),
-                    DropdownMenuItem(
-                      value: Locale('da', ''),
-                      child: Text('Dansk'),
+                      value: const Locale('zh', 'Hant'),
+                      child: const Text('繁體中文'),
                     ),
                   ],
                 ),

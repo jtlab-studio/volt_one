@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:developer' as developer;
 
 class AppLocalizations {
   final Locale locale;
@@ -31,7 +32,7 @@ class AppLocalizations {
       if (countryCode != null && countryCode.isNotEmpty) {
         try {
           jsonString = await rootBundle
-              .loadString("assets/lang/${languageCode}-${countryCode}.json");
+              .loadString("assets/lang/$languageCode-$countryCode.json");
           Map<String, dynamic> jsonMap = json.decode(jsonString);
 
           _localizedStrings = jsonMap.map((key, value) {
@@ -41,14 +42,15 @@ class AppLocalizations {
           return true;
         } catch (e) {
           // If regional variant not found, fall back to base language
-          print(
-              "Regional variant ${languageCode}-${countryCode} not found, falling back to ${languageCode}");
+          developer.log(
+              "Regional variant $languageCode-$countryCode not found, falling back to $languageCode",
+              name: 'AppLocalizations');
         }
       }
 
       // Load the base language JSON file
       jsonString =
-          await rootBundle.loadString("assets/lang/${languageCode}.json");
+          await rootBundle.loadString("assets/lang/$languageCode.json");
       Map<String, dynamic> jsonMap = json.decode(jsonString);
 
       _localizedStrings = jsonMap.map((key, value) {
@@ -57,11 +59,12 @@ class AppLocalizations {
 
       return true;
     } catch (e) {
-      print("Failed to load language file for ${locale.toString()}: $e");
+      developer.log("Failed to load language file for ${locale.toString()}: $e",
+          name: 'AppLocalizations', level: 900); // Using warning level
 
       // Fallback to English if the requested language is not found
       if (languageCode != 'en') {
-        print("Falling back to English");
+        developer.log("Falling back to English", name: 'AppLocalizations');
         try {
           jsonString = await rootBundle.loadString("assets/lang/en.json");
           Map<String, dynamic> jsonMap = json.decode(jsonString);
@@ -70,7 +73,8 @@ class AppLocalizations {
             return MapEntry(key, value.toString());
           });
         } catch (e) {
-          print("Failed to load fallback English language file: $e");
+          developer.log("Failed to load fallback English language file: $e",
+              name: 'AppLocalizations', level: 1000); // Using error level
           // Return empty map if even English fails
           _localizedStrings = {};
         }
@@ -98,33 +102,19 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) {
-    // Base language support
+    // Base language support based on available JSON files in assets/lang
     final supportedLanguages = [
       "en",
-      "es",
       "de",
+      "es",
       "fr",
-      "ru",
-      "pt",
       "it",
-      "zh",
       "ja",
       "ko",
-      "hi",
-      "vi",
-      "id",
-      "ms",
-      "th",
+      "pt",
+      "ru",
       "tr",
-      "sv",
-      "no",
-      "da",
-      "ay", // Aymara
-      "qu", // Quechua
-      "arn", // Mapudungun (also previously referenced as 'map')
-      "gn", // Guarani
-      "sw", // Swahili
-      "nah" // Nahuatl
+      "zh"
     ];
 
     // Check if the basic language is supported

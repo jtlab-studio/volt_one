@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'router.dart';
 import 'theme/app_theme.dart';
-import 'l10n/app_localizations.dart';
+import 'core/l10n/app_localizations.dart'; // Updated import path
 
 class VoltApp extends ConsumerWidget {
   const VoltApp({super.key});
@@ -23,12 +23,23 @@ class VoltApp extends ConsumerWidget {
       GlobalCupertinoLocalizations.delegate,
     ];
 
+    // Updated list of supported locales based on JSON files in assets/lang folder
     final supportedLocales = const [
       Locale('en', ''), // English
-      Locale('es', ''), // Spanish
       Locale('de', ''), // German
+      Locale('es', ''), // Spanish
+      Locale('es', 'CL'), // Spanish (Chile)
+      Locale('es', 'LATAM'), // Spanish (Latin America)
       Locale('fr', ''), // French
+      Locale('it', ''), // Italian
+      Locale('ja', ''), // Japanese
+      Locale('ko', ''), // Korean
+      Locale('pt', 'BR'), // Portuguese (Brazil)
+      Locale('pt', 'PT'), // Portuguese (Portugal)
       Locale('ru', ''), // Russian
+      Locale('tr', ''), // Turkish
+      Locale('zh', 'Hans'), // Chinese (Simplified)
+      Locale('zh', 'Hant'), // Chinese (Traditional)
     ];
 
     return MaterialApp(
