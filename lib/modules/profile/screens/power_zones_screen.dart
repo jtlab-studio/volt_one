@@ -1,4 +1,4 @@
-// lib/modules/profile/screens/power_zones_screen.dart - New dedicated Power zones screen
+// lib/modules/profile/screens/pace_zones_screen.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,21 +6,37 @@ import '../../../core/l10n/app_localizations.dart';
 import '../models/user_profile.dart';
 import '../providers/user_profile_provider.dart';
 
-/// Screen for managing Power training zones
-class PowerZonesScreen extends ConsumerWidget {
-  const PowerZonesScreen({super.key});
+/// Screen for managing Pace training zones
+class PaceZonesScreen extends ConsumerWidget {
+  const PaceZonesScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final localizations = AppLocalizations.of(context);
     final userProfile = ref.watch(userProfileProvider);
 
+    // Default critical pace if not set in profile
+    final criticalPace = userProfile.criticalPace ?? 270; // 4:30 min/km default
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Critical Power Section
+          // Add large icon at the top
+          const Icon(
+            Icons.speed,
+            size: 80,
+            color: Colors.green,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Pace Zones',
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
+          const SizedBox(height: 24),
+
+          // Critical Pace Section
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -28,7 +44,7 @@ class PowerZonesScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    localizations.translate('critical_power'),
+                    'Critical Pace',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -37,7 +53,7 @@ class PowerZonesScreen extends ConsumerWidget {
                   const SizedBox(height: 8),
 
                   Text(
-                    localizations.translate('critical_power_help'),
+                    'Critical pace is the pace you can sustain for approximately 1 hour of running. It is a key physiological marker similar to lactate threshold.',
                     style: TextStyle(
                       color: Colors.grey[600],
                       fontSize: 12,
@@ -46,16 +62,16 @@ class PowerZonesScreen extends ConsumerWidget {
 
                   const SizedBox(height: 16),
 
-                  // Critical Power value display and edit button
+                  // Critical Pace value display and edit button
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.flash_on, color: Colors.orange),
+                          const Icon(Icons.speed, color: Colors.green),
                           const SizedBox(width: 8),
                           Text(
-                            '${userProfile.criticalPower} watts',
+                            _formatPace(criticalPace),
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 18,
@@ -65,7 +81,7 @@ class PowerZonesScreen extends ConsumerWidget {
                       ),
                       ElevatedButton(
                         onPressed: () =>
-                            _editCriticalPower(context, ref, userProfile),
+                            _editCriticalPace(context, ref, criticalPace),
                         style: ElevatedButton.styleFrom(
                           backgroundColor:
                               const Color.fromRGBO(255, 152, 0, 1.0), // Orange
@@ -103,9 +119,9 @@ class PowerZonesScreen extends ConsumerWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(localizations.translate('number_of_power_zones')),
+                      const Text('Number of Pace Zones'),
                       DropdownButton<int>(
-                        value: userProfile.powerZones,
+                        value: userProfile.paceZones ?? 6, // Default to 6 zones
                         items: [3, 4, 5, 6, 7].map((zoneCount) {
                           return DropdownMenuItem<int>(
                             value: zoneCount,
@@ -115,7 +131,7 @@ class PowerZonesScreen extends ConsumerWidget {
                         onChanged: (value) {
                           if (value != null) {
                             ref.read(userProfileProvider.notifier).update(
-                                  (state) => state.copyWith(powerZones: value),
+                                  (state) => state.copyWith(paceZones: value),
                                 );
                           }
                         },
@@ -129,17 +145,15 @@ class PowerZonesScreen extends ConsumerWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
+                      const Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(localizations
-                                .translate('auto_calculate_power_zones')),
+                            Text('Auto-calculate Pace Zones'),
                             Text(
-                              localizations
-                                  .translate('auto_calculate_power_zones_desc'),
+                              'Automatically calculate zones based on your critical pace',
                               style: TextStyle(
-                                color: Colors.grey[600],
+                                color: Colors.grey,
                                 fontSize: 12,
                               ),
                             ),
@@ -147,11 +161,12 @@ class PowerZonesScreen extends ConsumerWidget {
                         ),
                       ),
                       Switch(
-                        value: userProfile.autoCalculatePowerZones,
+                        value: userProfile.autoCalculatePaceZones ??
+                            true, // Default to auto-calculate
                         onChanged: (value) {
                           ref.read(userProfileProvider.notifier).update(
                                 (state) => state.copyWith(
-                                    autoCalculatePowerZones: value),
+                                    autoCalculatePaceZones: value),
                               );
                         },
                         activeColor:
@@ -166,7 +181,7 @@ class PowerZonesScreen extends ConsumerWidget {
 
           const SizedBox(height: 24),
 
-          // Power Zones Display
+          // Pace Zones Display
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -174,7 +189,7 @@ class PowerZonesScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    localizations.translate('power_zones'),
+                    'Pace Zones',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -183,11 +198,67 @@ class PowerZonesScreen extends ConsumerWidget {
                   const SizedBox(height: 16),
 
                   // Show either auto-calculated zones or editable zones
-                  userProfile.autoCalculatePowerZones
-                      ? _buildCalculatedPowerZones(
-                          context, localizations, userProfile)
-                      : _buildEditablePowerZones(
-                          context, ref, localizations, userProfile),
+                  (userProfile.autoCalculatePaceZones ?? true)
+                      ? _buildCalculatedPaceZones(context, localizations,
+                          criticalPace, userProfile.paceZones ?? 6)
+                      : _buildEditablePaceZones(context, ref, localizations,
+                          criticalPace, userProfile.paceZones ?? 6),
+                ],
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
+          // Information about pace zones
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'About Pace Zones',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Pace zones divide running paces into ranges that correspond to different training intensities. Each zone trains different energy systems and produces specific adaptations.\n\n'
+                    'Zone 1 (Recovery): Very easy running that promotes recovery.\n'
+                    'Zone 2 (Easy): Aerobic development and fat metabolism.\n'
+                    'Zone 3 (Moderate): Improved aerobic capacity and efficiency.\n'
+                    'Zone 4 (Threshold): Lactate threshold development.\n'
+                    'Zone 5 (Interval): VO2max development.\n'
+                    'Zone 6 (Sprint): Anaerobic capacity and neuromuscular power.',
+                    style: TextStyle(
+                      color: Colors.grey[800],
+                      height: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.amber.withAlpha(20),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.amber, width: 1),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.info_outline,
+                            color: Colors.amber, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Pace zones are the most directly actionable training metric, as you can control your pace during workouts.',
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -197,52 +268,101 @@ class PowerZonesScreen extends ConsumerWidget {
     );
   }
 
-  // Edit Critical Power dialog
-  void _editCriticalPower(
-      BuildContext context, WidgetRef ref, UserProfile profile) {
-    final controller =
-        TextEditingController(text: profile.criticalPower.toString());
+  // Edit Critical Pace dialog
+  void _editCriticalPace(
+      BuildContext context, WidgetRef ref, int currentPaceSeconds) {
+    final minutes = currentPaceSeconds ~/ 60;
+    final seconds = currentPaceSeconds % 60;
+
+    final minutesController = TextEditingController(text: minutes.toString());
+    final secondsController =
+        TextEditingController(text: seconds.toString().padLeft(2, '0'));
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(AppLocalizations.of(context).translate('critical_power')),
-        content: TextField(
-          controller: controller,
-          decoration: InputDecoration(
-            labelText: AppLocalizations.of(context).translate('critical_power'),
-            suffixText: 'watts',
-          ),
-          keyboardType: TextInputType.number,
+        title: const Text('Edit Critical Pace'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Enter your critical pace (pace you can sustain for about 1 hour)',
+              style: TextStyle(fontSize: 14),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: minutesController,
+                    decoration: const InputDecoration(
+                      labelText: 'Minutes',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Text(':'),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TextField(
+                    controller: secondsController,
+                    decoration: const InputDecoration(
+                      labelText: 'Seconds',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Text('min/km'),
+              ],
+            ),
+          ],
         ),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(context);
             },
-            child: Text(AppLocalizations.of(context).translate('cancel')),
+            child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () {
-              final cp = int.tryParse(controller.text);
-              if (cp != null && cp > 0) {
-                ref.read(userProfileProvider.notifier).update(
-                      (state) => state.copyWith(criticalPower: cp),
-                    );
+              final mins = int.tryParse(minutesController.text) ?? 0;
+              final secs = int.tryParse(secondsController.text) ?? 0;
+
+              // Validate input
+              if (mins >= 0 && secs >= 0 && secs < 60) {
+                final totalSeconds = (mins * 60) + secs;
+                if (totalSeconds > 0) {
+                  ref.read(userProfileProvider.notifier).update(
+                        (state) => state.copyWith(criticalPace: totalSeconds),
+                      );
+                }
               }
+
               Navigator.pop(context);
             },
-            child: Text(AppLocalizations.of(context).translate('save')),
+            child: const Text('Save'),
           ),
         ],
       ),
     );
   }
 
-  // Display calculated Power zones
-  Widget _buildCalculatedPowerZones(BuildContext context,
-      AppLocalizations localizations, UserProfile profile) {
-    final zoneData =
-        _calculatePowerZones(profile.criticalPower, profile.powerZones);
+  // Format pace from seconds to mm:ss format
+  String _formatPace(int totalSeconds) {
+    final minutes = totalSeconds ~/ 60;
+    final seconds = totalSeconds % 60;
+    return '$minutes:${seconds.toString().padLeft(2, '0')} min/km';
+  }
+
+  // Display calculated pace zones
+  Widget _buildCalculatedPaceZones(BuildContext context,
+      AppLocalizations localizations, int criticalPace, int numZones) {
+    final zoneData = _calculatePaceZones(criticalPace, numZones);
 
     return Column(
       children: [
@@ -254,18 +374,17 @@ class PowerZonesScreen extends ConsumerWidget {
             index + 1,
             zoneInfo['name'] as String,
             zoneInfo['range'] as String,
-            _getPowerZoneColor(index + 1),
+            _getPaceZoneColor(index + 1),
           );
         }),
       ],
     );
   }
 
-  // Display editable Power zones
-  Widget _buildEditablePowerZones(BuildContext context, WidgetRef ref,
-      AppLocalizations localizations, UserProfile profile) {
-    final zoneData =
-        _calculatePowerZones(profile.criticalPower, profile.powerZones);
+  // Display editable pace zones
+  Widget _buildEditablePaceZones(BuildContext context, WidgetRef ref,
+      AppLocalizations localizations, int criticalPace, int numZones) {
+    final zoneData = _calculatePaceZones(criticalPace, numZones);
 
     return Column(
       children: [
@@ -279,15 +398,14 @@ class PowerZonesScreen extends ConsumerWidget {
             index + 1,
             zoneInfo['name'] as String,
             zoneInfo['range'] as String,
-            _getPowerZoneColor(index + 1),
+            _getPaceZoneColor(index + 1),
             (String name, String lowerBound, String upperBound) {
               // In a real implementation, this would update the zone values
-              // But for this example, we'll just show a snackbar
-              final range = '$lowerBound - $upperBound watts';
+              final range = '$lowerBound - $upperBound';
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                    content: Text(
-                        'Updated Power Zone ${index + 1}: $name ($range)')),
+                  content: Text('Updated Zone ${index + 1}: $name ($range)'),
+                ),
               );
             },
           );
@@ -309,7 +427,7 @@ class PowerZonesScreen extends ConsumerWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  localizations.translate('manual_power_zones_notice'),
+                  'Manual zone configuration allows you to customize your pace zones based on your specific training needs and goals.',
                   style: const TextStyle(fontSize: 12),
                 ),
               ),
@@ -417,7 +535,7 @@ class PowerZonesScreen extends ConsumerWidget {
                     IconButton(
                       icon: const Icon(Icons.edit, size: 16),
                       onPressed: () {
-                        _editZone(context, zoneName, zoneRange, onSave);
+                        _editPaceZone(context, zoneName, zoneRange, onSave);
                       },
                     ),
                   ],
@@ -434,33 +552,36 @@ class PowerZonesScreen extends ConsumerWidget {
     );
   }
 
-  // Extract lower and upper bounds from a range string like "200 - 250 watts"
-  List<String> _extractRangeBounds(String rangeString) {
-    // Remove units and extract just the numbers
-    final rangeOnly = rangeString.replaceAll(RegExp(r'[a-zA-Z]'), '').trim();
-    final parts = rangeOnly.split('-').map((s) => s.trim()).toList();
-
-    if (parts.length == 2) {
-      return parts;
-    }
-    // Default values if parsing fails
-    return ['0', '0'];
-  }
-
-  // Edit zone dialog
-  void _editZone(BuildContext context, String currentName, String currentRange,
-      Function(String, String, String) onSave) {
+  // Edit pace zone dialog
+  void _editPaceZone(BuildContext context, String currentName,
+      String currentRange, Function(String, String, String) onSave) {
     final nameController = TextEditingController(text: currentName);
 
-    // Extract lower and upper bounds from the range string
-    final bounds = _extractRangeBounds(currentRange);
-    final lowerBoundController = TextEditingController(text: bounds[0]);
-    final upperBoundController = TextEditingController(text: bounds[1]);
+    // Extract pace ranges - this is more complex for pace since it involves time formatting
+    final rangeParts = currentRange.split('-').map((s) => s.trim()).toList();
+    String lowerBound = rangeParts.isNotEmpty ? rangeParts[0] : '';
+    String upperBound = rangeParts.length > 1 ? rangeParts[1] : '';
+
+    // Remove "min/km" from bounds if present
+    lowerBound = lowerBound.replaceAll('min/km', '').trim();
+    upperBound = upperBound.replaceAll('min/km', '').trim();
+
+    // Handle special cases like "5:00+" or "< 3:45"
+    if (lowerBound.contains('+')) {
+      lowerBound = lowerBound.replaceAll('+', '').trim();
+      upperBound = ''; // No upper bound for "+" ranges
+    } else if (lowerBound.contains('<')) {
+      upperBound = lowerBound.replaceAll('<', '').trim();
+      lowerBound = ''; // No lower bound for "<" ranges
+    }
+
+    final lowerBoundController = TextEditingController(text: lowerBound);
+    final upperBoundController = TextEditingController(text: upperBound);
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Edit Zone'),
+        title: const Text('Edit Pace Zone'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -477,9 +598,8 @@ class PowerZonesScreen extends ConsumerWidget {
                   child: TextField(
                     controller: lowerBoundController,
                     decoration: const InputDecoration(
-                      labelText: 'Lower Bound',
+                      labelText: 'Lower Bound (mm:ss)',
                     ),
-                    keyboardType: TextInputType.number,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -489,12 +609,16 @@ class PowerZonesScreen extends ConsumerWidget {
                   child: TextField(
                     controller: upperBoundController,
                     decoration: const InputDecoration(
-                      labelText: 'Upper Bound',
+                      labelText: 'Upper Bound (mm:ss)',
                     ),
-                    keyboardType: TextInputType.number,
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'For ranges like "5:00+" use only Lower Bound and for "< 3:45" use only Upper Bound',
+              style: TextStyle(fontSize: 12, color: Colors.grey),
             ),
           ],
         ),
@@ -508,8 +632,8 @@ class PowerZonesScreen extends ConsumerWidget {
           TextButton(
             onPressed: () {
               if (nameController.text.isNotEmpty &&
-                  lowerBoundController.text.isNotEmpty &&
-                  upperBoundController.text.isNotEmpty) {
+                  (lowerBoundController.text.isNotEmpty ||
+                      upperBoundController.text.isNotEmpty)) {
                 onSave(
                   nameController.text,
                   lowerBoundController.text,
@@ -525,143 +649,182 @@ class PowerZonesScreen extends ConsumerWidget {
     );
   }
 
-  // Calculate Power Zones based on Critical Power
-  List<Map<String, dynamic>> _calculatePowerZones(int cp, int numZones) {
+  // Calculate Pace Zones based on Critical Pace
+  List<Map<String, dynamic>> _calculatePaceZones(
+      int criticalPaceSeconds, int numZones) {
+    // For pace, lower is faster (unlike power and HR where higher is more intense)
+    // So we multiply by factors > 1 for easier paces and < 1 for faster paces
     switch (numZones) {
       case 3:
         return [
-          {'name': 'Easy', 'range': '0 - ${(cp * 0.75).round()} watts'},
+          {
+            'name': 'Easy',
+            'range': '${_formatPace((criticalPaceSeconds * 1.15).round())}+',
+          },
           {
             'name': 'Moderate',
-            'range': '${(cp * 0.75).round() + 1} - ${(cp * 0.9).round()} watts'
+            'range':
+                '${_formatPace((criticalPaceSeconds * 0.95).round())} - ${_formatPace((criticalPaceSeconds * 1.15).round())}',
           },
           {
             'name': 'Hard',
-            'range': '${(cp * 0.9).round() + 1} - ${(cp * 1.1).round()} watts'
+            'range': '< ${_formatPace((criticalPaceSeconds * 0.95).round())}',
           },
         ];
       case 4:
         return [
-          {'name': 'Recovery', 'range': '0 - ${(cp * 0.65).round()} watts'},
+          {
+            'name': 'Recovery',
+            'range': '${_formatPace((criticalPaceSeconds * 1.25).round())}+',
+          },
           {
             'name': 'Endurance',
-            'range': '${(cp * 0.65).round() + 1} - ${(cp * 0.8).round()} watts'
+            'range':
+                '${_formatPace((criticalPaceSeconds * 1.05).round())} - ${_formatPace((criticalPaceSeconds * 1.25).round())}',
           },
           {
             'name': 'Tempo',
-            'range': '${(cp * 0.8).round() + 1} - ${(cp * 0.95).round()} watts'
+            'range':
+                '${_formatPace((criticalPaceSeconds * 0.9).round())} - ${_formatPace((criticalPaceSeconds * 1.05).round())}',
           },
           {
-            'name': 'Threshold',
-            'range': '${(cp * 0.95).round() + 1} - ${(cp * 1.1).round()} watts'
+            'name': 'Interval',
+            'range': '< ${_formatPace((criticalPaceSeconds * 0.9).round())}',
           },
         ];
       case 5:
         return [
-          {'name': 'Recovery', 'range': '0 - ${(cp * 0.65).round()} watts'},
           {
-            'name': 'Endurance',
-            'range': '${(cp * 0.65).round() + 1} - ${(cp * 0.8).round()} watts'
+            'name': 'Recovery',
+            'range': '${_formatPace((criticalPaceSeconds * 1.3).round())}+',
           },
           {
-            'name': 'Tempo',
-            'range': '${(cp * 0.8).round() + 1} - ${(cp * 0.95).round()} watts'
+            'name': 'Easy',
+            'range':
+                '${_formatPace((criticalPaceSeconds * 1.15).round())} - ${_formatPace((criticalPaceSeconds * 1.3).round())}',
+          },
+          {
+            'name': 'Moderate',
+            'range':
+                '${_formatPace((criticalPaceSeconds * 1.0).round())} - ${_formatPace((criticalPaceSeconds * 1.15).round())}',
           },
           {
             'name': 'Threshold',
-            'range': '${(cp * 0.95).round() + 1} - ${(cp * 1.05).round()} watts'
+            'range':
+                '${_formatPace((criticalPaceSeconds * 0.9).round())} - ${_formatPace((criticalPaceSeconds * 1.0).round())}',
           },
           {
-            'name': 'Anaerobic',
-            'range': '${(cp * 1.05).round() + 1} - ${(cp * 1.2).round()} watts'
+            'name': 'Interval',
+            'range': '< ${_formatPace((criticalPaceSeconds * 0.9).round())}',
           },
         ];
       case 6:
         return [
-          {'name': 'Recovery', 'range': '0 - ${(cp * 0.55).round()} watts'},
           {
-            'name': 'Endurance',
-            'range': '${(cp * 0.55).round() + 1} - ${(cp * 0.75).round()} watts'
+            'name': 'Recovery',
+            'range': '${_formatPace((criticalPaceSeconds * 1.3).round())}+',
           },
           {
-            'name': 'Tempo',
-            'range': '${(cp * 0.75).round() + 1} - ${(cp * 0.9).round()} watts'
+            'name': 'Easy',
+            'range':
+                '${_formatPace((criticalPaceSeconds * 1.15).round())} - ${_formatPace((criticalPaceSeconds * 1.3).round())}',
+          },
+          {
+            'name': 'Moderate',
+            'range':
+                '${_formatPace((criticalPaceSeconds * 1.05).round())} - ${_formatPace((criticalPaceSeconds * 1.15).round())}',
           },
           {
             'name': 'Threshold',
-            'range': '${(cp * 0.9).round() + 1} - ${(cp * 1.0).round()} watts'
+            'range':
+                '${_formatPace((criticalPaceSeconds * 0.95).round())} - ${_formatPace((criticalPaceSeconds * 1.05).round())}',
           },
           {
-            'name': 'VO2 Max',
-            'range': '${(cp * 1.0).round() + 1} - ${(cp * 1.1).round()} watts'
+            'name': 'Interval',
+            'range':
+                '${_formatPace((criticalPaceSeconds * 0.85).round())} - ${_formatPace((criticalPaceSeconds * 0.95).round())}',
           },
           {
-            'name': 'Anaerobic',
-            'range': '${(cp * 1.1).round() + 1} - ${(cp * 1.3).round()} watts'
+            'name': 'Sprint',
+            'range': '< ${_formatPace((criticalPaceSeconds * 0.85).round())}',
           },
         ];
       case 7:
         return [
-          {'name': 'Recovery', 'range': '0 - ${(cp * 0.5).round()} watts'},
+          {
+            'name': 'Recovery',
+            'range': '${_formatPace((criticalPaceSeconds * 1.4).round())}+',
+          },
+          {
+            'name': 'Easy',
+            'range':
+                '${_formatPace((criticalPaceSeconds * 1.2).round())} - ${_formatPace((criticalPaceSeconds * 1.4).round())}',
+          },
           {
             'name': 'Endurance',
-            'range': '${(cp * 0.5).round() + 1} - ${(cp * 0.65).round()} watts'
+            'range':
+                '${_formatPace((criticalPaceSeconds * 1.1).round())} - ${_formatPace((criticalPaceSeconds * 1.2).round())}',
           },
           {
             'name': 'Tempo',
-            'range': '${(cp * 0.65).round() + 1} - ${(cp * 0.8).round()} watts'
-          },
-          {
-            'name': 'Cruise',
-            'range': '${(cp * 0.8).round() + 1} - ${(cp * 0.9).round()} watts'
+            'range':
+                '${_formatPace((criticalPaceSeconds * 1.0).round())} - ${_formatPace((criticalPaceSeconds * 1.1).round())}',
           },
           {
             'name': 'Threshold',
-            'range': '${(cp * 0.9).round() + 1} - ${(cp * 1.0).round()} watts'
+            'range':
+                '${_formatPace((criticalPaceSeconds * 0.9).round())} - ${_formatPace((criticalPaceSeconds * 1.0).round())}',
           },
           {
-            'name': 'VO2 Max',
-            'range': '${(cp * 1.0).round() + 1} - ${(cp * 1.15).round()} watts'
+            'name': 'Interval',
+            'range':
+                '${_formatPace((criticalPaceSeconds * 0.8).round())} - ${_formatPace((criticalPaceSeconds * 0.9).round())}',
           },
           {
-            'name': 'Anaerobic',
-            'range': '${(cp * 1.15).round() + 1} - ${(cp * 1.4).round()} watts'
+            'name': 'Sprint',
+            'range': '< ${_formatPace((criticalPaceSeconds * 0.8).round())}',
           },
         ];
-      default:
+      default: // Default to 5 zones
         return [
-          {'name': 'Recovery', 'range': '0 - ${(cp * 0.65).round()} watts'},
           {
-            'name': 'Endurance',
-            'range': '${(cp * 0.65).round() + 1} - ${(cp * 0.8).round()} watts'
+            'name': 'Recovery',
+            'range': '${_formatPace((criticalPaceSeconds * 1.3).round())}+',
           },
           {
-            'name': 'Tempo',
-            'range': '${(cp * 0.8).round() + 1} - ${(cp * 0.9).round()} watts'
+            'name': 'Easy',
+            'range':
+                '${_formatPace((criticalPaceSeconds * 1.15).round())} - ${_formatPace((criticalPaceSeconds * 1.3).round())}',
+          },
+          {
+            'name': 'Moderate',
+            'range':
+                '${_formatPace((criticalPaceSeconds * 1.0).round())} - ${_formatPace((criticalPaceSeconds * 1.15).round())}',
           },
           {
             'name': 'Threshold',
-            'range': '${(cp * 0.9).round() + 1} - ${(cp * 1.0).round()} watts'
+            'range':
+                '${_formatPace((criticalPaceSeconds * 0.9).round())} - ${_formatPace((criticalPaceSeconds * 1.0).round())}',
           },
           {
-            'name': 'VO2 Max',
-            'range': '${(cp * 1.0).round() + 1} - ${(cp * 1.2).round()} watts'
+            'name': 'Interval',
+            'range': '< ${_formatPace((criticalPaceSeconds * 0.9).round())}',
           },
         ];
     }
   }
 
-  // Get color for Power zone
-  Color _getPowerZoneColor(int zone) {
-    // Color scheme for Power zones - more orange/red focused
+  // Get color for pace zone
+  Color _getPaceZoneColor(int zone) {
+    // Color scheme for Pace zones - using a blend of blues and greens
     final zoneColors = [
       Colors.blue[300]!,
+      Colors.teal[300]!,
       Colors.teal,
       Colors.green,
+      Colors.lightGreen,
       Colors.lime,
-      Colors.orange,
-      Colors.deepOrange,
-      Colors.red,
+      Colors.yellow,
     ];
 
     // Make sure we don't go out of bounds

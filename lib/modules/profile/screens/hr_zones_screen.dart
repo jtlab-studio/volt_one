@@ -1,4 +1,4 @@
-// lib/modules/profile/screens/hr_zones_screen.dart - New dedicated HR zones screen
+// lib/modules/profile/screens/hr_zones_screen.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,8 +18,21 @@ class HRZonesScreen extends ConsumerWidget {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          // Add large icon at the top
+          const Icon(
+            Icons.favorite,
+            size: 80,
+            color: Colors.red,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Heart Rate Zones',
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
+          const SizedBox(height: 24),
+
           // LTHR Section
           Card(
             child: Padding(

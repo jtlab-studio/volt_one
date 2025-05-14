@@ -383,24 +383,24 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
       [
         BottomNavigationBarItem(
           icon: const Icon(Icons.history),
-          label: localizations.translate('all_activities'),
+          label: 'All Activities',
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.bluetooth),
-          label: localizations.translate('sensors'),
+          label: 'Sensors',
         ),
         // Center item (New) - will be replaced by the helper with empty container
         BottomNavigationBarItem(
           icon: Container(), // Empty container to avoid double icons
-          label: localizations.translate('new_activity'),
+          label: 'New Activity',
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.analytics),
-          label: localizations.translate('analytics'),
+          label: 'Analytics',
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.settings),
-          label: localizations.translate('activity_settings'),
+          label: 'Activity Settings',
         ),
       ],
       (index) {
@@ -453,24 +453,24 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
       [
         BottomNavigationBarItem(
           icon: const Icon(Icons.route),
-          label: localizations.translate('my_routes'),
+          label: 'My Routes',
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.explore),
-          label: localizations.translate('discover'),
+          label: 'Discover',
         ),
         // Center item (Create) - will be replaced with empty container
         BottomNavigationBarItem(
           icon: Container(), // Empty container to avoid double icons
-          label: localizations.translate('create_route'),
+          label: 'Create Route',
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.favorite),
-          label: localizations.translate('favorites'),
+          label: 'Favorites',
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.history),
-          label: localizations.translate('history'),
+          label: 'History',
         ),
       ],
       (index) {
@@ -523,24 +523,24 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
       [
         BottomNavigationBarItem(
           icon: const Icon(Icons.dynamic_feed),
-          label: localizations.translate('feed'),
+          label: 'Feed',
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.person_add),
-          label: localizations.translate('friends'),
+          label: 'Friends',
         ),
         // Center item (Challenges) - will be replaced with empty container
         BottomNavigationBarItem(
           icon: Container(), // Empty container to avoid double icons
-          label: localizations.translate('challenges'),
+          label: 'Challenges',
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.group),
-          label: localizations.translate('groups'),
+          label: 'Groups',
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.leaderboard),
-          label: localizations.translate('leaderboard'),
+          label: 'Leaderboard',
         ),
       ],
       (index) {
@@ -576,23 +576,23 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
       [
         BottomNavigationBarItem(
           icon: const Icon(Icons.person),
-          label: localizations.translate('user_info'),
+          label: 'User Info',
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.favorite),
-          label: localizations.translate('hr_zones'),
+          label: 'HR Zones',
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.flash_on),
-          label: localizations.translate('power_zones'),
+          label: 'Power Zones',
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.speed),
-          label: localizations.translate('pace_zones'),
+          label: 'Pace Zones',
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.settings),
-          label: localizations.translate('app_settings'),
+          label: 'App Settings',
         ),
       ],
       (index) {
