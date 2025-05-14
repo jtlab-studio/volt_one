@@ -204,6 +204,62 @@ class HRZonesScreen extends ConsumerWidget {
               ),
             ),
           ),
+
+          const SizedBox(height: 24),
+
+          // NEW SECTION: About Heart Rate Zones
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'About Heart Rate Zones',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Heart rate zones divide your cardio effort into ranges that correspond to different physiological adaptations and training purposes.\n\n'
+                    'Zone 1 (Recovery): Very easy effort for active recovery, warm-up/cool-down.\n'
+                    'Zone 2 (Endurance): Builds aerobic base, improves fat utilization, enhances capillary density.\n'
+                    'Zone 3 (Tempo): Improves aerobic capacity and efficiency at moderate intensities.\n'
+                    'Zone 4 (Threshold): Increases your ability to sustain effort at or near lactate threshold.\n'
+                    'Zone 5 (VO2 Max): Develops maximal aerobic capacity and power.\n'
+                    'Zone 6+ (Anaerobic): Very high intensity, develops anaerobic capacity and neural recruitment.',
+                    style: TextStyle(
+                      color: Colors.grey[800],
+                      height: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.amber.withAlpha(20),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.amber, width: 1),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.info_outline,
+                            color: Colors.amber, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Heart rate is an excellent indicator of internal physiological stress and provides a window into how your body is responding to exercise.',
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
