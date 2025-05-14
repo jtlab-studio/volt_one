@@ -79,7 +79,7 @@ class HomeScreen extends ConsumerWidget {
                       changeLocale(ref, newLocale);
                     }
                   },
-                  items: const [
+                  items: [
                     DropdownMenuItem(
                       value: Locale('en', ''),
                       child: Text('English'),
@@ -89,8 +89,88 @@ class HomeScreen extends ConsumerWidget {
                       child: Text('Español'),
                     ),
                     DropdownMenuItem(
+                      value: Locale('es', 'CL'),
+                      child: Text('Español (Chile)'),
+                    ),
+                    DropdownMenuItem(
+                      value: Locale('es', 'LATAM'),
+                      child: Text('Español (Latinoamérica)'),
+                    ),
+                    DropdownMenuItem(
+                      value: Locale('de', ''),
+                      child: Text('Deutsch'),
+                    ),
+                    DropdownMenuItem(
+                      value: Locale('fr', ''),
+                      child: Text('Français'),
+                    ),
+                    DropdownMenuItem(
                       value: Locale('ru', ''),
                       child: Text('Русский'),
+                    ),
+                    DropdownMenuItem(
+                      value: Locale('pt', 'BR'),
+                      child: Text('Português (Brasil)'),
+                    ),
+                    DropdownMenuItem(
+                      value: Locale('pt', 'PT'),
+                      child: Text('Português (Portugal)'),
+                    ),
+                    DropdownMenuItem(
+                      value: Locale('it', ''),
+                      child: Text('Italiano'),
+                    ),
+                    DropdownMenuItem(
+                      value: Locale('zh', 'Hans'),
+                      child: Text('简体中文'),
+                    ),
+                    DropdownMenuItem(
+                      value: Locale('zh', 'Hant'),
+                      child: Text('繁體中文'),
+                    ),
+                    DropdownMenuItem(
+                      value: Locale('ja', ''),
+                      child: Text('日本語'),
+                    ),
+                    DropdownMenuItem(
+                      value: Locale('ko', ''),
+                      child: Text('한국어'),
+                    ),
+                    DropdownMenuItem(
+                      value: Locale('hi', ''),
+                      child: Text('हिन्दी'),
+                    ),
+                    DropdownMenuItem(
+                      value: Locale('vi', ''),
+                      child: Text('Tiếng Việt'),
+                    ),
+                    DropdownMenuItem(
+                      value: Locale('id', ''),
+                      child: Text('Bahasa Indonesia'),
+                    ),
+                    DropdownMenuItem(
+                      value: Locale('ms', ''),
+                      child: Text('Bahasa Melayu'),
+                    ),
+                    DropdownMenuItem(
+                      value: Locale('th', ''),
+                      child: Text('ไทย'),
+                    ),
+                    DropdownMenuItem(
+                      value: Locale('tr', ''),
+                      child: Text('Türkçe'),
+                    ),
+                    DropdownMenuItem(
+                      value: Locale('sv', ''),
+                      child: Text('Svenska'),
+                    ),
+                    DropdownMenuItem(
+                      value: Locale('no', ''),
+                      child: Text('Norsk'),
+                    ),
+                    DropdownMenuItem(
+                      value: Locale('da', ''),
+                      child: Text('Dansk'),
                     ),
                   ],
                 ),

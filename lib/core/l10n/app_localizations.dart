@@ -20,16 +20,67 @@ class AppLocalizations {
   Map<String, String> _localizedStrings = {};
 
   Future<bool> load() async {
-    // Load the language JSON file from the "lang" folder
-    String jsonString =
-        await rootBundle.loadString("assets/lang/${locale.languageCode}.json");
-    Map<String, dynamic> jsonMap = json.decode(jsonString);
+    // Handle locale with regions (e.g., es-CL, pt-BR, zh-Hans)
+    String languageCode = locale.languageCode;
+    String? countryCode = locale.countryCode;
 
-    _localizedStrings = jsonMap.map((key, value) {
-      return MapEntry(key, value.toString());
-    });
+    String jsonString;
 
-    return true;
+    try {
+      // First, try to load the exact regional variant if specified
+      if (countryCode != null && countryCode.isNotEmpty) {
+        try {
+          jsonString = await rootBundle
+              .loadString("assets/lang/${languageCode}-${countryCode}.json");
+          Map<String, dynamic> jsonMap = json.decode(jsonString);
+
+          _localizedStrings = jsonMap.map((key, value) {
+            return MapEntry(key, value.toString());
+          });
+
+          return true;
+        } catch (e) {
+          // If regional variant not found, fall back to base language
+          print(
+              "Regional variant ${languageCode}-${countryCode} not found, falling back to ${languageCode}");
+        }
+      }
+
+      // Load the base language JSON file
+      jsonString =
+          await rootBundle.loadString("assets/lang/${languageCode}.json");
+      Map<String, dynamic> jsonMap = json.decode(jsonString);
+
+      _localizedStrings = jsonMap.map((key, value) {
+        return MapEntry(key, value.toString());
+      });
+
+      return true;
+    } catch (e) {
+      print("Failed to load language file for ${locale.toString()}: $e");
+
+      // Fallback to English if the requested language is not found
+      if (languageCode != 'en') {
+        print("Falling back to English");
+        try {
+          jsonString = await rootBundle.loadString("assets/lang/en.json");
+          Map<String, dynamic> jsonMap = json.decode(jsonString);
+
+          _localizedStrings = jsonMap.map((key, value) {
+            return MapEntry(key, value.toString());
+          });
+        } catch (e) {
+          print("Failed to load fallback English language file: $e");
+          // Return empty map if even English fails
+          _localizedStrings = {};
+        }
+      } else {
+        // If English itself is failing, return empty map
+        _localizedStrings = {};
+      }
+
+      return false;
+    }
   }
 
   // This method will be called from every widget which needs a localized text
@@ -47,8 +98,54 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) {
-    // Include all of your supported language codes here
-    return ["en", "es", "de", "fr", "ru"].contains(locale.languageCode);
+    // Base language support
+    final supportedLanguages = [
+      "en",
+      "es",
+      "de",
+      "fr",
+      "ru",
+      "pt",
+      "it",
+      "zh",
+      "ja",
+      "ko",
+      "hi",
+      "vi",
+      "id",
+      "ms",
+      "th",
+      "tr",
+      "sv",
+      "no",
+      "da"
+    ];
+
+    // Check if the basic language is supported
+    if (supportedLanguages.contains(locale.languageCode)) {
+      // For languages with regional variants, check the country code
+      if (locale.languageCode == 'es') {
+        // Handle Spanish variants (Spain, Chile, Latin America)
+        return locale.countryCode == null ||
+            locale.countryCode == '' ||
+            ['CL', 'LATAM'].contains(locale.countryCode);
+      } else if (locale.languageCode == 'pt') {
+        // Handle Portuguese variants (Brazil, Portugal)
+        return locale.countryCode == null ||
+            locale.countryCode == '' ||
+            ['BR', 'PT'].contains(locale.countryCode);
+      } else if (locale.languageCode == 'zh') {
+        // Handle Chinese variants (Simplified, Traditional)
+        return locale.countryCode == null ||
+            locale.countryCode == '' ||
+            ['Hans', 'Hant'].contains(locale.countryCode);
+      }
+
+      // For languages without variants, any country code is fine
+      return true;
+    }
+
+    return false;
   }
 
   @override
