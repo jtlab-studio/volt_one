@@ -132,11 +132,11 @@ class UserInfoScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 24),
 
-                  // Gender Selection
+                  // Biological Sex Selection
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(localizations.translate('gender')),
+                      const Text('Biological Sex'),
                       const SizedBox(height: 8),
                       _buildGenderSelector(context, ref, userProfile),
                     ],
@@ -202,7 +202,7 @@ class UserInfoScreen extends ConsumerWidget {
     );
   }
 
-  // Simplified Gender Selector with just icons
+  // Simplified Gender Selector with just male and female icons
   Widget _buildGenderSelector(
       BuildContext context, WidgetRef ref, UserProfile profile) {
     return Row(
@@ -236,22 +236,6 @@ class UserInfoScreen extends ConsumerWidget {
           onPressed: () {
             ref.read(userProfileProvider.notifier).update(
                   (state) => state.copyWith(gender: Gender.female),
-                );
-          },
-        ),
-
-        // Not Specified Option
-        IconButton(
-          icon: Icon(
-            Icons.person_outline,
-            color: profile.gender == Gender.notSpecified
-                ? Theme.of(context).primaryColor
-                : Colors.grey,
-            size: 32,
-          ),
-          onPressed: () {
-            ref.read(userProfileProvider.notifier).update(
-                  (state) => state.copyWith(gender: Gender.notSpecified),
                 );
           },
         ),

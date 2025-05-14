@@ -1,9 +1,9 @@
-// lib/modules/profile/profile_screen.dart
+// lib/modules/profile/screens/profile_screen.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/l10n/app_localizations.dart';
-import '../../core/theme/theme_provider.dart'; // Updated import
+import '../../core/theme/theme_provider.dart';
 import 'screens/app_settings_screen.dart';
 import 'screens/hr_zones_screen.dart';
 import 'screens/power_zones_screen.dart' as power_zones;
@@ -21,13 +21,10 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedSection = ref.watch(profileSectionProvider);
 
-    // Get localization for translations
-    final localizations = AppLocalizations.of(context);
-
     return Scaffold(
       body: _getProfileContent(selectedSection),
-      bottomNavigationBar: _buildProfileBottomNavBar(
-          context, ref, selectedSection, localizations),
+      bottomNavigationBar:
+          _buildProfileBottomNavBar(context, ref, selectedSection),
     );
   }
 
@@ -48,8 +45,8 @@ class ProfileScreen extends ConsumerWidget {
     }
   }
 
-  Widget _buildProfileBottomNavBar(BuildContext context, WidgetRef ref,
-      String currentSection, AppLocalizations localizations) {
+  Widget _buildProfileBottomNavBar(
+      BuildContext context, WidgetRef ref, String currentSection) {
     final palette = ref.watch(colorPaletteProvider);
 
     return BottomNavigationBar(
@@ -76,30 +73,30 @@ class ProfileScreen extends ConsumerWidget {
       type: BottomNavigationBarType.fixed,
       selectedItemColor: palette.navSelectedTextColor,
       unselectedItemColor: palette.navUnselectedTextColor,
-      elevation: 16, // Add elevation for shadow
-      iconSize: 24, // Consistent icon size
-      selectedFontSize: 12, // Font size for selected items
-      unselectedFontSize: 12, // Font size for unselected items
-      items: [
+      elevation: 16,
+      iconSize: 24,
+      selectedFontSize: 12,
+      unselectedFontSize: 12,
+      items: const [
         BottomNavigationBarItem(
-          icon: const Icon(Icons.person),
-          label: localizations.translate('user_info'),
+          icon: Icon(Icons.person),
+          label: 'User Info',
         ),
         BottomNavigationBarItem(
-          icon: const Icon(Icons.favorite),
-          label: localizations.translate('heart_rate_zones'),
+          icon: Icon(Icons.favorite),
+          label: 'HR Zones',
         ),
         BottomNavigationBarItem(
-          icon: const Icon(Icons.flash_on),
-          label: localizations.translate('power_zones'),
+          icon: Icon(Icons.flash_on),
+          label: 'Power Zones',
         ),
         BottomNavigationBarItem(
-          icon: const Icon(Icons.speed),
-          label: localizations.translate('pace_zones'),
+          icon: Icon(Icons.speed),
+          label: 'Pace Zones',
         ),
         BottomNavigationBarItem(
-          icon: const Icon(Icons.settings),
-          label: localizations.translate('app_settings'),
+          icon: Icon(Icons.settings),
+          label: 'App Settings',
         ),
       ],
     );

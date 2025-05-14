@@ -223,6 +223,40 @@ class PaceZonesScreen extends ConsumerWidget {
                         ),
                   ),
                   const SizedBox(height: 16),
+
+                  // Critical Pace explanation
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.green.withAlpha(20),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                          color: Colors.green.withAlpha(120), width: 1),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'What is Critical Pace?',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green[700],
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Critical Pace (CP) is the fastest pace you can sustain for approximately 30-60 minutes of continuous running. It closely correlates with your lactate threshold pace - the intensity at which lactate begins to accumulate in the blood faster than it can be cleared. Critical Pace serves as the anchor for calculating your personalized pace zones, allowing for precise training intensities that target specific physiological adaptations. You can determine your Critical Pace through time trials, race results, or specific field tests such as a 30-minute time trial.',
+                          style: TextStyle(
+                            color: Colors.grey[800],
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
                   Text(
                     'Pace zones divide running paces into ranges that correspond to different training intensities. Each zone trains different energy systems and produces specific adaptations.\n\n'
                     'Zone 1 (Recovery): Very easy running that promotes recovery.\n'

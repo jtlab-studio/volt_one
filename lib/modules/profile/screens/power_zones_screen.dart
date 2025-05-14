@@ -225,6 +225,40 @@ class PowerZonesScreen extends ConsumerWidget {
                         ),
                   ),
                   const SizedBox(height: 16),
+
+                  // Critical Power explanation
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.withAlpha(20),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                          color: Colors.orange.withAlpha(120), width: 1),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'What is Critical Power?',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.orange[700],
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Critical Power (CP) represents the highest power output a runner can maintain for an extended period (approximately 30-60 minutes) without fatigue. It marks the boundary between sustainable aerobic effort and unsustainable anaerobic work. CP is a fundamental physiological marker used to personalize your power training zones, ensuring each zone targets specific adaptations based on your individual capabilities. CP can be determined through structured field tests or derived from recent race performances.',
+                          style: TextStyle(
+                            color: Colors.grey[800],
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
                   Text(
                     'Power zones provide an objective way to measure and structure your running intensity, independent of environmental factors.\n\n'
                     'Zone 1 (Recovery): Very easy, promotes recovery without fatigue.\n'
