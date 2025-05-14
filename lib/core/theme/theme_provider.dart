@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app_colors.dart';
+import 'app_text_theme.dart';
 
 /// Provider for storing the primary color
 final primaryColorProvider = StateProvider<Color>((ref) => AppColors.primary);
@@ -17,6 +18,9 @@ class ThemeNotifier extends StateNotifier<ThemeSettings> {
       : super(ThemeSettings(
           primaryColor: AppColors.primary,
           secondaryColor: AppColors.secondary,
+          successColor: AppColors.success,
+          warningColor: AppColors.warning,
+          errorColor: AppColors.error,
           useMaterialYou: false,
         ));
 
@@ -28,6 +32,18 @@ class ThemeNotifier extends StateNotifier<ThemeSettings> {
     state = state.copyWith(secondaryColor: color);
   }
 
+  void updateSuccessColor(Color color) {
+    state = state.copyWith(successColor: color);
+  }
+
+  void updateWarningColor(Color color) {
+    state = state.copyWith(warningColor: color);
+  }
+
+  void updateErrorColor(Color color) {
+    state = state.copyWith(errorColor: color);
+  }
+
   void toggleMaterialYou() {
     state = state.copyWith(useMaterialYou: !state.useMaterialYou);
   }
@@ -36,6 +52,9 @@ class ThemeNotifier extends StateNotifier<ThemeSettings> {
     state = ThemeSettings(
       primaryColor: AppColors.primary,
       secondaryColor: AppColors.secondary,
+      successColor: AppColors.success,
+      warningColor: AppColors.warning,
+      errorColor: AppColors.error,
       useMaterialYou: false,
     );
   }
@@ -47,26 +66,38 @@ final themeSettingsProvider =
   return ThemeNotifier();
 });
 
-/// Theme settings model
+/// Enhanced Theme settings model
 class ThemeSettings {
   final Color primaryColor;
   final Color secondaryColor;
+  final Color successColor;
+  final Color warningColor;
+  final Color errorColor;
   final bool useMaterialYou;
 
   ThemeSettings({
     required this.primaryColor,
     required this.secondaryColor,
+    required this.successColor,
+    required this.warningColor,
+    required this.errorColor,
     required this.useMaterialYou,
   });
 
   ThemeSettings copyWith({
     Color? primaryColor,
     Color? secondaryColor,
+    Color? successColor,
+    Color? warningColor,
+    Color? errorColor,
     bool? useMaterialYou,
   }) {
     return ThemeSettings(
       primaryColor: primaryColor ?? this.primaryColor,
       secondaryColor: secondaryColor ?? this.secondaryColor,
+      successColor: successColor ?? this.successColor,
+      warningColor: warningColor ?? this.warningColor,
+      errorColor: errorColor ?? this.errorColor,
       useMaterialYou: useMaterialYou ?? this.useMaterialYou,
     );
   }
@@ -96,6 +127,17 @@ MaterialColor createMaterialColor(Color color) {
   return MaterialColor(color.hashCode, swatch);
 }
 
+/// Helper method to darken a color (for dark theme derivation)
+Color darkenColor(Color color, double factor) {
+  assert(factor >= 0 && factor <= 1);
+
+  int r = (color.red * (1 - factor)).round();
+  int g = (color.green * (1 - factor)).round();
+  int b = (color.blue * (1 - factor)).round();
+
+  return Color.fromRGBO(r, g, b, 1.0);
+}
+
 /// Provider for dynamically updating the theme based on user selections
 final dynamicThemeProvider = Provider<AppTheme>((ref) {
   final themeSettings = ref.watch(themeSettingsProvider);
@@ -110,7 +152,7 @@ final dynamicThemeProvider = Provider<AppTheme>((ref) {
         primary: themeSettings.primaryColor,
         secondary: themeSettings.secondaryColor,
         surface: Colors.white,
-        error: AppColors.error,
+        error: themeSettings.errorColor,
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: themeSettings.primaryColor,
@@ -137,17 +179,25 @@ final dynamicThemeProvider = Provider<AppTheme>((ref) {
           borderRadius: BorderRadius.circular(8),
         ),
       ),
+      // Apply other custom color settings
+      extensions: [
+        CustomColorTheme(
+          success: themeSettings.successColor,
+          warning: themeSettings.warningColor,
+          error: themeSettings.errorColor,
+        ),
+      ],
     ),
     dark: ThemeData(
       useMaterial3: themeSettings.useMaterialYou,
       brightness: Brightness.dark,
-      primaryColor: themeSettings.primaryColor,
+      primaryColor: darkenColor(themeSettings.primaryColor, 0.2),
       primarySwatch: createMaterialColor(themeSettings.primaryColor),
       colorScheme: ColorScheme.dark(
         primary: themeSettings.primaryColor,
-        secondary: themeSettings.secondaryColor,
+        secondary: darkenColor(themeSettings.secondaryColor, 0.1),
         surface: AppColors.darkSurface,
-        error: AppColors.error,
+        error: darkenColor(themeSettings.errorColor, 0.1),
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: AppColors.darkSurface,
@@ -175,9 +225,59 @@ final dynamicThemeProvider = Provider<AppTheme>((ref) {
           borderRadius: BorderRadius.circular(8),
         ),
       ),
+      // Apply other custom color settings with dark variants
+      extensions: [
+        CustomColorTheme(
+          success: darkenColor(themeSettings.successColor, 0.2),
+          warning: darkenColor(themeSettings.warningColor, 0.2),
+          error: darkenColor(themeSettings.errorColor, 0.2),
+        ),
+      ],
     ),
   );
 });
+
+/// Custom color theme extension to store additional colors
+class CustomColorTheme extends ThemeExtension<CustomColorTheme> {
+  final Color success;
+  final Color warning;
+  final Color error;
+
+  CustomColorTheme({
+    required this.success,
+    required this.warning,
+    required this.error,
+  });
+
+  @override
+  ThemeExtension<CustomColorTheme> copyWith({
+    Color? success,
+    Color? warning,
+    Color? error,
+  }) {
+    return CustomColorTheme(
+      success: success ?? this.success,
+      warning: warning ?? this.warning,
+      error: error ?? this.error,
+    );
+  }
+
+  @override
+  ThemeExtension<CustomColorTheme> lerp(
+    ThemeExtension<CustomColorTheme>? other,
+    double t,
+  ) {
+    if (other is! CustomColorTheme) {
+      return this;
+    }
+
+    return CustomColorTheme(
+      success: Color.lerp(success, other.success, t)!,
+      warning: Color.lerp(warning, other.warning, t)!,
+      error: Color.lerp(error, other.error, t)!,
+    );
+  }
+}
 
 /// AppTheme class
 class AppTheme {

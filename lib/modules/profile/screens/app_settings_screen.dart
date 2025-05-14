@@ -5,6 +5,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/theme/theme_provider.dart'; // Import the theme provider
+import '../../../shared/widgets/color_picker_dialog.dart';
 import 'dart:io' show Platform;
 
 class AppSettingsScreen extends ConsumerWidget {
@@ -14,10 +16,8 @@ class AppSettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final localizations = AppLocalizations.of(context);
     final themeMode = ref.watch(themeModeProvider);
+    final themeSettings = ref.watch(themeSettingsProvider);
     final isCupertino = Platform.isIOS;
-
-    // Debugging code to check if this widget is being rendered
-    print('AppSettingsScreen is being built');
 
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -150,7 +150,7 @@ class AppSettingsScreen extends ConsumerWidget {
 
         const SizedBox(height: 24),
 
-        // Theme Customization Section
+        // Enhanced Theme Customization Section
         Card(
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -163,23 +163,138 @@ class AppSettingsScreen extends ConsumerWidget {
                         fontWeight: FontWeight.bold,
                       ),
                 ),
+                const SizedBox(height: 8),
+
+                Text(
+                  'Customize your app\'s color palette',
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 14,
+                  ),
+                ),
+
                 const SizedBox(height: 16),
 
                 // Primary Color Selector
                 ListTile(
                   title: const Text('Primary Color'),
-                  subtitle: const Text('Main accent color for the app'),
+                  subtitle: const Text(
+                      'Main accent color for buttons and highlights'),
                   trailing: Container(
                     width: 24,
                     height: 24,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor,
+                      color: themeSettings.primaryColor,
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.grey.shade300),
                     ),
                   ),
                   onTap: () {
-                    // Show color picker dialog
+                    _showColorPicker(
+                        context, 'Primary Color', themeSettings.primaryColor,
+                        (color) {
+                      ref
+                          .read(themeSettingsProvider.notifier)
+                          .updatePrimaryColor(color);
+                    });
+                  },
+                ),
+
+                // Secondary Color Selector
+                ListTile(
+                  title: const Text('Secondary Color'),
+                  subtitle: const Text(
+                      'Used for floating action buttons and accents'),
+                  trailing: Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: themeSettings.secondaryColor,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                  ),
+                  onTap: () {
+                    _showColorPicker(context, 'Secondary Color',
+                        themeSettings.secondaryColor, (color) {
+                      ref
+                          .read(themeSettingsProvider.notifier)
+                          .updateSecondaryColor(color);
+                    });
+                  },
+                ),
+
+                // Success Color Selector
+                ListTile(
+                  title: const Text('Success Color'),
+                  subtitle:
+                      const Text('Used for positive actions and confirmations'),
+                  trailing: Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: themeSettings.successColor,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                  ),
+                  onTap: () {
+                    _showColorPicker(
+                        context, 'Success Color', themeSettings.successColor,
+                        (color) {
+                      ref
+                          .read(themeSettingsProvider.notifier)
+                          .updateSuccessColor(color);
+                    });
+                  },
+                ),
+
+                // Warning Color Selector
+                ListTile(
+                  title: const Text('Warning Color'),
+                  subtitle: const Text('Used for alerts that need attention'),
+                  trailing: Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: themeSettings.warningColor,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                  ),
+                  onTap: () {
+                    _showColorPicker(
+                        context, 'Warning Color', themeSettings.warningColor,
+                        (color) {
+                      ref
+                          .read(themeSettingsProvider.notifier)
+                          .updateWarningColor(color);
+                    });
+                  },
+                ),
+
+                // Error Color Selector
+                ListTile(
+                  title: const Text('Error Color'),
+                  subtitle:
+                      const Text('Used for errors and destructive actions'),
+                  trailing: Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: themeSettings.errorColor,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                  ),
+                  onTap: () {
+                    _showColorPicker(
+                        context, 'Error Color', themeSettings.errorColor,
+                        (color) {
+                      ref
+                          .read(themeSettingsProvider.notifier)
+                          .updateErrorColor(color);
+                    });
                   },
                 ),
 
@@ -188,9 +303,12 @@ class AppSettingsScreen extends ConsumerWidget {
                   title: const Text('Use Material You (Android 12+)'),
                   subtitle:
                       const Text('Use dynamic colors from your device theme'),
-                  value: false,
+                  value: themeSettings.useMaterialYou,
                   onChanged: (value) {
                     // Toggle Material You
+                    ref
+                        .read(themeSettingsProvider.notifier)
+                        .toggleMaterialYou();
                   },
                 ),
 
@@ -208,8 +326,37 @@ class AppSettingsScreen extends ConsumerWidget {
                     ),
                     onPressed: () {
                       // Reset to defaults
+                      ref
+                          .read(themeSettingsProvider.notifier)
+                          .resetToDefaults();
                     },
                   ),
+                ),
+
+                const SizedBox(height: 16),
+
+                // Theme Preview
+                Text(
+                  'Theme Preview',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                const SizedBox(height: 8),
+
+                // Light/Dark theme preview
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildThemePreviewCard(
+                          context, 'Light Theme', themeSettings, true),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _buildThemePreviewCard(
+                          context, 'Dark Theme', themeSettings, false),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -265,6 +412,109 @@ class AppSettingsScreen extends ConsumerWidget {
     );
   }
 
+  // Theme preview card
+  Widget _buildThemePreviewCard(BuildContext context, String title,
+      ThemeSettings settings, bool isLight) {
+    // Get colors based on theme type
+    final primaryColor = isLight
+        ? settings.primaryColor
+        : _darkenColor(settings.primaryColor, 0.2);
+    final backgroundColor = isLight ? Colors.white : const Color(0xFF121212);
+    final textColor = isLight ? Colors.black87 : Colors.white;
+    final cardColor = isLight ? Colors.white : const Color(0xFF2C2C2C);
+
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              color: textColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+
+          // Sample Button
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryColor,
+                foregroundColor: Colors.white,
+              ),
+              onPressed: null,
+              child: const Text('Button'),
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
+          // Sample Card
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: cardColor,
+              borderRadius: BorderRadius.circular(4),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.info_outline, color: primaryColor, size: 16),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Sample card',
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Helper method to darken a color
+  Color _darkenColor(Color color, double factor) {
+    assert(factor >= 0 && factor <= 1);
+
+    int r = (color.red * (1 - factor)).round();
+    int g = (color.green * (1 - factor)).round();
+    int b = (color.blue * (1 - factor)).round();
+
+    return Color.fromRGBO(r, g, b, 1.0);
+  }
+
+  void _showColorPicker(BuildContext context, String title, Color initialColor,
+      Function(Color) onColorSelected) {
+    showDialog(
+      context: context,
+      builder: (context) => ColorPickerDialog(
+        title: title,
+        initialColor: initialColor,
+        onColorSelected: onColorSelected,
+      ),
+    );
+  }
+
   void _showLanguageSelector(
       BuildContext context, WidgetRef ref, AppLocalizations localizations) {
     if (Platform.isIOS) {
@@ -291,13 +541,6 @@ class AppSettingsScreen extends ConsumerWidget {
               CupertinoActionSheetAction(
                 onPressed: () {
                   Navigator.pop(context);
-                  // Set to Spanish (Latin America)
-                },
-                child: const Text('Español (Latinoamérica)'),
-              ),
-              CupertinoActionSheetAction(
-                onPressed: () {
-                  Navigator.pop(context);
                   // Set to German
                 },
                 child: const Text('Deutsch'),
@@ -315,90 +558,6 @@ class AppSettingsScreen extends ConsumerWidget {
                   // Set to Russian
                 },
                 child: const Text('Русский'),
-              ),
-              CupertinoActionSheetAction(
-                onPressed: () {
-                  Navigator.pop(context);
-                  // Set to Italian
-                },
-                child: const Text('Italiano'),
-              ),
-              CupertinoActionSheetAction(
-                onPressed: () {
-                  Navigator.pop(context);
-                  // Set to Japanese
-                },
-                child: const Text('日本語'),
-              ),
-              CupertinoActionSheetAction(
-                onPressed: () {
-                  Navigator.pop(context);
-                  // Set to Korean
-                },
-                child: const Text('한국어'),
-              ),
-              CupertinoActionSheetAction(
-                onPressed: () {
-                  Navigator.pop(context);
-                  // Set to Swedish
-                },
-                child: const Text('Svenska'),
-              ),
-              CupertinoActionSheetAction(
-                onPressed: () {
-                  Navigator.pop(context);
-                  // Set to Finnish
-                },
-                child: const Text('Suomi'),
-              ),
-              CupertinoActionSheetAction(
-                onPressed: () {
-                  Navigator.pop(context);
-                  // Set to Norwegian
-                },
-                child: const Text('Norsk'),
-              ),
-              CupertinoActionSheetAction(
-                onPressed: () {
-                  Navigator.pop(context);
-                  // Set to Danish
-                },
-                child: const Text('Dansk'),
-              ),
-              CupertinoActionSheetAction(
-                onPressed: () {
-                  Navigator.pop(context);
-                  // Set to Portuguese (Portugal)
-                },
-                child: const Text('Português (Portugal)'),
-              ),
-              CupertinoActionSheetAction(
-                onPressed: () {
-                  Navigator.pop(context);
-                  // Set to Portuguese (Brazil)
-                },
-                child: const Text('Português (Brasil)'),
-              ),
-              CupertinoActionSheetAction(
-                onPressed: () {
-                  Navigator.pop(context);
-                  // Set to Simplified Chinese
-                },
-                child: const Text('简体中文'),
-              ),
-              CupertinoActionSheetAction(
-                onPressed: () {
-                  Navigator.pop(context);
-                  // Set to Traditional Chinese
-                },
-                child: const Text('繁體中文'),
-              ),
-              CupertinoActionSheetAction(
-                onPressed: () {
-                  Navigator.pop(context);
-                  // Set to Arabic
-                },
-                child: const Text('العربية'),
               ),
             ],
             cancelButton: CupertinoActionSheetAction(
@@ -435,13 +594,6 @@ class AppSettingsScreen extends ConsumerWidget {
                     },
                   ),
                   ListTile(
-                    title: const Text('Español (Latinoamérica)'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      // Set to Spanish (Latin America)
-                    },
-                  ),
-                  ListTile(
                     title: const Text('Deutsch'),
                     onTap: () {
                       Navigator.pop(context);
@@ -460,90 +612,6 @@ class AppSettingsScreen extends ConsumerWidget {
                     onTap: () {
                       Navigator.pop(context);
                       // Set to Russian
-                    },
-                  ),
-                  ListTile(
-                    title: const Text('Italiano'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      // Set to Italian
-                    },
-                  ),
-                  ListTile(
-                    title: const Text('日本語'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      // Set to Japanese
-                    },
-                  ),
-                  ListTile(
-                    title: const Text('한국어'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      // Set to Korean
-                    },
-                  ),
-                  ListTile(
-                    title: const Text('Svenska'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      // Set to Swedish
-                    },
-                  ),
-                  ListTile(
-                    title: const Text('Suomi'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      // Set to Finnish
-                    },
-                  ),
-                  ListTile(
-                    title: const Text('Norsk'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      // Set to Norwegian
-                    },
-                  ),
-                  ListTile(
-                    title: const Text('Dansk'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      // Set to Danish
-                    },
-                  ),
-                  ListTile(
-                    title: const Text('Português (Portugal)'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      // Set to Portuguese (Portugal)
-                    },
-                  ),
-                  ListTile(
-                    title: const Text('Português (Brasil)'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      // Set to Portuguese (Brazil)
-                    },
-                  ),
-                  ListTile(
-                    title: const Text('简体中文'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      // Set to Simplified Chinese
-                    },
-                  ),
-                  ListTile(
-                    title: const Text('繁體中文'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      // Set to Traditional Chinese
-                    },
-                  ),
-                  ListTile(
-                    title: const Text('العربية'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      // Set to Arabic
                     },
                   ),
                 ],
