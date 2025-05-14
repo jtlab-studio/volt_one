@@ -1,3 +1,5 @@
+// lib/modules/home/screens/main_tab_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../shared/widgets/adaptive_tab_scaffold.dart';

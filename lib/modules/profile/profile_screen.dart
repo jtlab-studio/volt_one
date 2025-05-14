@@ -83,23 +83,23 @@ class ProfileScreen extends ConsumerWidget {
       items: [
         BottomNavigationBarItem(
           icon: const Icon(Icons.person),
-          label: 'User',
+          label: localizations.translate('user_info'),
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.favorite),
-          label: 'Cardio',
+          label: localizations.translate('hr_zones'),
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.flash_on),
-          label: 'Power',
+          label: localizations.translate('power_zones'),
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.speed),
-          label: 'Pacing',
+          label: localizations.translate('pace_zones'),
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.settings),
-          label: 'Settings',
+          label: localizations.translate('app_settings'),
         ),
       ],
     );
