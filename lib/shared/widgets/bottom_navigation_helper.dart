@@ -1,5 +1,3 @@
-// lib/shared/widgets/bottom_navigation_helper.dart
-
 import 'package:flutter/material.dart';
 import 'consistent_bottom_navigation.dart';
 
@@ -9,16 +7,11 @@ class BottomNavigationHelper {
   static Widget createMainBottomNavBar(BuildContext context, int currentIndex,
       List<BottomNavigationBarItem> items, ValueChanged<int> onTap,
       {Color? selectedItemColor}) {
-    // The key to consistent navigation bars is to use the SAME class across the entire app
     return ConsistentBottomNavigationBar(
       currentIndex: currentIndex,
       onTap: onTap,
       items: items,
       selectedItemColor: selectedItemColor,
-      // These settings should be consistent across all uses
-      elevation: 8.0,
-      iconSize: 24.0,
-      showLabels: true,
     );
   }
 
@@ -42,9 +35,9 @@ class BottomNavigationHelper {
 
       // Replace the middle item with one that has an empty label
       if (middleIndex < modifiedItems.length) {
-        // Keep the icon but remove the label text
+        // Keep the icon but remove the label text and replace icon with empty container
         modifiedItems[middleIndex] = BottomNavigationBarItem(
-          icon: modifiedItems[middleIndex].icon,
+          icon: Container(), // Empty container instead of an icon
           label: '', // Empty label to save vertical space
         );
       }
@@ -59,10 +52,6 @@ class BottomNavigationHelper {
             items: modifiedItems,
             selectedItemColor: selectedItemColor,
             backgroundColor: backgroundColor,
-            // Use IDENTICAL settings as above for consistency
-            elevation: 8.0,
-            iconSize: 24.0,
-            showLabels: true,
           ),
 
           // The floating center button
@@ -74,17 +63,13 @@ class BottomNavigationHelper {
       );
     }
 
-    // Standard navigation bar without center button - using same component
+    // Standard navigation bar without center button
     return ConsistentBottomNavigationBar(
       currentIndex: currentIndex,
       onTap: onTap,
       items: items,
       selectedItemColor: selectedItemColor,
       backgroundColor: backgroundColor,
-      // Identical settings for consistency
-      elevation: 8.0,
-      iconSize: 24.0,
-      showLabels: true,
     );
   }
 }

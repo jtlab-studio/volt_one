@@ -3,10 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/app_localizations.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/global_app_bar.dart';
 import '../../../shared/widgets/global_burger_menu.dart';
-import '../../../shared/widgets/consistent_bottom_navigation.dart';
+import '../../../shared/widgets/bottom_navigation_helper.dart';
 import '../../activity/activity_hub_screen.dart';
 import '../../profile/profile_screen.dart';
 import '../../routes/routes_screen.dart';
@@ -15,7 +14,10 @@ import '../../activity/screens/start_activity_screen.dart';
 import '../../activity/screens/activity_history_screen.dart';
 import '../../activity/screens/activity_settings_screen.dart';
 import '../../activity/screens/sensors_screen.dart';
-import '../../profile/screens/app_settings_screen.dart';
+import '../../profile/screens/hr_zones_screen.dart';
+import '../../profile/screens/power_zones_screen.dart';
+import '../../profile/screens/pace_zones_screen.dart';
+import '../../profile/screens/user_info_screen.dart';
 
 // Main tab index provider
 final mainTabIndexProvider = StateProvider<int>((ref) => 0);
@@ -42,7 +44,7 @@ final routesSectionProvider = StateProvider<String>((ref) => 'my_routes');
 final tribeSectionProvider = StateProvider<String>((ref) => 'feed');
 
 // Orange color to use throughout the app
-final orangeColor = const Color.fromRGBO(255, 152, 0, 1.0);
+final orangeColor = const Color(0xFFFF9800);
 
 class MainDashboardScreen extends ConsumerStatefulWidget {
   const MainDashboardScreen({super.key});
@@ -237,15 +239,22 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
           scaffoldKey: scaffoldKey,
         ),
         endDrawer: const GlobalBurgerMenu(),
-        body: mainScreens[currentTabIndex],
+        body: SafeArea(
+          // Don't add bottom padding - navigation has its own
+          bottom: false,
+          child: mainScreens[currentTabIndex],
+        ),
         bottomNavigationBar: _buildBottomNavigation(
-            context,
-            currentTabIndex,
-            inActivityHub,
-            inRoutesHub,
-            inTribeHub,
-            inProfileHub,
-            localizations),
+          context,
+          currentTabIndex,
+          inActivityHub,
+          inRoutesHub,
+          inTribeHub,
+          inProfileHub,
+          localizations,
+        ),
+        // This helps with keyboard behavior
+        resizeToAvoidBottomInset: true,
       ),
     );
   }
@@ -270,6 +279,340 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
     } else {
       return _buildMainBottomNavBar(context, currentTabIndex, localizations);
     }
+  }
+
+  // Main bottom navigation bar
+  Widget _buildMainBottomNavBar(
+      BuildContext context, int currentIndex, AppLocalizations localizations) {
+    return BottomNavigationHelper.createMainBottomNavBar(
+      context,
+      currentIndex,
+      [
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.dashboard),
+          label: localizations.translate('dashboard'),
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.directions_run),
+          label: localizations.translate('activity'),
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.map),
+          label: localizations.translate('routes'),
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.people),
+          label: localizations.translate('tribe'),
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.person),
+          label: localizations.translate('profile'),
+        ),
+      ],
+      (index) {
+        // Exit any hub mode if we tap away from it
+        if (index != 1 && ref.read(inActivityHubProvider)) {
+          ref.read(inActivityHubProvider.notifier).state = false;
+        }
+        if (index != 2 && ref.read(inRoutesHubProvider)) {
+          ref.read(inRoutesHubProvider.notifier).state = false;
+        }
+        if (index != 3 && ref.read(inTribeHubProvider)) {
+          ref.read(inTribeHubProvider.notifier).state = false;
+        }
+
+        // Update the tab index
+        ref.read(mainTabIndexProvider.notifier).state = index;
+
+        // Enter Hub if we tap the corresponding tab
+        if (index == 1) {
+          ref.read(inActivityHubProvider.notifier).state = true;
+          // Reset to start activity view
+          ref.read(activitySectionProvider.notifier).state = 'new_activity';
+        } else if (index == 2) {
+          ref.read(inRoutesHubProvider.notifier).state = true;
+          // Reset to my routes view
+          ref.read(routesSectionProvider.notifier).state = 'my_routes';
+        } else if (index == 3) {
+          ref.read(inTribeHubProvider.notifier).state = true;
+          // Reset to feed view
+          ref.read(tribeSectionProvider.notifier).state = 'feed';
+        }
+
+        // Update the current screen ID for the burger menu highlighting
+        final screenIds = [
+          'dashboard',
+          'activity',
+          'routes',
+          'tribe',
+          'profile'
+        ];
+        ref.read(currentScreenProvider.notifier).state = screenIds[index];
+      },
+      selectedItemColor: orangeColor,
+    );
+  }
+
+  // Activity-specific bottom navigation bar
+  Widget _buildActivityBottomNavBar(
+      BuildContext context, AppLocalizations localizations) {
+    final currentSection = ref.watch(activitySectionProvider);
+
+    // Create a center floating action button for the 'New' action
+    final centerButton = Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: _getActivityNavIndex(currentSection) == 2
+            ? orangeColor.withAlpha(50)
+            : orangeColor.withAlpha(30),
+      ),
+      padding: const EdgeInsets.all(8),
+      child: Icon(
+        Icons.add,
+        color: _getActivityNavIndex(currentSection) == 2
+            ? orangeColor
+            : Colors.grey,
+        size: 28, // Slightly larger icon
+      ),
+    );
+
+    return BottomNavigationHelper.createHubBottomNavBar(
+      context,
+      _getActivityNavIndex(currentSection),
+      [
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.history),
+          label: localizations.translate('all_activities'),
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.bluetooth),
+          label: localizations.translate('sensors'),
+        ),
+        // Center item (New) - will be replaced by the helper with empty container
+        BottomNavigationBarItem(
+          icon: Container(), // Empty container to avoid double icons
+          label: localizations.translate('new_activity'),
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.analytics),
+          label: localizations.translate('analytics'),
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.settings),
+          label: localizations.translate('activity_settings'),
+        ),
+      ],
+      (index) {
+        // Map the tapped index to the corresponding section
+        final sections = [
+          'all_activities',
+          'sensors',
+          'new_activity',
+          'analytics',
+          'activity_settings'
+        ];
+        final selectedSection = sections[index];
+
+        // Update the activity section
+        ref.read(activitySectionProvider.notifier).state = selectedSection;
+
+        // Update the current screen ID for the burger menu highlighting
+        ref.read(currentScreenProvider.notifier).state = selectedSection;
+      },
+      selectedItemColor: orangeColor,
+      centerButton: centerButton,
+    );
+  }
+
+  // Routes-specific bottom navigation bar
+  Widget _buildRoutesBottomNavBar(
+      BuildContext context, AppLocalizations localizations) {
+    final currentSection = ref.watch(routesSectionProvider);
+
+    // Create a center button for create route
+    final centerButton = Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: _getRoutesNavIndex(currentSection) == 2
+            ? orangeColor.withAlpha(50)
+            : orangeColor.withAlpha(30),
+      ),
+      padding: const EdgeInsets.all(8),
+      child: Icon(
+        Icons.add_location_alt,
+        color:
+            _getRoutesNavIndex(currentSection) == 2 ? orangeColor : Colors.grey,
+        size: 28,
+      ),
+    );
+
+    return BottomNavigationHelper.createHubBottomNavBar(
+      context,
+      _getRoutesNavIndex(currentSection),
+      [
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.route),
+          label: localizations.translate('my_routes'),
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.explore),
+          label: localizations.translate('discover'),
+        ),
+        // Center item (Create) - will be replaced with empty container
+        BottomNavigationBarItem(
+          icon: Container(), // Empty container to avoid double icons
+          label: localizations.translate('create_route'),
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.favorite),
+          label: localizations.translate('favorites'),
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.history),
+          label: localizations.translate('history'),
+        ),
+      ],
+      (index) {
+        // Map the tapped index to the corresponding section
+        final sections = [
+          'my_routes',
+          'discover',
+          'create_route',
+          'favorites',
+          'history'
+        ];
+        final selectedSection = sections[index];
+
+        // Update the routes section
+        ref.read(routesSectionProvider.notifier).state = selectedSection;
+
+        // Update the current screen ID for the burger menu highlighting
+        ref.read(currentScreenProvider.notifier).state = selectedSection;
+      },
+      selectedItemColor: orangeColor,
+      centerButton: centerButton,
+    );
+  }
+
+  // Tribe-specific bottom navigation bar
+  Widget _buildTribeBottomNavBar(
+      BuildContext context, AppLocalizations localizations) {
+    final currentSection = ref.watch(tribeSectionProvider);
+
+    // Create a center button for challenges
+    final centerButton = Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: _getTribeNavIndex(currentSection) == 2
+            ? orangeColor.withAlpha(50)
+            : orangeColor.withAlpha(30),
+      ),
+      padding: const EdgeInsets.all(8),
+      child: Icon(
+        Icons.emoji_events,
+        color:
+            _getTribeNavIndex(currentSection) == 2 ? orangeColor : Colors.grey,
+        size: 28,
+      ),
+    );
+
+    return BottomNavigationHelper.createHubBottomNavBar(
+      context,
+      _getTribeNavIndex(currentSection),
+      [
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.dynamic_feed),
+          label: localizations.translate('feed'),
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.person_add),
+          label: localizations.translate('friends'),
+        ),
+        // Center item (Challenges) - will be replaced with empty container
+        BottomNavigationBarItem(
+          icon: Container(), // Empty container to avoid double icons
+          label: localizations.translate('challenges'),
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.group),
+          label: localizations.translate('groups'),
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.leaderboard),
+          label: localizations.translate('leaderboard'),
+        ),
+      ],
+      (index) {
+        // Map the tapped index to the corresponding section
+        final sections = [
+          'feed',
+          'friends',
+          'challenges',
+          'groups',
+          'leaderboard'
+        ];
+        final selectedSection = sections[index];
+
+        // Update the tribe section
+        ref.read(tribeSectionProvider.notifier).state = selectedSection;
+
+        // Update the current screen ID for the burger menu highlighting
+        ref.read(currentScreenProvider.notifier).state = selectedSection;
+      },
+      selectedItemColor: orangeColor,
+      centerButton: centerButton,
+    );
+  }
+
+  // Profile-specific bottom navigation bar
+  Widget _buildProfileBottomNavBar(
+      BuildContext context, AppLocalizations localizations) {
+    final currentSection = ref.watch(profileSectionProvider);
+
+    return BottomNavigationHelper.createMainBottomNavBar(
+      context,
+      _getProfileNavIndex(currentSection),
+      [
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.person),
+          label: localizations.translate('user_info'),
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.favorite),
+          label: localizations.translate('hr_zones'),
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.flash_on),
+          label: localizations.translate('power_zones'),
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.speed),
+          label: localizations.translate('pace_zones'),
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.settings),
+          label: localizations.translate('app_settings'),
+        ),
+      ],
+      (index) {
+        // Map the tapped index to the corresponding section
+        final sections = [
+          'user_info',
+          'hr_zones',
+          'power_zones',
+          'pace_zones',
+          'app_settings'
+        ];
+        final selectedSection = sections[index];
+
+        // Update the profile section
+        ref.read(profileSectionProvider.notifier).state = selectedSection;
+
+        // Update the current screen ID for the burger menu highlighting
+        ref.read(currentScreenProvider.notifier).state = selectedSection;
+      },
+      selectedItemColor: orangeColor,
+    );
   }
 
   // When in Activity Hub, we show the specific content based on the selected section
@@ -424,22 +767,19 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
 
     switch (profileSection) {
       case 'user_info':
-        return _buildProfilePlaceholder(
-            'User Info', 'Your personal details and settings');
+        return const UserInfoScreen();
       case 'hr_zones':
-        return _buildProfilePlaceholder(
-            'Heart Rate Zones', 'Configure your heart rate training zones');
+        return const HRZonesScreen();
       case 'power_zones':
-        return _buildProfilePlaceholder(
-            'Power Zones', 'Configure your power training zones');
+        return const PowerZonesScreen();
       case 'pace_zones':
-        return _buildProfilePlaceholder(
-            'Pace Zones', 'Configure your pace training zones');
+        return const PaceZonesScreen();
       case 'app_settings':
-        return const AppSettingsScreen();
-      default:
+        // Use a placeholder for app settings
         return _buildProfilePlaceholder(
-            'User Info', 'Your personal details and settings');
+            'App Settings', 'Configure application settings');
+      default:
+        return const UserInfoScreen();
     }
   }
 
@@ -469,583 +809,11 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
     );
   }
 
-  // Helper method to get the title based on current view
-  String _getTitle(int tabIndex, bool inActivityHub, bool inRoutesHub,
-      bool inTribeHub, AppLocalizations localizations) {
-    // If we're in the Activity Hub
-    if (inActivityHub && tabIndex == 1) {
-      final activitySection = ref.watch(activitySectionProvider);
-      switch (activitySection) {
-        case 'new_activity':
-          return localizations.translate('new_activity');
-        case 'all_activities':
-          return localizations.translate('all_activities');
-        case 'activity_settings':
-          return localizations.translate('activity_settings');
-        case 'sensors':
-          return localizations.translate('sensors');
-        case 'analytics':
-          return 'Analytics';
-        default:
-          return localizations.translate('activity');
-      }
-    }
-
-    // If we're in the Routes Hub
-    if (inRoutesHub && tabIndex == 2) {
-      final routesSection = ref.watch(routesSectionProvider);
-      switch (routesSection) {
-        case 'my_routes':
-          return 'My Routes';
-        case 'discover':
-          return 'Discover Routes';
-        case 'create_route':
-          return 'Create Route';
-        case 'favorites':
-          return 'Favorite Routes';
-        case 'history':
-          return 'Route History';
-        default:
-          return localizations.translate('routes');
-      }
-    }
-
-    // If we're in the Tribe Hub
-    if (inTribeHub && tabIndex == 3) {
-      final tribeSection = ref.watch(tribeSectionProvider);
-      switch (tribeSection) {
-        case 'feed':
-          return 'Activity Feed';
-        case 'friends':
-          return 'Friends';
-        case 'challenges':
-          return 'Challenges';
-        case 'groups':
-          return 'Groups';
-        case 'leaderboard':
-          return 'Leaderboards';
-        default:
-          return localizations.translate('tribe');
-      }
-    }
-
-    // If we're in the Profile Hub
-    if (tabIndex == 4) {
-      final profileSection = ref.watch(profileSectionProvider);
-      switch (profileSection) {
-        case 'user_info':
-          return 'User';
-        case 'hr_zones':
-          return 'Cardio';
-        case 'power_zones':
-          return 'Power';
-        case 'pace_zones':
-          return 'Pacing';
-        case 'app_settings':
-          return 'Settings';
-        default:
-          return localizations.translate('profile');
-      }
-    }
-
-    // Standard titles for main tabs
-    switch (tabIndex) {
-      case 0:
-        return localizations.translate('dashboard');
-      case 1:
-        return localizations.translate('activity');
-      case 2:
-        return localizations.translate('routes');
-      case 3:
-        return localizations.translate('tribe');
-      case 4:
-        return localizations.translate('profile');
-      default:
-        return localizations.translate('app_name');
-    }
-  }
-
-  // Main bottom navigation bar
-  Widget _buildMainBottomNavBar(
-      BuildContext context, int currentIndex, AppLocalizations localizations) {
-    return ConsistentBottomNavigationBar(
-      currentIndex: currentIndex,
-      onTap: (index) {
-        // Exit any hub mode if we tap away from it
-        if (index != 1 && ref.read(inActivityHubProvider)) {
-          ref.read(inActivityHubProvider.notifier).state = false;
-        }
-        if (index != 2 && ref.read(inRoutesHubProvider)) {
-          ref.read(inRoutesHubProvider.notifier).state = false;
-        }
-        if (index != 3 && ref.read(inTribeHubProvider)) {
-          ref.read(inTribeHubProvider.notifier).state = false;
-        }
-
-        // Update the tab index
-        ref.read(mainTabIndexProvider.notifier).state = index;
-
-        // Enter Hub if we tap the corresponding tab
-        if (index == 1) {
-          ref.read(inActivityHubProvider.notifier).state = true;
-          // Reset to start activity view
-          ref.read(activitySectionProvider.notifier).state = 'new_activity';
-        } else if (index == 2) {
-          ref.read(inRoutesHubProvider.notifier).state = true;
-          // Reset to my routes view
-          ref.read(routesSectionProvider.notifier).state = 'my_routes';
-        } else if (index == 3) {
-          ref.read(inTribeHubProvider.notifier).state = true;
-          // Reset to feed view
-          ref.read(tribeSectionProvider.notifier).state = 'feed';
-        }
-
-        // Update the current screen ID for the burger menu highlighting
-        final screenIds = [
-          'dashboard',
-          'activity',
-          'routes',
-          'tribe',
-          'profile'
-        ];
-        ref.read(currentScreenProvider.notifier).state = screenIds[index];
-      },
-      selectedItemColor: orangeColor,
-      items: [
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.dashboard),
-          label: localizations.translate('dashboard'),
-        ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.directions_run),
-          label: localizations.translate('activity'),
-        ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.map),
-          label: localizations.translate('routes'),
-        ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.people),
-          label: localizations.translate('tribe'),
-        ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.person),
-          label: localizations.translate('profile'),
-        ),
-      ],
-    );
-  }
-
-  // Activity-specific bottom navigation bar
-  Widget _buildActivityBottomNavBar(
-      BuildContext context, AppLocalizations localizations) {
-    final currentSection = ref.watch(activitySectionProvider);
-
-    return Stack(
-      alignment: Alignment.bottomCenter,
-      children: [
-        // Regular bottom navigation bar
-        ConsistentBottomNavigationBar(
-          currentIndex: _getActivityNavIndex(currentSection),
-          onTap: (index) {
-            // Map the tapped index to the corresponding section
-            final sections = [
-              'all_activities',
-              'sensors',
-              'new_activity',
-              'analytics',
-              'activity_settings'
-            ];
-            final selectedSection = sections[index];
-
-            // Update the activity section
-            ref.read(activitySectionProvider.notifier).state = selectedSection;
-
-            // Update the current screen ID for the burger menu highlighting
-            ref.read(currentScreenProvider.notifier).state = selectedSection;
-          },
-          selectedItemColor: orangeColor,
-          items: [
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.history),
-              label: 'Activities',
-            ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.bluetooth),
-              label: 'Sensors',
-            ),
-            // Center item (New) - Make it invisible in the bottom bar
-            BottomNavigationBarItem(
-              icon: const SizedBox(),
-              label: '',
-            ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.analytics),
-              label: 'Analytics',
-            ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.settings),
-              label: 'Config',
-            ),
-          ],
-        ),
-
-        // Floating center button positioned on top and shifted upward by 4px
-        Positioned(
-          bottom: 4, // Increased from 0 to 4px to lift the button up
-          child: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: _getActivityNavIndex(currentSection) == 2
-                  ? orangeColor.withAlpha(50)
-                  : orangeColor.withAlpha(30),
-              // Add a subtle shadow
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  spreadRadius: 1,
-                  blurRadius: 2,
-                  offset: const Offset(0, 1),
-                ),
-              ],
-            ),
-            padding: const EdgeInsets.all(12),
-            child: InkWell(
-              onTap: () {
-                // Set to new activity section
-                ref.read(activitySectionProvider.notifier).state =
-                    'new_activity';
-                // Update the current screen ID for the burger menu highlighting
-                ref.read(currentScreenProvider.notifier).state = 'new_activity';
-              },
-              child: Icon(
-                Icons.add,
-                color: _getActivityNavIndex(currentSection) == 2
-                    ? orangeColor
-                    : Colors.grey,
-                size: 28, // Slightly larger icon
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // Routes-specific bottom navigation bar with raised middle button
-  Widget _buildRoutesBottomNavBar(
-      BuildContext context, AppLocalizations localizations) {
-    final currentSection = ref.watch(routesSectionProvider);
-
-    return Stack(
-      alignment: Alignment.bottomCenter,
-      children: [
-        // Regular bottom navigation bar
-        ConsistentBottomNavigationBar(
-          currentIndex: _getRoutesNavIndex(currentSection),
-          onTap: (index) {
-            // Map the tapped index to the corresponding section
-            final sections = [
-              'my_routes',
-              'discover',
-              'create_route',
-              'favorites',
-              'history'
-            ];
-            final selectedSection = sections[index];
-
-            // Update the routes section
-            ref.read(routesSectionProvider.notifier).state = selectedSection;
-
-            // Update the current screen ID for the burger menu highlighting
-            ref.read(currentScreenProvider.notifier).state = selectedSection;
-          },
-          selectedItemColor: orangeColor,
-          items: [
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.route),
-              label: 'My Routes',
-            ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.explore),
-              label: 'Discover',
-            ),
-            // Center item (Create) - Make it invisible in the bottom bar
-            BottomNavigationBarItem(
-              icon: const SizedBox(),
-              label: '',
-            ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.favorite),
-              label: 'Favorites',
-            ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.history),
-              label: 'History',
-            ),
-          ],
-        ),
-
-        // Floating center button positioned on top and shifted upward by 4px
-        Positioned(
-          bottom: 4, // Increased from 0 to 4px to lift the button up
-          child: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: _getRoutesNavIndex(currentSection) == 2
-                  ? orangeColor.withAlpha(50)
-                  : orangeColor.withAlpha(30),
-              // Add a subtle shadow
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  spreadRadius: 1,
-                  blurRadius: 2,
-                  offset: const Offset(0, 1),
-                ),
-              ],
-            ),
-            padding: const EdgeInsets.all(12),
-            child: InkWell(
-              onTap: () {
-                // Set to create route section
-                ref.read(routesSectionProvider.notifier).state = 'create_route';
-                // Update the current screen ID for the burger menu highlighting
-                ref.read(currentScreenProvider.notifier).state = 'create_route';
-              },
-              child: Icon(
-                Icons.add_location_alt,
-                color: _getRoutesNavIndex(currentSection) == 2
-                    ? orangeColor
-                    : Colors.grey,
-                size: 28, // Slightly larger icon
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // Tribe-specific bottom navigation bar with raised middle button
-  Widget _buildTribeBottomNavBar(
-      BuildContext context, AppLocalizations localizations) {
-    final currentSection = ref.watch(tribeSectionProvider);
-
-    return Stack(
-      alignment: Alignment.bottomCenter,
-      children: [
-        // Regular bottom navigation bar
-        ConsistentBottomNavigationBar(
-          currentIndex: _getTribeNavIndex(currentSection),
-          onTap: (index) {
-            // Map the tapped index to the corresponding section
-            final sections = [
-              'feed',
-              'friends',
-              'challenges',
-              'groups',
-              'leaderboard'
-            ];
-            final selectedSection = sections[index];
-
-            // Update the tribe section
-            ref.read(tribeSectionProvider.notifier).state = selectedSection;
-
-            // Update the current screen ID for the burger menu highlighting
-            ref.read(currentScreenProvider.notifier).state = selectedSection;
-          },
-          selectedItemColor: orangeColor,
-          items: [
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.dynamic_feed),
-              label: 'Feed',
-            ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.person_add),
-              label: 'Friends',
-            ),
-            // Center item (Challenges) - Make it invisible in the bottom bar
-            BottomNavigationBarItem(
-              icon: const SizedBox(),
-              label: '',
-            ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.group),
-              label: 'Groups',
-            ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.leaderboard),
-              label: 'Ranking',
-            ),
-          ],
-        ),
-
-        // Floating center button positioned on top and shifted upward by 4px
-        Positioned(
-          bottom: 4, // Increased from 0 to 4px to lift the button up
-          child: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: _getTribeNavIndex(currentSection) == 2
-                  ? orangeColor.withAlpha(50)
-                  : orangeColor.withAlpha(30),
-              // Add a subtle shadow
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  spreadRadius: 1,
-                  blurRadius: 2,
-                  offset: const Offset(0, 1),
-                ),
-              ],
-            ),
-            padding: const EdgeInsets.all(12),
-            child: InkWell(
-              onTap: () {
-                // Set to challenges section
-                ref.read(tribeSectionProvider.notifier).state = 'challenges';
-                // Update the current screen ID for the burger menu highlighting
-                ref.read(currentScreenProvider.notifier).state = 'challenges';
-              },
-              child: Icon(
-                Icons.emoji_events,
-                color: _getTribeNavIndex(currentSection) == 2
-                    ? orangeColor
-                    : Colors.grey,
-                size: 28, // Slightly larger icon
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // Profile-specific bottom navigation bar
-  Widget _buildProfileBottomNavBar(
-      BuildContext context, AppLocalizations localizations) {
-    final currentSection = ref.watch(profileSectionProvider);
-
-    return ConsistentBottomNavigationBar(
-      currentIndex: _getProfileNavIndex(currentSection),
-      onTap: (index) {
-        // Map the tapped index to the corresponding section
-        final sections = [
-          'user_info',
-          'hr_zones',
-          'power_zones',
-          'pace_zones',
-          'app_settings'
-        ];
-        final selectedSection = sections[index];
-
-        // Update the profile section
-        ref.read(profileSectionProvider.notifier).state = selectedSection;
-
-        // Update the current screen ID for the burger menu highlighting
-        ref.read(currentScreenProvider.notifier).state = selectedSection;
-      },
-      selectedItemColor: orangeColor,
-      items: [
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.person),
-          label: 'User',
-        ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.favorite),
-          label: 'Cardio',
-        ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.flash_on),
-          label: 'Power',
-        ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.speed),
-          label: 'Pacing',
-        ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.settings),
-          label: 'Settings',
-        ),
-      ],
-    );
-  }
-
-  // Helper to determine which index is active in the activity navigation bar
-  int _getActivityNavIndex(String section) {
-    switch (section) {
-      case 'all_activities':
-        return 0;
-      case 'sensors':
-        return 1;
-      case 'new_activity':
-        return 2; // Center position
-      case 'analytics':
-        return 3;
-      case 'activity_settings':
-        return 4;
-      default:
-        return 2; // Default to new activity (center)
-    }
-  }
-
-  // Helper to determine which index is active in the routes navigation bar
-  int _getRoutesNavIndex(String section) {
-    switch (section) {
-      case 'my_routes':
-        return 0;
-      case 'discover':
-        return 1;
-      case 'create_route':
-        return 2; // Center position
-      case 'favorites':
-        return 3;
-      case 'history':
-        return 4;
-      default:
-        return 0; // Default to my routes
-    }
-  }
-
-  // Helper to determine which index is active in the tribe navigation bar
-  int _getTribeNavIndex(String section) {
-    switch (section) {
-      case 'feed':
-        return 0;
-      case 'friends':
-        return 1;
-      case 'challenges':
-        return 2; // Center position
-      case 'groups':
-        return 3;
-      case 'leaderboard':
-        return 4;
-      default:
-        return 0; // Default to feed
-    }
-  }
-
-  // Helper to determine which index is active in the profile navigation bar
-  int _getProfileNavIndex(String section) {
-    switch (section) {
-      case 'user_info':
-        return 0;
-      case 'hr_zones':
-        return 1;
-      case 'power_zones':
-        return 2;
-      case 'pace_zones':
-        return 3;
-      case 'app_settings':
-        return 4;
-      default:
-        return 0; // Default to user info
-    }
-  }
-
+  // Dashboard screen content
   Widget _buildDashboard(BuildContext context, AppLocalizations localizations) {
     return SafeArea(
+      // Don't add extra padding at the bottom since the navigation bar handles it
+      bottom: false,
       child: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -1200,5 +968,173 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
         ),
       ),
     );
+  }
+
+  // Helper method to get the title based on current view
+  String _getTitle(int tabIndex, bool inActivityHub, bool inRoutesHub,
+      bool inTribeHub, AppLocalizations localizations) {
+    // If we're in the Activity Hub
+    if (inActivityHub && tabIndex == 1) {
+      final activitySection = ref.watch(activitySectionProvider);
+      switch (activitySection) {
+        case 'new_activity':
+          return localizations.translate('new_activity');
+        case 'all_activities':
+          return localizations.translate('all_activities');
+        case 'activity_settings':
+          return localizations.translate('activity_settings');
+        case 'sensors':
+          return localizations.translate('sensors');
+        case 'analytics':
+          return 'Analytics';
+        default:
+          return localizations.translate('activity');
+      }
+    }
+
+    // If we're in the Routes Hub
+    if (inRoutesHub && tabIndex == 2) {
+      final routesSection = ref.watch(routesSectionProvider);
+      switch (routesSection) {
+        case 'my_routes':
+          return 'My Routes';
+        case 'discover':
+          return 'Discover Routes';
+        case 'create_route':
+          return 'Create Route';
+        case 'favorites':
+          return 'Favorite Routes';
+        case 'history':
+          return 'Route History';
+        default:
+          return localizations.translate('routes');
+      }
+    }
+
+    // If we're in the Tribe Hub
+    if (inTribeHub && tabIndex == 3) {
+      final tribeSection = ref.watch(tribeSectionProvider);
+      switch (tribeSection) {
+        case 'feed':
+          return 'Activity Feed';
+        case 'friends':
+          return 'Friends';
+        case 'challenges':
+          return 'Challenges';
+        case 'groups':
+          return 'Groups';
+        case 'leaderboard':
+          return 'Leaderboards';
+        default:
+          return localizations.translate('tribe');
+      }
+    }
+
+    // If we're in the Profile Hub
+    if (tabIndex == 4) {
+      final profileSection = ref.watch(profileSectionProvider);
+      switch (profileSection) {
+        case 'user_info':
+          return 'User';
+        case 'hr_zones':
+          return 'Cardio';
+        case 'power_zones':
+          return 'Power';
+        case 'pace_zones':
+          return 'Pacing';
+        case 'app_settings':
+          return 'Settings';
+        default:
+          return localizations.translate('profile');
+      }
+    }
+
+    // Standard titles for main tabs
+    switch (tabIndex) {
+      case 0:
+        return localizations.translate('dashboard');
+      case 1:
+        return localizations.translate('activity');
+      case 2:
+        return localizations.translate('routes');
+      case 3:
+        return localizations.translate('tribe');
+      case 4:
+        return localizations.translate('profile');
+      default:
+        return localizations.translate('app_name');
+    }
+  }
+
+  // Helper method to determine which index is active in the activity navigation bar
+  int _getActivityNavIndex(String section) {
+    switch (section) {
+      case 'all_activities':
+        return 0;
+      case 'sensors':
+        return 1;
+      case 'new_activity':
+        return 2; // Center position
+      case 'analytics':
+        return 3;
+      case 'activity_settings':
+        return 4;
+      default:
+        return 2; // Default to new activity (center)
+    }
+  }
+
+  // Helper to determine which index is active in the routes navigation bar
+  int _getRoutesNavIndex(String section) {
+    switch (section) {
+      case 'my_routes':
+        return 0;
+      case 'discover':
+        return 1;
+      case 'create_route':
+        return 2; // Center position
+      case 'favorites':
+        return 3;
+      case 'history':
+        return 4;
+      default:
+        return 0; // Default to my routes
+    }
+  }
+
+  // Helper to determine which index is active in the tribe navigation bar
+  int _getTribeNavIndex(String section) {
+    switch (section) {
+      case 'feed':
+        return 0;
+      case 'friends':
+        return 1;
+      case 'challenges':
+        return 2; // Center position
+      case 'groups':
+        return 3;
+      case 'leaderboard':
+        return 4;
+      default:
+        return 0; // Default to feed
+    }
+  }
+
+  // Helper to determine which index is active in the profile navigation bar
+  int _getProfileNavIndex(String section) {
+    switch (section) {
+      case 'user_info':
+        return 0;
+      case 'hr_zones':
+        return 1;
+      case 'power_zones':
+        return 2;
+      case 'pace_zones':
+        return 3;
+      case 'app_settings':
+        return 4;
+      default:
+        return 0; // Default to user info
+    }
   }
 }
