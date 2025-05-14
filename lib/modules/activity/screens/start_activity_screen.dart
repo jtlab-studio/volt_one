@@ -1,3 +1,5 @@
+// lib/modules/activity/screens/start_activity_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/app_localizations.dart';
@@ -6,8 +8,6 @@ import '../../../shared/widgets/metric_card.dart';
 import '../../../shared/widgets/sensor_status_bar.dart';
 import '../providers/activity_state_provider.dart';
 import '../models/activity_state.dart';
-// Remove the theme toggle button import
-// import '../../../shared/widgets/theme_toggle_button.dart';
 
 class StartActivityScreen extends ConsumerStatefulWidget {
   const StartActivityScreen({super.key});
@@ -51,9 +51,19 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
     final localizations = AppLocalizations.of(context);
     final activityState = ref.watch(activityStateProvider);
 
+    // Get the current theme to respect the app's theme settings
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
+    // Use theme-appropriate colors
+    final backgroundColor =
+        isDarkMode ? AppColors.darkBackground : theme.scaffoldBackgroundColor;
+    final cardColor = isDarkMode ? AppColors.darkCard : theme.cardColor;
+    final textColor = isDarkMode ? Colors.white : Colors.black87;
+
     return Scaffold(
-      backgroundColor: Colors.black87, // Dark background for the entire screen
-      // Removed app bar to avoid duplicate title
+      // Use the theme's background color instead of hardcoded black
+      backgroundColor: backgroundColor,
       body: Stack(
         children: [
           Column(
@@ -65,9 +75,9 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
                   Tab(text: localizations.translate('metrics')),
                   Tab(text: localizations.translate('map')),
                 ],
-                // Makes the tab bar visible in dark mode
-                labelColor: Colors.white,
-                indicatorColor: Colors.white,
+                // Use theme-appropriate colors
+                labelColor: textColor,
+                indicatorColor: theme.primaryColor,
               ),
 
               // Use the demo version for better interaction
@@ -78,8 +88,8 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
                 child: TabBarView(
                   controller: _tabController,
                   children: [
-                    _buildMetricsTab(localizations),
-                    _buildMapTab(localizations),
+                    _buildMetricsTab(localizations, isDarkMode, theme),
+                    _buildMapTab(localizations, isDarkMode, theme),
                   ],
                 ),
               ),
@@ -97,9 +107,9 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: Color.fromRGBO(
-                      orangeColor.r.toInt(),
-                      orangeColor.g.toInt(),
-                      orangeColor.b.toInt(),
+                      orangeColor.red,
+                      orangeColor.green,
+                      orangeColor.blue,
                       0.85, // Using RGBA for opacity
                     ),
                   ),
@@ -124,14 +134,16 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
               right: 0,
               child: _buildActivityControls(localizations, activityState),
             ),
-
-          // Theme toggle button removed from top-right
         ],
       ),
     );
   }
 
-  Widget _buildMetricsTab(AppLocalizations localizations) {
+  Widget _buildMetricsTab(
+    AppLocalizations localizations,
+    bool isDarkMode,
+    ThemeData theme,
+  ) {
     // Reduced metric card height by 50%
     final metricCardHeight = 70.0; // Original was 140.0
 
@@ -234,7 +246,11 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
     );
   }
 
-  Widget _buildMapTab(AppLocalizations localizations) {
+  Widget _buildMapTab(
+    AppLocalizations localizations,
+    bool isDarkMode,
+    ThemeData theme,
+  ) {
     // Reduced metric card height by 50%
     final metricCardHeight = 50.0; // Original was 100.0
 
@@ -243,51 +259,64 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
 
     return Column(
       children: [
-        // Two customizable metric cards
-        Padding(
-          padding: EdgeInsets.all(cardSpacing),
-          child: Row(
-            children: [
-              Expanded(
-                child: MetricCard(
-                  title: localizations.translate('pace'),
-                  value: '0:00',
-                  unit: 'min/km',
-                  backgroundColor: AppColors.paceCardColor,
-                  icon: Icons.speed,
-                  height: metricCardHeight,
+        // Two customizable metric cards with proper padding
+        SafeArea(
+          // Set bottom to false since we only need top padding
+          bottom: false,
+          child: Padding(
+            padding: EdgeInsets.all(cardSpacing),
+            child: Row(
+              children: [
+                Expanded(
+                  child: MetricCard(
+                    title: localizations.translate('pace'),
+                    value: '0:00',
+                    unit: 'min/km',
+                    backgroundColor: AppColors.paceCardColor,
+                    icon: Icons.speed,
+                    height: metricCardHeight,
+                  ),
                 ),
-              ),
-              SizedBox(width: cardSpacing),
-              Expanded(
-                child: MetricCard(
-                  title: localizations.translate('heart_rate'),
-                  value: '0',
-                  unit: 'bpm',
-                  backgroundColor: AppColors.heartRateCardColor,
-                  icon: Icons.favorite,
-                  height: metricCardHeight,
+                SizedBox(width: cardSpacing),
+                Expanded(
+                  child: MetricCard(
+                    title: localizations.translate('heart_rate'),
+                    value: '0',
+                    unit: 'bpm',
+                    backgroundColor: AppColors.heartRateCardColor,
+                    icon: Icons.favorite,
+                    height: metricCardHeight,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
 
-        // Map placeholder - darker for dark mode
+        // Add a SizedBox with height equivalent to padding to prevent overflow
+        SizedBox(height: cardSpacing),
+
+        // Map placeholder - theme-appropriate color
         Expanded(
           child: Container(
-            color: const Color.fromRGBO(
-                30, 30, 30, 1.0), // Using RGBA for dark mode
+            color: isDarkMode
+                ? const Color.fromRGBO(30, 30, 30, 1.0) // Dark background
+                : const Color.fromRGBO(240, 240, 240, 1.0), // Light background
             child: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.map, size: 64, color: Colors.grey),
+                  Icon(
+                    Icons.map,
+                    size: 64,
+                    color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                  ),
                   const SizedBox(height: 16),
                   Text(
                     'Map will be displayed here',
                     style: TextStyle(
-                        color: Colors.grey[400]), // Lighter text for dark mode
+                      color: isDarkMode ? Colors.grey[400] : Colors.grey[800],
+                    ),
                   ),
                 ],
               ),
@@ -429,20 +458,25 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
 
   void _showDiscardConfirmation(
       BuildContext context, AppLocalizations localizations) {
+    // Get theme to use appropriate colors
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        // Use theme colors instead of hardcoded dark
         backgroundColor:
-            const Color.fromRGBO(50, 50, 50, 1.0), // Dark dialog using RGBA
+            isDarkMode ? const Color.fromRGBO(50, 50, 50, 1.0) : Colors.white,
         title: Text(
           localizations.translate('discard_activity'),
-          style: const TextStyle(color: Colors.white), // White text
+          style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
         ),
         content: Text(
           localizations.translate('discard_confirmation'),
-          style: const TextStyle(
-              color: Color.fromRGBO(
-                  255, 255, 255, 0.7)), // Light gray text using RGBA
+          style: TextStyle(
+              color: isDarkMode
+                  ? const Color.fromRGBO(255, 255, 255, 0.7)
+                  : Colors.black54),
         ),
         actions: [
           TextButton(
@@ -451,9 +485,10 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
             },
             child: Text(
               localizations.translate('cancel'),
-              style: const TextStyle(
-                  color: Color.fromRGBO(
-                      200, 200, 200, 1.0)), // Light gray for cancel using RGBA
+              style: TextStyle(
+                  color: isDarkMode
+                      ? const Color.fromRGBO(200, 200, 200, 1.0)
+                      : Colors.black54),
             ),
           ),
           TextButton(

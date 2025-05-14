@@ -1,3 +1,5 @@
+// lib/shared/widgets/metric_card.dart
+
 import 'package:flutter/material.dart';
 
 class MetricCard extends StatelessWidget {
@@ -24,11 +26,24 @@ class MetricCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final darkColor = const Color.fromRGBO(33, 33, 33, 1.0); // Using RGBA
+    // Get the current theme
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
+    // Use theme-appropriate card color
+    final cardColor =
+        isDarkMode ? const Color.fromRGBO(42, 42, 42, 1.0) : Colors.white;
+
+    // Set appropriate text colors based on theme
+    final titleColor = backgroundColor; // Keep title the accent color
+    final valueColor = isDarkMode ? Colors.white : Colors.black87;
+    final subtitleColor = isDarkMode
+        ? const Color.fromRGBO(200, 200, 200, 1.0)
+        : const Color.fromRGBO(100, 100, 100, 1.0);
 
     return Card(
       elevation: 2,
-      color: darkColor,
+      color: cardColor,
       child: Container(
         height: height,
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -44,7 +59,7 @@ class MetricCard extends StatelessWidget {
                     title.toUpperCase(),
                     maxLines: 1,
                     style: TextStyle(
-                      color: backgroundColor,
+                      color: titleColor,
                       fontWeight: FontWeight.bold,
                       fontSize: 10,
                       letterSpacing: 0.5,
@@ -52,7 +67,7 @@ class MetricCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                Icon(icon, size: 14, color: backgroundColor),
+                Icon(icon, size: 14, color: titleColor),
               ],
             ),
 
@@ -61,10 +76,10 @@ class MetricCard extends StatelessWidget {
               height: 4,
               thickness: 1,
               color: Color.fromRGBO(
-                backgroundColor.r.toInt(), // Convert double to int
-                backgroundColor.g.toInt(), // Convert double to int
-                backgroundColor.b.toInt(), // Convert double to int
-                0.3, // Using explicit RGBA for opacity
+                backgroundColor.red,
+                backgroundColor.green,
+                backgroundColor.blue,
+                0.3, // Using RGBA for opacity
               ),
             ),
 
@@ -72,47 +87,57 @@ class MetricCard extends StatelessWidget {
             Expanded(
               child: customContent ??
                   Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        RichText(
-                          textAlign: TextAlign.center,
-                          text: TextSpan(
-                            children: [
-                              TextSpan(
-                                text: value,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 26,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              if (unit != null)
-                                TextSpan(
-                                  text: ' $unit',
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    color: Color.fromRGBO(200, 200, 200,
-                                        1.0), // Using RGBA for light gray
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        // Adjust font size based on available height
+                        final bool isSmallCard = height < 60;
+                        final double valueFontSize = isSmallCard ? 20 : 26;
+                        final double unitFontSize = isSmallCard ? 10 : 13;
+                        final double subtitleFontSize = isSmallCard ? 8 : 9;
+
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize:
+                              MainAxisSize.min, // Use min to avoid overflow
+                          children: [
+                            RichText(
+                              textAlign: TextAlign.center,
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: value,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: valueFontSize,
+                                      color: valueColor,
+                                    ),
                                   ),
-                                ),
-                            ],
-                          ),
-                        ),
-                        if (subtitle != null)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 2),
-                            child: Text(
-                              subtitle!,
-                              style: const TextStyle(
-                                fontSize: 9,
-                                color: Color.fromRGBO(200, 200, 200,
-                                    1.0), // Using RGBA for light gray
+                                  if (unit != null)
+                                    TextSpan(
+                                      text: ' $unit',
+                                      style: TextStyle(
+                                        fontSize: unitFontSize,
+                                        color: subtitleColor,
+                                      ),
+                                    ),
+                                ],
                               ),
-                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                      ],
+                            if (subtitle != null && constraints.maxHeight > 30)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 1),
+                                child: Text(
+                                  subtitle!,
+                                  style: TextStyle(
+                                    fontSize: subtitleFontSize,
+                                    color: subtitleColor,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                          ],
+                        );
+                      },
                     ),
                   ),
             ),
