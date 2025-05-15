@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/l10n/app_localizations.dart';
-import '../../../shared/widgets/theme_toggle_button.dart';
+
 
 // Provider to track the current screen
 final currentScreenProvider = StateProvider<String>((ref) => "dashboard");
@@ -73,8 +73,7 @@ class GlobalBurgerMenu extends ConsumerWidget {
                   ),
                   Row(
                     children: [
-                      // Add theme toggle button here too
-                      const ThemeToggleButton(),
+                      // Theme toggle button removed
                       // Close button
                       IconButton(
                         icon: const Icon(Icons.close),
@@ -309,3 +308,6 @@ class GlobalBurgerMenu extends ConsumerWidget {
     return menuItems;
   }
 }
+
+
+

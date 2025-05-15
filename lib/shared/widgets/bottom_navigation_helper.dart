@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'consistent_bottom_navigation.dart';
-import '../../core/theme/theme_provider.dart';
+import '../../core/theme/app_colors.dart';
 
 /// Utility class to help with creating consistent bottom navigation bars across screens
 class BottomNavigationHelper {
@@ -14,15 +14,15 @@ class BottomNavigationHelper {
     // Items should already have translated labels from the parent calling widget
     return Consumer(
       builder: (context, ref, child) {
-        final palette = ref.watch(colorPaletteProvider);
+        // Use AppColors directly
 
         return ConsistentBottomNavigationBar(
           currentIndex: currentIndex,
           onTap: onTap,
           items: items,
-          selectedItemColor: selectedItemColor ?? palette.navSelectedTextColor,
+          selectedItemColor: selectedItemColor ?? AppColors.primary,
           unselectedItemColor:
-              unselectedItemColor ?? palette.navUnselectedTextColor,
+              unselectedItemColor ?? Colors.grey,
         );
       },
     );
@@ -41,7 +41,7 @@ class BottomNavigationHelper {
   }) {
     return Consumer(
       builder: (context, ref, child) {
-        final palette = ref.watch(colorPaletteProvider);
+        // Use AppColors directly
 
         // If there's a special center button, we'll create a Stack with both elements
         if (centerButton != null) {
@@ -69,9 +69,9 @@ class BottomNavigationHelper {
                 onTap: onTap,
                 items: modifiedItems,
                 selectedItemColor:
-                    selectedItemColor ?? palette.navSelectedTextColor,
+                    selectedItemColor ?? Colors.blue,
                 unselectedItemColor:
-                    unselectedItemColor ?? palette.navUnselectedTextColor,
+                    unselectedItemColor ?? Colors.grey,
                 backgroundColor: backgroundColor,
               ),
 
@@ -89,12 +89,16 @@ class BottomNavigationHelper {
           currentIndex: currentIndex,
           onTap: onTap,
           items: items,
-          selectedItemColor: selectedItemColor ?? palette.navSelectedTextColor,
+          selectedItemColor: selectedItemColor ?? AppColors.primary,
           unselectedItemColor:
-              unselectedItemColor ?? palette.navUnselectedTextColor,
+              unselectedItemColor ?? Colors.grey,
           backgroundColor: backgroundColor,
         );
       },
     );
   }
 }
+
+
+
+

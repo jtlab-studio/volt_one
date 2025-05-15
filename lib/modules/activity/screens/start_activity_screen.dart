@@ -58,7 +58,7 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
     // Use theme-appropriate colors
     final backgroundColor =
         isDarkMode ? AppColors.darkBackground : theme.scaffoldBackgroundColor;
-    final cardColor = isDarkMode ? AppColors.darkCard : theme.cardColor;
+    // Card color no longer needed
     final textColor = isDarkMode ? Colors.white : Colors.black87;
 
     return Scaffold(
@@ -106,12 +106,7 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
                   width: 80,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Color.fromRGBO(
-                      orangeColor.red,
-                      orangeColor.green,
-                      orangeColor.blue,
-                      0.85, // Using RGBA for opacity
-                    ),
+                    color: Colors.orange.withOpacity(0.85),
                   ),
                   child: IconButton(
                     iconSize: 48,
@@ -508,3 +503,9 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
     );
   }
 }
+
+
+
+
+
+

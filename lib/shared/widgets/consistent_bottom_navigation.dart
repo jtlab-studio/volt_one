@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/theme/theme_provider.dart';
+import '../../core/theme/app_colors.dart';
 
 /// A reusable bottom navigation bar component that maintains consistent styling across the app
 class ConsistentBottomNavigationBar extends ConsumerWidget {
@@ -33,7 +33,7 @@ class ConsistentBottomNavigationBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isLargeScreen = MediaQuery.of(context).size.width >= 768;
-    final palette = ref.watch(colorPaletteProvider);
+    // Use AppColors directly
 
     // Use the standard Flutter BottomNavigationBar for consistent behavior
     return BottomNavigationBar(
@@ -41,9 +41,9 @@ class ConsistentBottomNavigationBar extends ConsumerWidget {
       onTap: onTap,
       items: items, // Uses translated strings from the parent widget
       type: BottomNavigationBarType.fixed,
-      selectedItemColor: selectedItemColor ?? palette.navSelectedTextColor,
+      selectedItemColor: selectedItemColor ?? AppColors.primary,
       unselectedItemColor:
-          unselectedItemColor ?? palette.navUnselectedTextColor,
+          unselectedItemColor ?? Colors.grey,
       backgroundColor:
           backgroundColor ?? theme.bottomNavigationBarTheme.backgroundColor,
       elevation: elevation,
@@ -59,3 +59,7 @@ class ConsistentBottomNavigationBar extends ConsumerWidget {
     );
   }
 }
+
+
+
+
