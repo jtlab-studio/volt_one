@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/l10n/app_localizations.dart';
 import '../../core/theme/theme_provider.dart';
 import 'screens/app_settings_screen.dart';
 import 'screens/hr_zones_screen.dart';

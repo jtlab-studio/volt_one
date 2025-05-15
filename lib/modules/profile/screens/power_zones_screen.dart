@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/app_localizations.dart';
-import '../models/user_profile.dart';
 import '../providers/user_profile_provider.dart';
 
 /// Screen for managing Power training zones

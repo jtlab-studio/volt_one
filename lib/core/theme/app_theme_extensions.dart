@@ -61,7 +61,7 @@ extension ThemeContextExtension on BuildContext {
 
   /// Get suitable background color based on theme brightness
   Color get backgroundColor =>
-      isDarkMode ? colorScheme.background : colorScheme.background;
+      isDarkMode ? colorScheme.surface : colorScheme.surface;
 
   /// Get app bar color
   Color get appBarColor => isDarkMode
