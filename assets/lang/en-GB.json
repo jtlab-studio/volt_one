@@ -82,7 +82,7 @@
   "app_settings": "App Settings",
   "dark_mode": "Dark Mode",
   "imperial_units": "Imperial Units",
-  "imperial_units_desc": "Use miles, feet, pounds instead of kilometers, meters, kilograms",
+  "imperial_units_desc": "Use miles, feet, pounds instead of kilometres, metres, kilograms",
   "calculate_zones": "Calculate Heart Rate Zones",
   "heart_rate_zones": "Heart Rate Zones",
   "power_zones": "Power Zones",
@@ -111,7 +111,7 @@
   "birth_year": "Birth Year",
   "about": "About",
   "version": "Version",
-  "terms_of_service": "Terms of Service",
+  "terms_of_service": "Terms and Conditions",
   "privacy_policy": "Privacy Policy",
   "help_support": "Help & Support",
   "routes_screen_placeholder": "Routes Screen - Coming Soon",
@@ -132,8 +132,8 @@
   "discover_routes": "Discover Routes",
   "discover_routes_description": "Explore popular routes nearby",
   "create_route_description": "Design new running routes",
-  "favorite_routes": "Favorite Routes",
-  "favorite_routes_description": "Your favorite running routes",
+  "favorite_routes": "Favourite Routes",
+  "favorite_routes_description": "Your favourite running routes",
   "route_history": "Route History",
   "route_history_description": "Routes you've run in the past",
   "activity_feed": "Activity Feed",
@@ -145,5 +145,5 @@
   "groups": "Groups",
   "groups_description": "Your running groups and clubs",
   "leaderboards": "Leaderboards",
-  "leaderboards_description": "See how you rank among your peers"
+  "leaderboards_description": "See how you rank amongst your peers"
 }
