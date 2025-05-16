@@ -143,13 +143,17 @@ class ThemeManager extends ChangeNotifier {
         brightness: Brightness.light,
         primaryColor: AppColors.primary,
         colorScheme: ColorScheme.light(
-          // Fixed: Using .r, .g, .b instead of .red, .green, .blue
-          primary: Color.fromRGBO(AppColors.primary.r, AppColors.primary.g,
-              AppColors.primary.b, 0.9), // Slightly translucent primary color
+          // FIXED: Using .red, .green, .blue instead of .r, .g, .b
+          primary: Color.fromRGBO(
+              AppColors.primary.red,
+              AppColors.primary.green,
+              AppColors.primary.blue,
+              0.9), // Slightly translucent primary color
+          // FIXED: Using .red, .green, .blue instead of .r, .g, .b
           secondary: Color.fromRGBO(
-              AppColors.secondary.r,
-              AppColors.secondary.g,
-              AppColors.secondary.b,
+              AppColors.secondary.red,
+              AppColors.secondary.green,
+              AppColors.secondary.blue,
               0.9), // Slightly translucent secondary
           surface: lightGlassColor,
           error: AppColors.error,
@@ -158,10 +162,11 @@ class ThemeManager extends ChangeNotifier {
             255, 255, 255, 0.95), // Almost transparent white
         textTheme: appTextTheme,
         appBarTheme: AppBarTheme(
+          // FIXED: Using .red, .green, .blue instead of .r, .g, .b
           backgroundColor: Color.fromRGBO(
-              AppColors.primary.r,
-              AppColors.primary.g,
-              AppColors.primary.b,
+              AppColors.primary.red,
+              AppColors.primary.green,
+              AppColors.primary.blue,
               0.6), // Very translucent
           foregroundColor: Colors.white,
           elevation: 0, // No elevation for glassmorphic
@@ -186,10 +191,11 @@ class ThemeManager extends ChangeNotifier {
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             foregroundColor: Colors.white,
+            // FIXED: Using .red, .green, .blue instead of .r, .g, .b
             backgroundColor: Color.fromRGBO(
-                AppColors.primary.r,
-                AppColors.primary.g,
-                AppColors.primary.b,
+                AppColors.primary.red,
+                AppColors.primary.green,
+                AppColors.primary.blue,
                 0.7), // Translucent button
             elevation: 0, // No elevation for glassmorphic
             shape: RoundedRectangleBorder(
@@ -224,9 +230,10 @@ class ThemeManager extends ChangeNotifier {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15),
+            // FIXED: Using .red, .green, .blue instead of .r, .g, .b
             borderSide: BorderSide(
-                color: Color.fromRGBO(AppColors.primary.r, AppColors.primary.g,
-                    AppColors.primary.b, 0.9),
+                color: Color.fromRGBO(AppColors.primary.red,
+                    AppColors.primary.green, AppColors.primary.blue, 0.9),
                 width: 2),
           ),
         ),
@@ -235,12 +242,17 @@ class ThemeManager extends ChangeNotifier {
         brightness: Brightness.dark,
         primaryColor: AppColors.primary,
         colorScheme: ColorScheme.dark(
-          primary: Color.fromRGBO(AppColors.primary.r, AppColors.primary.g,
-              AppColors.primary.b, 0.9), // Slightly translucent primary
+          // FIXED: Using .red, .green, .blue instead of .r, .g, .b
+          primary: Color.fromRGBO(
+              AppColors.primary.red,
+              AppColors.primary.green,
+              AppColors.primary.blue,
+              0.9), // Slightly translucent primary
+          // FIXED: Using .red, .green, .blue instead of .r, .g, .b
           secondary: Color.fromRGBO(
-              AppColors.secondary.r,
-              AppColors.secondary.g,
-              AppColors.secondary.b,
+              AppColors.secondary.red,
+              AppColors.secondary.green,
+              AppColors.secondary.blue,
               0.9), // Slightly translucent secondary
           surface: darkGlassColor,
           error: AppColors.error,
@@ -249,10 +261,11 @@ class ThemeManager extends ChangeNotifier {
             const Color.fromRGBO(0, 0, 0, 0.95), // Almost transparent black
         textTheme: appTextTheme,
         appBarTheme: AppBarTheme(
+          // FIXED: Using .red, .green, .blue instead of .r, .g, .b
           backgroundColor: Color.fromRGBO(
-              AppColors.darkSurface.r,
-              AppColors.darkSurface.g,
-              AppColors.darkSurface.b,
+              AppColors.darkSurface.red,
+              AppColors.darkSurface.green,
+              AppColors.darkSurface.blue,
               0.6), // Very translucent
           foregroundColor: Colors.white,
           elevation: 0, // No elevation for glassmorphic
@@ -277,10 +290,11 @@ class ThemeManager extends ChangeNotifier {
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             foregroundColor: Colors.white,
+            // FIXED: Using .red, .green, .blue instead of .r, .g, .b
             backgroundColor: Color.fromRGBO(
-                AppColors.primary.r,
-                AppColors.primary.g,
-                AppColors.primary.b,
+                AppColors.primary.red,
+                AppColors.primary.green,
+                AppColors.primary.blue,
                 0.7), // Translucent button
             elevation: 0, // No elevation for glassmorphic
             shape: RoundedRectangleBorder(
@@ -315,9 +329,10 @@ class ThemeManager extends ChangeNotifier {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15),
+            // FIXED: Using .red, .green, .blue instead of .r, .g, .b
             borderSide: BorderSide(
-                color: Color.fromRGBO(AppColors.primary.r, AppColors.primary.g,
-                    AppColors.primary.b, 0.9),
+                color: Color.fromRGBO(AppColors.primary.red,
+                    AppColors.primary.green, AppColors.primary.blue, 0.9),
                 width: 2),
           ),
         ),
@@ -328,12 +343,11 @@ class ThemeManager extends ChangeNotifier {
 
 // InheritedWidget to provide ThemeManager down the widget tree
 class ThemeManagerProvider extends InheritedNotifier<ThemeManager> {
+  // FIXED: Using super parameters
   ThemeManagerProvider({
-    Key? key,
-    required Widget child,
+    super.key,
+    required super.child,
   }) : super(
-          key: key,
-          child: child,
           notifier: ThemeManager(),
         );
 

@@ -291,11 +291,11 @@ class VoltSettingsScreen extends ConsumerWidget {
 
     if (isSelected) {
       final primaryColor = theme.primaryColor;
-      // Use r, g, b instead of deprecated red, green, blue
+      // Use red, green, blue instead of deprecated r, g, b
       bgColor = Color.fromRGBO(
-        primaryColor.r,
-        primaryColor.g,
-        primaryColor.b,
+        primaryColor.red,
+        primaryColor.green,
+        primaryColor.blue,
         0.15,
       );
       borderColor = theme.primaryColor;
