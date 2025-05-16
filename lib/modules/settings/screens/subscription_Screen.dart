@@ -18,231 +18,11 @@ class SubscriptionScreen extends ConsumerWidget {
     final isSubscribed = ref.watch(subscriptionActiveProvider);
     final currentTier = ref.watch(subscriptionTierProvider);
 
-    return ListView(
+    return Padding(
       padding: const EdgeInsets.all(16),
-      children: [
-        // Current subscription status card
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  localizations.translate('current_plan'),
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-                const SizedBox(height: 16),
-
-                // Current subscription info
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: isSubscribed
-                            ? AppColors.success.withOpacity(0.2)
-                            : AppColors.secondary.withOpacity(0.2),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        isSubscribed ? Icons.verified : Icons.verified_outlined,
-                        color: isSubscribed
-                            ? AppColors.success
-                            : AppColors.secondary,
-                        size: 32,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            isSubscribed ? 'Volt Premium' : 'Volt Free',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
-                          ),
-                          Text(
-                            isSubscribed
-                                ? localizations
-                                        .translate('premium_active_until') +
-                                    ' May 16, 2026'
-                                : localizations
-                                    .translate('free_plan_description'),
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-
-                // Only show manage button if subscribed
-                if (isSubscribed) ...[
-                  const SizedBox(height: 16),
-                  OutlinedButton(
-                    onPressed: () {
-                      // Open subscription management
-                    },
-                    child: Text(localizations.translate('manage_subscription')),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
-
-        const SizedBox(height: 24),
-
-        // Subscription tiers
-        if (!isSubscribed) ...[
-          Text(
-            localizations.translate('upgrade_to_premium'),
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-          ),
-          const SizedBox(height: 16),
-
-          // Premium tier card
-          Card(
-            elevation: 3,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: BorderSide(
-                color: AppColors.primary,
-                width: 2,
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.star, color: AppColors.primary),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Volt Premium',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Feature list
-                  _buildFeatureItem(context, 'Advanced analytics', true),
-                  _buildFeatureItem(context, 'Unlimited workout history', true),
-                  _buildFeatureItem(context, 'Training plan generation', true),
-                  _buildFeatureItem(context, 'Performance forecasting', true),
-                  _buildFeatureItem(
-                      context, 'Export data in all formats', true),
-
-                  const SizedBox(height: 16),
-
-                  // Price and subscribe button
-                  Row(
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text(
-                            '\$9.99/month',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
-                          ),
-                          Text(
-                            'or \$99.99/year',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const Spacer(),
-                      ElevatedButton(
-                        onPressed: () {
-                          // Show upgrade dialog
-                          _showUpgradeDialog(context, ref);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                        ),
-                        child: Text(localizations.translate('subscribe')),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          // Free tier card
-          Card(
-            elevation: 1,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Row(
-                    children: [
-                      Icon(Icons.watch_later_outlined, color: Colors.grey),
-                      SizedBox(width: 8),
-                      Text(
-                        'Free',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Feature list
-                  _buildFeatureItem(context, 'Basic tracking', true),
-                  _buildFeatureItem(context, 'Limited workout history', true),
-                  _buildFeatureItem(context, 'Basic stats', true),
-                  _buildFeatureItem(context, 'Advanced analytics', false),
-                  _buildFeatureItem(context, 'Training plans', false),
-
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Free',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ] else ...[
-          // For subscribed users
-          const SizedBox(height: 24),
-
+      child: ListView(
+        children: [
+          // Current subscription status card
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -250,41 +30,280 @@ class SubscriptionScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    localizations.translate('subscription_benefits'),
+                    localizations.translate('current_plan'),
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                   ),
-
                   const SizedBox(height: 16),
 
-                  // Unlocked premium features
-                  _buildFeatureItem(context, 'Advanced analytics', true),
-                  _buildFeatureItem(context, 'Unlimited workout history', true),
-                  _buildFeatureItem(context, 'Training plan generation', true),
-                  _buildFeatureItem(context, 'Performance forecasting', true),
-                  _buildFeatureItem(
-                      context, 'Export data in all formats', true),
-
-                  const SizedBox(height: 16),
-
-                  // Cancel button
-                  OutlinedButton(
-                    onPressed: () {
-                      // Show cancel confirmation
-                      _showCancelDialog(context, ref);
-                    },
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.error,
-                    ),
-                    child: Text(localizations.translate('cancel_subscription')),
+                  // Current subscription info
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: isSubscribed
+                              ? Color.fromRGBO(
+                                  AppColors.success.red,
+                                  AppColors.success.green,
+                                  AppColors.success.blue,
+                                  0.2)
+                              : Color.fromRGBO(
+                                  AppColors.secondary.red,
+                                  AppColors.secondary.green,
+                                  AppColors.secondary.blue,
+                                  0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          isSubscribed
+                              ? Icons.verified
+                              : Icons.verified_outlined,
+                          color: isSubscribed
+                              ? AppColors.success
+                              : AppColors.secondary,
+                          size: 32,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              isSubscribed ? 'Volt Premium' : 'Volt Free',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                              ),
+                            ),
+                            Text(
+                              isSubscribed
+                                  ? localizations
+                                          .translate('premium_active_until') +
+                                      ' May 16, 2026'
+                                  : localizations
+                                      .translate('free_plan_description'),
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
+
+                  // Only show manage button if subscribed
+                  if (isSubscribed) ...[
+                    const SizedBox(height: 16),
+                    OutlinedButton(
+                      onPressed: () {
+                        // Open subscription management
+                      },
+                      child:
+                          Text(localizations.translate('manage_subscription')),
+                    ),
+                  ],
                 ],
               ),
             ),
           ),
+
+          const SizedBox(height: 24),
+
+          // Subscription tiers
+          if (!isSubscribed) ...[
+            Text(
+              localizations.translate('upgrade_to_premium'),
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 16),
+
+            // Premium tier card
+            Card(
+              elevation: 3,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(
+                  color: AppColors.primary,
+                  width: 2,
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.star, color: AppColors.primary),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Volt Premium',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Feature list
+                    _buildFeatureItem(context, 'Advanced analytics', true),
+                    _buildFeatureItem(
+                        context, 'Unlimited workout history', true),
+                    _buildFeatureItem(
+                        context, 'Training plan generation', true),
+                    _buildFeatureItem(context, 'Performance forecasting', true),
+                    _buildFeatureItem(
+                        context, 'Export data in all formats', true),
+
+                    const SizedBox(height: 16),
+
+                    // Price and subscribe button
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: const [
+                              Text(
+                                '\$9.99/month',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
+                              ),
+                              Text(
+                                'or \$99.99/year',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            // Show upgrade dialog
+                            _showUpgradeDialog(context, ref);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                          ),
+                          child: Text(localizations.translate('subscribe')),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Free tier card
+            Card(
+              elevation: 1,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Row(
+                      children: [
+                        Icon(Icons.watch_later_outlined, color: Colors.grey),
+                        SizedBox(width: 8),
+                        Text(
+                          'Free',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Feature list
+                    _buildFeatureItem(context, 'Basic tracking', true),
+                    _buildFeatureItem(context, 'Limited workout history', true),
+                    _buildFeatureItem(context, 'Basic stats', true),
+                    _buildFeatureItem(context, 'Advanced analytics', false),
+                    _buildFeatureItem(context, 'Training plans', false),
+
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Free',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ] else ...[
+            // For subscribed users
+            const SizedBox(height: 24),
+
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      localizations.translate('subscription_benefits'),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Unlocked premium features
+                    _buildFeatureItem(context, 'Advanced analytics', true),
+                    _buildFeatureItem(
+                        context, 'Unlimited workout history', true),
+                    _buildFeatureItem(
+                        context, 'Training plan generation', true),
+                    _buildFeatureItem(context, 'Performance forecasting', true),
+                    _buildFeatureItem(
+                        context, 'Export data in all formats', true),
+
+                    const SizedBox(height: 16),
+
+                    // Cancel button
+                    OutlinedButton(
+                      onPressed: () {
+                        // Show cancel confirmation
+                        _showCancelDialog(context, ref);
+                      },
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.error,
+                      ),
+                      child:
+                          Text(localizations.translate('cancel_subscription')),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ],
-      ],
+      ),
     );
   }
 

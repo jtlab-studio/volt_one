@@ -1,10 +1,10 @@
+// lib/modules/activity/activity_hub_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/app_localizations.dart';
 import 'screens/start_activity_screen.dart';
 import 'screens/activity_history_screen.dart';
-import 'screens/activity_settings_screen.dart';
-import 'screens/sensors_screen.dart';
 
 /// State provider for the current activity section
 final activitySectionProvider = StateProvider<String>((ref) => 'new_activity');
@@ -17,12 +17,10 @@ class ActivityHubScreen extends ConsumerWidget {
     final selectedSection = ref.watch(activitySectionProvider);
     final localizations = AppLocalizations.of(context);
 
-    // Map section IDs to screen widgets
+    // Map section IDs to screen widgets - removed activity_settings and sensors
     final sectionWidgets = {
       'new_activity': const StartActivityScreen(),
       'all_activities': const ActivityHistoryScreen(),
-      'activity_settings': const ActivitySettingsScreen(),
-      'sensors': const SensorsScreen(),
     };
 
     // Get the current section's screen
@@ -65,22 +63,7 @@ class ActivityHubScreen extends ConsumerWidget {
               Icons.history,
               currentSection == 'all_activities',
             ),
-            _buildSectionTab(
-              context,
-              ref,
-              'activity_settings',
-              localizations.translate('activity_settings'),
-              Icons.settings,
-              currentSection == 'activity_settings',
-            ),
-            _buildSectionTab(
-              context,
-              ref,
-              'sensors',
-              localizations.translate('sensors'),
-              Icons.bluetooth,
-              currentSection == 'sensors',
-            ),
+            // Removed activity_settings and sensors tabs
           ],
         ),
       ),

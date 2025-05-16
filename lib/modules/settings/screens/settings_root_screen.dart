@@ -17,82 +17,89 @@ class SettingsRootScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final localizations = AppLocalizations.of(context);
     final selectedSection = ref.watch(settingsSectionProvider);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth >= 600;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(localizations.translate('settings')),
-        // No burger menu button
+        automaticallyImplyLeading: !isTablet, // Show back button on phones
       ),
-      body: Row(
-        children: [
-          // Settings navigation menu (left side)
-          Container(
-            width: 240,
-            decoration: BoxDecoration(
-              border: Border(
-                right: BorderSide(
-                  color: Theme.of(context).dividerColor,
-                  width: 1.0,
-                ),
-              ),
-            ),
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: [
-                _buildSettingTile(
-                  context,
-                  ref,
-                  'volt_settings',
-                  localizations.translate('volt_settings'),
-                  Icons.settings,
-                  selectedSection == 'volt_settings',
-                ),
-                _buildSettingTile(
-                  context,
-                  ref,
-                  'user_info',
-                  localizations.translate('user_info'),
-                  Icons.person,
-                  selectedSection == 'user_info',
-                ),
-                _buildSettingTile(
-                  context,
-                  ref,
-                  'activity_alerts',
-                  localizations.translate('activity_alerts'),
-                  Icons.notifications_active,
-                  selectedSection == 'activity_alerts',
-                ),
-                _buildSettingTile(
-                  context,
-                  ref,
-                  'sensors',
-                  localizations.translate('sensors'),
-                  Icons.bluetooth,
-                  selectedSection == 'sensors',
-                ),
-                _buildSettingTile(
-                  context,
-                  ref,
-                  'subscription',
-                  localizations.translate('subscription'),
-                  Icons.card_membership,
-                  selectedSection == 'subscription',
-                ),
-              ],
-            ),
-          ),
+      body: SafeArea(
+        child: isTablet
+            ? Row(
+                children: [
+                  // Settings navigation menu (left side) - Only on tablets
+                  Container(
+                    width: 240,
+                    decoration: BoxDecoration(
+                      border: Border(
+                        right: BorderSide(
+                          color: Theme.of(context).dividerColor,
+                          width: 1.0,
+                        ),
+                      ),
+                    ),
+                    child: ListView(
+                      children: [
+                        _buildSettingTile(
+                          context,
+                          ref,
+                          'volt_settings',
+                          localizations.translate('volt_settings'),
+                          Icons.settings,
+                          selectedSection == 'volt_settings',
+                        ),
+                        _buildSettingTile(
+                          context,
+                          ref,
+                          'user_info',
+                          localizations.translate('user_info'),
+                          Icons.person,
+                          selectedSection == 'user_info',
+                        ),
+                        _buildSettingTile(
+                          context,
+                          ref,
+                          'activity_alerts',
+                          localizations.translate('activity_alerts'),
+                          Icons.notifications_active,
+                          selectedSection == 'activity_alerts',
+                        ),
+                        _buildSettingTile(
+                          context,
+                          ref,
+                          'sensors',
+                          localizations.translate('sensors'),
+                          Icons.bluetooth,
+                          selectedSection == 'sensors',
+                        ),
+                        _buildSettingTile(
+                          context,
+                          ref,
+                          'subscription',
+                          localizations.translate('subscription'),
+                          Icons.card_membership,
+                          selectedSection == 'subscription',
+                        ),
+                      ],
+                    ),
+                  ),
 
-          // Settings content (right side)
-          Expanded(
-            child: _getSettingsContent(selectedSection),
-          ),
-        ],
+                  // Settings content (right side)
+                  Expanded(
+                    child: _getSettingsContent(selectedSection),
+                  ),
+                ],
+              )
+            : _getSettingsContent(
+                selectedSection), // Full-screen content on phones
       ),
-      // For mobile, we'll use a different layout with bottom navigation
-      bottomNavigationBar: MediaQuery.of(context).size.width < 600
-          ? _buildBottomNavigation(context, ref, selectedSection, localizations)
-          : null,
+      // Only show bottom navigation on phones
+      bottomNavigationBar: isTablet
+          ? null
+          : _buildBottomNavigation(
+              context, ref, selectedSection, localizations),
     );
   }
 
@@ -104,18 +111,13 @@ class SettingsRootScreen extends ConsumerWidget {
     IconData icon,
     bool isSelected,
   ) {
-    // Don't show the navigation tiles on small screens (use bottom nav instead)
-    if (MediaQuery.of(context).size.width < 600) {
-      return const SizedBox.shrink();
-    }
-
     final theme = Theme.of(context);
     final color = isSelected ? theme.primaryColor : null;
 
     // Using Color.fromRGBO instead of withOpacity
     final selectedTileColor = isSelected
-        ? Color.fromRGBO(theme.primaryColor.r, theme.primaryColor.g,
-            theme.primaryColor.b, 0.1)
+        ? Color.fromRGBO(theme.primaryColor.red, theme.primaryColor.green,
+            theme.primaryColor.blue, 0.1)
         : null;
 
     return ListTile(
@@ -151,7 +153,10 @@ class SettingsRootScreen extends ConsumerWidget {
           'sensors',
           'subscription',
         ];
-        ref.read(settingsSectionProvider.notifier).state = sections[index];
+        // Make sure we don't go out of bounds
+        if (index < sections.length) {
+          ref.read(settingsSectionProvider.notifier).state = sections[index];
+        }
       },
       type: BottomNavigationBarType.fixed,
       items: [

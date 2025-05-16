@@ -2,15 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/l10n/app_localizations.dart';
 import '../../core/theme/app_colors.dart';
-import 'screens/app_settings_screen.dart';
 import 'screens/hr_zones_screen.dart';
 import 'screens/power_zones_screen.dart' as power_zones;
 import 'screens/pace_zones_screen.dart' as pace_zones;
-import 'screens/user_info_screen.dart';
 import '../../shared/widgets/global_burger_menu.dart';
 
 // Provider to track the current profile section
-final profileSectionProvider = StateProvider<String>((ref) => 'user_info');
+final profileSectionProvider = StateProvider<String>((ref) => 'hr_zones');
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -28,18 +26,16 @@ class ProfileScreen extends ConsumerWidget {
 
   Widget _getProfileContent(String section) {
     switch (section) {
-      case 'user_info':
-        return const UserInfoScreen();
+      // Removed user_info
       case 'hr_zones':
         return const HRZonesScreen();
       case 'power_zones':
         return const power_zones.PowerZonesScreen();
       case 'pace_zones':
         return const pace_zones.PaceZonesScreen();
-      case 'app_settings':
-        return const AppSettingsScreen();
+      // Removed app_settings
       default:
-        return const UserInfoScreen();
+        return const HRZonesScreen();
     }
   }
 
@@ -52,11 +48,9 @@ class ProfileScreen extends ConsumerWidget {
       onTap: (index) {
         // Map the tapped index to the corresponding section
         final sections = [
-          'user_info',
           'hr_zones',
           'power_zones',
           'pace_zones',
-          'app_settings'
         ];
         final selectedSection = sections[index];
 
@@ -77,46 +71,32 @@ class ProfileScreen extends ConsumerWidget {
       unselectedFontSize: 12,
       items: [
         BottomNavigationBarItem(
-          icon: const Icon(Icons.person),
-          label: localizations.translate('user_info'),
-        ),
-        BottomNavigationBarItem(
           icon: const Icon(Icons.favorite),
-          label: localizations.translate(
-              'heart_rate_zones'), // Full name for better understanding
+          label: localizations.translate('heart_rate_zones'),
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.flash_on),
-          label: localizations
-              .translate('power_zones'), // Full name for better understanding
+          label: localizations.translate('power_zones'),
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.speed),
-          label: localizations
-              .translate('pace_zones'), // Full name for better understanding
+          label: localizations.translate('pace_zones'),
         ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.settings),
-          label: localizations.translate('app_settings'),
-        ),
+        // Removed user_info and app_settings
       ],
     );
   }
 
   int _getProfileNavIndex(String section) {
     switch (section) {
-      case 'user_info':
-        return 0;
       case 'hr_zones':
-        return 1;
+        return 0;
       case 'power_zones':
-        return 2;
+        return 1;
       case 'pace_zones':
-        return 3;
-      case 'app_settings':
-        return 4;
+        return 2;
       default:
-        return 0; // Default to user info
+        return 0; // Default to hr_zones
     }
   }
 }
