@@ -1,19 +1,49 @@
 // lib/core/app.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'router.dart';
-import 'theme/app_theme.dart'; 
+import 'theme_manager.dart';
 import 'l10n/app_localizations.dart';
 
-class VoltApp extends ConsumerWidget {
+class VoltApp extends StatefulWidget {
   const VoltApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final navigatorKey = ref.watch(navigatorKeyProvider);
-    final locale = ref.watch(localeProvider);
+  State<VoltApp> createState() => _VoltAppState();
+}
+
+class _VoltAppState extends State<VoltApp> {
+  // Late initialize theme manager
+  late ThemeManager _themeManager;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Get the theme manager and listen for changes
+    _themeManager = ThemeManagerProvider.of(context);
+    _themeManager.addListener(_onThemeChanged);
+  }
+
+  @override
+  void dispose() {
+    _themeManager.removeListener(_onThemeChanged);
+    super.dispose();
+  }
+
+  // Force rebuild when theme changes
+  void _onThemeChanged() {
+    setState(() {
+      debugPrint("VoltApp rebuilding due to theme change");
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final navigatorKey = GlobalKey<NavigatorState>();
+    final appTheme = _themeManager.getCurrentTheme();
+
+    debugPrint("Building VoltApp with theme style: ${appTheme.style}");
 
     // Common localization delegates
     final localizationsDelegates = [
@@ -29,32 +59,16 @@ class VoltApp extends ConsumerWidget {
       Locale('de', ''), // Deutsch
       Locale('fr', ''), // Français
       Locale('ru', ''), // Русский
-      Locale('pt', 'BR'), // Português (Brasil)
-      Locale('pt', 'PT'), // Português (Portugal)
-      Locale('it', ''), // Italiano
-      Locale('zh', 'Hans'), // 简体中文
-      Locale('zh', 'Hant'), // 繁體中文
-      Locale('ja', ''), // 日本語
-      Locale('ko', ''), // 한국어
-      Locale('hi', ''), // हिन्दी
-      Locale('vi', ''), // Tiếng Việt
-      Locale('id', ''), // Bahasa Indonesia
-      Locale('ms', ''), // Bahasa Melayu
-      Locale('th', ''), // ไทย
-      Locale('tr', ''), // Türkçe
-      Locale('sv', ''), // Svenska
-      Locale('no', ''), // Norsk
-      Locale('da', ''), // Dansk
-      Locale('es', 'CL'), // Español (Chile)
-      Locale('es', 'LATAM'), // Español (Latinoamérica)
+      // Add other locales as needed
     ];
 
     return MaterialApp(
       title: 'Volt Running Tracker',
-      theme: appDarkTheme, // Always use dark theme
+      theme: appTheme.light,
+      darkTheme: appTheme.dark,
+      themeMode: _themeManager.themeMode,
       navigatorKey: navigatorKey,
       home: const VoltRootWidget(),
-      locale: locale,
       localizationsDelegates: localizationsDelegates,
       supportedLocales: supportedLocales,
     );
