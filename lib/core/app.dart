@@ -2,18 +2,19 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'router.dart';
 import 'theme_manager.dart';
 import 'l10n/app_localizations.dart';
 
-class VoltApp extends StatefulWidget {
+class VoltApp extends ConsumerStatefulWidget {
   const VoltApp({super.key});
 
   @override
-  State<VoltApp> createState() => _VoltAppState();
+  ConsumerState<VoltApp> createState() => _VoltAppState();
 }
 
-class _VoltAppState extends State<VoltApp> {
+class _VoltAppState extends ConsumerState<VoltApp> {
   // Late initialize theme manager
   late ThemeManager _themeManager;
 
@@ -43,7 +44,11 @@ class _VoltAppState extends State<VoltApp> {
     final navigatorKey = GlobalKey<NavigatorState>();
     final appTheme = _themeManager.getCurrentTheme();
 
-    debugPrint("Building VoltApp with theme style: ${appTheme.style}");
+    // Watch for locale changes from the provider
+    final currentLocale = ref.watch(localeProvider);
+
+    debugPrint(
+        "Building VoltApp with theme style: ${appTheme.style} and locale: ${currentLocale.languageCode}${currentLocale.countryCode != null ? '-${currentLocale.countryCode}' : ''}");
 
     // Common localization delegates
     final localizationsDelegates = [
@@ -53,13 +58,21 @@ class _VoltAppState extends State<VoltApp> {
       GlobalCupertinoLocalizations.delegate,
     ];
 
+    // Only include locales that have corresponding JSON files
     final supportedLocales = const [
-      Locale('en', ''), // English
-      Locale('es', ''), // Español
-      Locale('de', ''), // Deutsch
-      Locale('fr', ''), // Français
-      Locale('ru', ''), // Русский
-      // Add other locales as needed
+      Locale('en', 'US'), // English (US)
+      Locale('en', 'GB'), // English (UK)
+      Locale('es', ''), // Spanish (Spain)
+      Locale('es', 'LATAM'), // Spanish (Latin America)
+      Locale('de', ''), // German
+      Locale('fr', ''), // French
+      Locale('it', ''), // Italian
+      Locale('ja', ''), // Japanese
+      Locale('ko', ''), // Korean
+      Locale('pt', 'BR'), // Portuguese (Brazil)
+      Locale('pt', 'PT'), // Portuguese (Portugal)
+      Locale('ru', ''), // Russian
+      Locale('zh', 'Hans'), // Chinese (Simplified)
     ];
 
     return MaterialApp(
@@ -71,6 +84,8 @@ class _VoltAppState extends State<VoltApp> {
       home: const VoltRootWidget(),
       localizationsDelegates: localizationsDelegates,
       supportedLocales: supportedLocales,
+      // Set the app locale from the provider
+      locale: currentLocale,
     );
   }
 }

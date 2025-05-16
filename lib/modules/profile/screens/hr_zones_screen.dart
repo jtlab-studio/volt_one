@@ -26,7 +26,8 @@ class HRZonesScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'Heart Rate Zones', // Fixed heading
+            localizations.translate(
+                'heart_rate_zones'), // Consistently use translation key
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 24),
@@ -39,7 +40,7 @@ class HRZonesScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Lactate Threshold Heart Rate", // Full title instead of "LTHR"
+                    localizations.translate('lthr'), // Use translation key
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -47,9 +48,8 @@ class HRZonesScreen extends ConsumerWidget {
 
                   const SizedBox(height: 8),
 
-                  // Enhanced description similar to Critical Power/Pace
-                  const Text(
-                    'Your Lactate Threshold Heart Rate (LTHR) is the heart rate at which lactate begins to accumulate in your blood faster than it can be cleared. It represents the highest intensity you can sustain for approximately 30-60 minutes of continuous exercise.',
+                  Text(
+                    localizations.translate('lthr_help'), // Use translation key
                     style: TextStyle(
                       color: Colors.grey,
                       fontSize: 12,
@@ -165,8 +165,7 @@ class HRZonesScreen extends ConsumerWidget {
                                     state.copyWith(autoCalculateZones: value),
                               );
                         },
-                        activeColor:
-                            const Color.fromRGBO(255, 152, 0, 1.0), // Orange
+                        activeColor: Theme.of(context).primaryColor,
                       ),
                     ],
                   ),
@@ -177,7 +176,7 @@ class HRZonesScreen extends ConsumerWidget {
 
           const SizedBox(height: 24),
 
-          // Heart Rate Zones Display
+          // Heart Rate Zones Display or Editor
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -185,7 +184,7 @@ class HRZonesScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Heart Rate Zones', // Fixed: Using "Heart Rate Zones" instead of translation
+                    localizations.translate('heart_rate_zones'),
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -199,98 +198,6 @@ class HRZonesScreen extends ConsumerWidget {
                           context, localizations, userProfile)
                       : _buildEditableHRZones(
                           context, ref, localizations, userProfile),
-                ],
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 24),
-
-          // UPDATED: About Heart Rate Zones with LTHR explanation
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'About Heart Rate Zones',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Added LTHR explanation
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.red.withAlpha(20),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                          color: Colors.red.withAlpha(120), width: 1),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'What is LTHR?',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.red[700],
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'LTHR (Lactate Threshold Heart Rate) is the heart rate at which lactate begins to accumulate in your blood faster than it can be cleared. It represents the highest intensity you can sustain for approximately 1 hour of continuous exercise. Training zones based on LTHR provide a personalized approach that accounts for individual fitness levels. Testing for LTHR can be done with a 30-minute time trial, taking the average heart rate from the final 20 minutes.',
-                          style: TextStyle(
-                            color: Colors.grey[800],
-                            height: 1.4,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  Text(
-                    'Heart rate zones divide your cardio effort into ranges that correspond to different physiological adaptations and training purposes.\n\n'
-                    'Zone 1 (Recovery): Very easy effort for active recovery, warm-up/cool-down.\n'
-                    'Zone 2 (Endurance): Builds aerobic base, improves fat utilization, enhances capillary density.\n'
-                    'Zone 3 (Tempo): Improves aerobic capacity and efficiency at moderate intensities.\n'
-                    'Zone 4 (Threshold): Increases your ability to sustain effort at or near lactate threshold.\n'
-                    'Zone 5 (VO2 Max): Develops maximal aerobic capacity and power.\n'
-                    'Zone 6+ (Anaerobic): Very high intensity, develops anaerobic capacity and neural recruitment.',
-                    style: TextStyle(
-                      color: Colors.grey[800],
-                      height: 1.5,
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.amber.withAlpha(20),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.amber, width: 1),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.info_outline,
-                            color: Colors.amber, size: 20),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            'Heart rate is an excellent indicator of internal physiological stress and provides a window into how your body is responding to exercise.',
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
                 ],
               ),
             ),

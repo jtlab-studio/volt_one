@@ -82,15 +82,18 @@ class ProfileScreen extends ConsumerWidget {
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.favorite),
-          label: 'HR', // Use simple "HR" label
+          label: localizations.translate(
+              'heart_rate_zones'), // Full name for better understanding
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.flash_on),
-          label: 'Power', // Use simple "Power" label
+          label: localizations
+              .translate('power_zones'), // Full name for better understanding
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.speed),
-          label: 'Pace', // Use simple "Pace" label
+          label: localizations
+              .translate('pace_zones'), // Full name for better understanding
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.settings),

@@ -1,5 +1,3 @@
-// lib/modules/profile/screens/power_zones_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/app_localizations.dart';
@@ -31,7 +29,7 @@ class PowerZonesScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'Power Zones',
+            localizations.translate('power_zones'), // Use translation key
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 24),

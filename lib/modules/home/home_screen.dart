@@ -95,6 +95,8 @@ class HomeScreen extends ConsumerWidget {
                       underline: const SizedBox(),
                       onChanged: (Locale? newLocale) {
                         if (newLocale != null) {
+                          debugPrint(
+                              "Changing locale to: ${newLocale.languageCode}${newLocale.countryCode != null ? '-${newLocale.countryCode}' : ''}");
                           changeLocale(ref, newLocale);
                         }
                       },
@@ -112,11 +114,15 @@ class HomeScreen extends ConsumerWidget {
 
   // Helper method to build comprehensive language menu items
   List<DropdownMenuItem<Locale>> _buildLanguageMenuItems() {
-    // Group 1: Primary languages
-    final primaryLanguages = [
+    // Only include languages that have JSON files
+    final allLanguages = [
       DropdownMenuItem(
-        value: const Locale('en', ''),
-        child: _buildLanguageItem('English', '🇺🇸'),
+        value: const Locale('en', 'US'),
+        child: _buildLanguageItem('English (US)', '🇺🇸'),
+      ),
+      DropdownMenuItem(
+        value: const Locale('en', 'GB'),
+        child: _buildLanguageItem('English (UK)', '🇬🇧'),
       ),
       DropdownMenuItem(
         value: const Locale('de', ''),
@@ -126,10 +132,10 @@ class HomeScreen extends ConsumerWidget {
         value: const Locale('fr', ''),
         child: _buildLanguageItem('Français', '🇫🇷'),
       ),
-    ];
-
-    // Group 2: Spanish variants
-    final spanishVariants = [
+      const DropdownMenuItem<Locale>(
+        enabled: false,
+        child: Divider(),
+      ),
       DropdownMenuItem(
         value: const Locale('es', ''),
         child: _buildLanguageItem('Español', '🇪🇸'),
@@ -138,14 +144,10 @@ class HomeScreen extends ConsumerWidget {
         value: const Locale('es', 'LATAM'),
         child: _buildLanguageItem('Español (Latinoamérica)', '🌎'),
       ),
-      DropdownMenuItem(
-        value: const Locale('es', 'CL'),
-        child: _buildLanguageItem('Español (Chile)', '🇨🇱'),
+      const DropdownMenuItem<Locale>(
+        enabled: false,
+        child: Divider(),
       ),
-    ];
-
-    // Group 3: Portuguese variants
-    final portugueseVariants = [
       DropdownMenuItem(
         value: const Locale('pt', 'BR'),
         child: _buildLanguageItem('Português (Brasil)', '🇧🇷'),
@@ -154,10 +156,10 @@ class HomeScreen extends ConsumerWidget {
         value: const Locale('pt', 'PT'),
         child: _buildLanguageItem('Português (Portugal)', '🇵🇹'),
       ),
-    ];
-
-    // Group 4: Asian languages
-    final asianLanguages = [
+      const DropdownMenuItem<Locale>(
+        enabled: false,
+        child: Divider(),
+      ),
       DropdownMenuItem(
         value: const Locale('ja', ''),
         child: _buildLanguageItem('日本語', '🇯🇵'),
@@ -170,14 +172,10 @@ class HomeScreen extends ConsumerWidget {
         value: const Locale('zh', 'Hans'),
         child: _buildLanguageItem('简体中文', '🇨🇳'),
       ),
-      DropdownMenuItem(
-        value: const Locale('zh', 'Hant'),
-        child: _buildLanguageItem('繁體中文', '🇹🇼'),
+      const DropdownMenuItem<Locale>(
+        enabled: false,
+        child: Divider(),
       ),
-    ];
-
-    // Group 5: Other European languages
-    final otherEuropeanLanguages = [
       DropdownMenuItem(
         value: const Locale('it', ''),
         child: _buildLanguageItem('Italiano', '🇮🇹'),
@@ -186,36 +184,9 @@ class HomeScreen extends ConsumerWidget {
         value: const Locale('ru', ''),
         child: _buildLanguageItem('Русский', '🇷🇺'),
       ),
-      DropdownMenuItem(
-        value: const Locale('tr', ''),
-        child: _buildLanguageItem('Türkçe', '🇹🇷'),
-      ),
     ];
 
-    // Combine all groups with dividers
-    return [
-      ...primaryLanguages,
-      const DropdownMenuItem<Locale>(
-        enabled: false,
-        child: Divider(),
-      ),
-      ...spanishVariants,
-      const DropdownMenuItem<Locale>(
-        enabled: false,
-        child: Divider(),
-      ),
-      ...portugueseVariants,
-      const DropdownMenuItem<Locale>(
-        enabled: false,
-        child: Divider(),
-      ),
-      ...asianLanguages,
-      const DropdownMenuItem<Locale>(
-        enabled: false,
-        child: Divider(),
-      ),
-      ...otherEuropeanLanguages,
-    ];
+    return allLanguages;
   }
 
   // Helper method to create language items with flags

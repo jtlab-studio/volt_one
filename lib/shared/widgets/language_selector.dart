@@ -1,171 +1,58 @@
-// lib/modules/profile/screens/app_settings_screen.dart
+// lib/shared/widgets/language_selector.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/l10n/app_localizations.dart';
-import '../../../core/router.dart';
+import '../../core/l10n/app_localizations.dart';
+import '../../core/router.dart';
 import 'dart:io' show Platform;
 
-class AppSettingsScreen extends ConsumerWidget {
-  const AppSettingsScreen({super.key});
+class LanguageSelector extends ConsumerWidget {
+  const LanguageSelector({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final localizations = AppLocalizations.of(context);
-    final isCupertino = Platform.isIOS;
-    final theme = Theme.of(context);
     final currentLocale = ref.watch(localeProvider);
 
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        // App Settings Section
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  localizations.translate('app_settings'),
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).primaryColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "${localizations.translate('language')}:",
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey.withOpacity(0.3)),
+            ),
+            child: InkWell(
+              onTap: () => _showLanguageSelector(context, ref, localizations),
+              child: Container(
+                height: 48,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(_getLanguageName(currentLocale)),
+                    const Icon(Icons.arrow_drop_down),
+                  ],
                 ),
-                const SizedBox(height: 16),
-
-                // Units toggle
-                isCupertino
-                    ? Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(localizations.translate('imperial_units')),
-                              Text(
-                                localizations.translate('imperial_units_desc'),
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  color: CupertinoColors.systemGrey,
-                                ),
-                              ),
-                            ],
-                          ),
-                          CupertinoSwitch(
-                            value: false, // Default to metric
-                            onChanged: (value) {
-                              // Toggle units
-                            },
-                          ),
-                        ],
-                      )
-                    : SwitchListTile(
-                        title: Text(localizations.translate('imperial_units')),
-                        subtitle: Text(
-                            localizations.translate('imperial_units_desc')),
-                        value: false, // Default to metric
-                        onChanged: (value) {
-                          // Toggle units
-                        },
-                      ),
-
-                const SizedBox(height: 16),
-
-                // Language selector - improved version
-                isCupertino
-                    ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(localizations.translate('language')),
-                          const SizedBox(height: 8),
-                          GestureDetector(
-                            onTap: () {
-                              _showLanguageSelector(
-                                  context, ref, localizations);
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 12),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                    color: CupertinoColors.systemGrey4),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(_getLanguageName(
-                                      currentLocale)), // Show current language name
-                                  const Icon(CupertinoIcons.chevron_down),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      )
-                    : ListTile(
-                        title: Text(localizations.translate('language')),
-                        subtitle: Text(_getLanguageName(
-                            currentLocale)), // Show current language name
-                        trailing: const Icon(Icons.arrow_forward_ios),
-                        onTap: () {
-                          _showLanguageSelector(context, ref, localizations);
-                        },
-                      ),
-              ],
+              ),
             ),
           ),
-        ),
-
-        const SizedBox(height: 24),
-
-        // About Section
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  localizations.translate('about'),
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                ListTile(
-                  title: Text(localizations.translate('version')),
-                  subtitle: const Text('1.0.0'),
-                ),
-                ListTile(
-                  title: Text(localizations.translate('terms_of_service')),
-                  trailing: const Icon(Icons.arrow_forward_ios),
-                  onTap: () {
-                    // Open terms of service
-                  },
-                ),
-                ListTile(
-                  title: Text(localizations.translate('privacy_policy')),
-                  trailing: const Icon(Icons.arrow_forward_ios),
-                  onTap: () {
-                    // Open privacy policy
-                  },
-                ),
-                ListTile(
-                  title: Text(localizations.translate('help_support')),
-                  trailing: const Icon(Icons.arrow_forward_ios),
-                  onTap: () {
-                    // Open help & support
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -181,6 +68,7 @@ class AppSettingsScreen extends ConsumerWidget {
     }
     if (languageCode == 'es') {
       if (countryCode == 'LATAM') return 'Español (Latinoamérica)';
+      if (countryCode == 'CL') return 'Español (Chile)';
       return 'Español';
     }
     if (languageCode == 'de') return 'Deutsch';
@@ -196,6 +84,7 @@ class AppSettingsScreen extends ConsumerWidget {
     if (languageCode == 'ko') return '한국어';
     if (languageCode == 'zh') {
       if (countryCode == 'Hans') return '简体中文';
+      if (countryCode == 'Hant') return '繁體中文';
       return '中文';
     }
 
@@ -206,7 +95,7 @@ class AppSettingsScreen extends ConsumerWidget {
       BuildContext context, WidgetRef ref, AppLocalizations localizations) {
     final currentLocale = ref.read(localeProvider);
 
-    // Only include languages that have JSON files
+    // Define available locales with their display names and flags
     final availableLocales = [
       {
         'locale': const Locale('en', 'US'),
@@ -223,6 +112,11 @@ class AppSettingsScreen extends ConsumerWidget {
         'locale': const Locale('es', 'LATAM'),
         'name': 'Español (Latinoamérica)',
         'flag': '🌎'
+      },
+      {
+        'locale': const Locale('es', 'CL'),
+        'name': 'Español (Chile)',
+        'flag': '🇨🇱'
       },
       {'locale': const Locale('de', ''), 'name': 'Deutsch', 'flag': '🇩🇪'},
       {'locale': const Locale('fr', ''), 'name': 'Français', 'flag': '🇫🇷'},

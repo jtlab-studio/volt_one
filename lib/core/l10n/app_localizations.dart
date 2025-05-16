@@ -1,3 +1,5 @@
+// lib/core/l10n/app_localizations.dart
+
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -39,6 +41,10 @@ class AppLocalizations {
             return MapEntry(key, value.toString());
           });
 
+          developer.log(
+            "Successfully loaded language file for $languageCode-$countryCode",
+            name: 'AppLocalizations',
+          );
           return true;
         } catch (e) {
           // If regional variant not found, fall back to base language
@@ -57,6 +63,10 @@ class AppLocalizations {
         return MapEntry(key, value.toString());
       });
 
+      developer.log(
+        "Successfully loaded language file for $languageCode",
+        name: 'AppLocalizations',
+      );
       return true;
     } catch (e) {
       developer.log("Failed to load language file for ${locale.toString()}: $e",
@@ -66,12 +76,18 @@ class AppLocalizations {
       if (languageCode != 'en') {
         developer.log("Falling back to English", name: 'AppLocalizations');
         try {
-          jsonString = await rootBundle.loadString("assets/lang/en.json");
+          jsonString = await rootBundle.loadString("assets/lang/en-US.json");
           Map<String, dynamic> jsonMap = json.decode(jsonString);
 
           _localizedStrings = jsonMap.map((key, value) {
             return MapEntry(key, value.toString());
           });
+
+          developer.log(
+            "Successfully loaded fallback English language file",
+            name: 'AppLocalizations',
+          );
+          return true;
         } catch (e) {
           developer.log("Failed to load fallback English language file: $e",
               name: 'AppLocalizations', level: 1000); // Using error level
@@ -89,7 +105,15 @@ class AppLocalizations {
 
   // This method will be called from every widget which needs a localized text
   String translate(String key) {
-    return _localizedStrings[key] ?? key;
+    final result = _localizedStrings[key];
+    if (result == null) {
+      developer.log(
+        "Missing translation for key: $key in ${locale.languageCode}${locale.countryCode != null ? '-${locale.countryCode}' : ''}",
+        name: 'AppLocalizations',
+      );
+      return key;
+    }
+    return result;
   }
 }
 
@@ -113,7 +137,6 @@ class _AppLocalizationsDelegate
       "ko",
       "pt",
       "ru",
-      "tr",
       "zh"
     ];
 
@@ -121,20 +144,25 @@ class _AppLocalizationsDelegate
     if (supportedLanguages.contains(locale.languageCode)) {
       // For languages with regional variants, check the country code
       if (locale.languageCode == 'es') {
-        // Handle Spanish variants (Spain, Chile, Latin America)
+        // Handle Spanish variants (Spain, Latin America)
         return locale.countryCode == null ||
             locale.countryCode == '' ||
-            ['CL', 'LATAM'].contains(locale.countryCode);
+            ['LATAM'].contains(locale.countryCode);
       } else if (locale.languageCode == 'pt') {
         // Handle Portuguese variants (Brazil, Portugal)
         return locale.countryCode == null ||
             locale.countryCode == '' ||
             ['BR', 'PT'].contains(locale.countryCode);
       } else if (locale.languageCode == 'zh') {
-        // Handle Chinese variants (Simplified, Traditional)
+        // Handle Chinese variants (Simplified)
         return locale.countryCode == null ||
             locale.countryCode == '' ||
-            ['Hans', 'Hant'].contains(locale.countryCode);
+            ['Hans'].contains(locale.countryCode);
+      } else if (locale.languageCode == 'en') {
+        // Handle English variants (US, UK)
+        return locale.countryCode == null ||
+            locale.countryCode == '' ||
+            ['US', 'GB'].contains(locale.countryCode);
       }
 
       // For languages without variants, any country code is fine

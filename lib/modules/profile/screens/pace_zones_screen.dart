@@ -1,5 +1,3 @@
-// lib/modules/profile/screens/pace_zones_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/app_localizations.dart';
@@ -31,7 +29,7 @@ class PaceZonesScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'Pace Zones',
+            localizations.translate('pace_zones'), // Use translation key
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 24),
