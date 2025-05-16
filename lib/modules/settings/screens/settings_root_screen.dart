@@ -1,5 +1,3 @@
-// lib/modules/settings/screens/settings_root_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/app_localizations.dart';
@@ -21,100 +19,135 @@ class SettingsRootScreen extends ConsumerWidget {
     final selectedSection = ref.watch(settingsSectionProvider);
     final screenType = getScreenType(context);
 
-    // Check if it's a tablet or desktop
-    final isLargeScreen =
-        screenType == ScreenType.desktop || screenType == ScreenType.tablet;
-
+    // For all screen sizes, use a persistent drawer layout
     return Scaffold(
-      appBar: isLargeScreen
-          ? null // No app bar for large screens (using side navigation)
-          : AppBar(
-              title: Text(localizations.translate('settings')),
-              automaticallyImplyLeading: true,
-            ),
-      body: SafeArea(
-        child: isLargeScreen
-            ? Row(
-                children: [
-                  // Settings navigation menu (left side) - Only on tablets/desktop
-                  Container(
-                    width: 240,
-                    decoration: BoxDecoration(
-                      border: Border(
-                        right: BorderSide(
-                          color: Theme.of(context).dividerColor,
-                          width: 1.0,
-                        ),
-                      ),
-                    ),
-                    child: ListView(
-                      children: [
-                        _buildSettingTile(
-                          context,
-                          ref,
-                          'volt_settings',
-                          localizations.translate('volt_settings'),
-                          Icons.settings,
-                          selectedSection == 'volt_settings',
-                        ),
-                        _buildSettingTile(
-                          context,
-                          ref,
-                          'user_info',
-                          localizations.translate('user_info'),
-                          Icons.person,
-                          selectedSection == 'user_info',
-                        ),
-                        _buildSettingTile(
-                          context,
-                          ref,
-                          'training_zones',
-                          localizations.translate('training_zones'),
-                          Icons.favorite,
-                          selectedSection == 'training_zones',
-                        ),
-                        _buildSettingTile(
-                          context,
-                          ref,
-                          'activity_alerts',
-                          localizations.translate('activity_alerts'),
-                          Icons.notifications_active,
-                          selectedSection == 'activity_alerts',
-                        ),
-                        _buildSettingTile(
-                          context,
-                          ref,
-                          'sensors',
-                          localizations.translate('sensors'),
-                          Icons.bluetooth,
-                          selectedSection == 'sensors',
-                        ),
-                        _buildSettingTile(
-                          context,
-                          ref,
-                          'subscription',
-                          localizations.translate('subscription'),
-                          Icons.card_membership,
-                          selectedSection == 'subscription',
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Settings content (right side)
-                  Expanded(
-                    child: _getSettingsContent(selectedSection),
-                  ),
-                ],
-              )
-            : _getSettingsContent(
-                selectedSection), // Full-screen content on phones
+      appBar: AppBar(
+        title: Text(_getSettingsTitle(selectedSection, localizations)),
+        // Allow back navigation from Settings
+        automaticallyImplyLeading: true,
       ),
-      // Only show bottom navigation on phones, not on tablets/desktop
-      bottomNavigationBar: isLargeScreen
-          ? null
-          : _buildBottomNavigation(
-              context, ref, selectedSection, localizations),
+      // Use a drawer for the settings menu that is permanently visible on larger screens
+      drawer: screenType == ScreenType.mobile
+          ? _buildSettingsDrawer(context, ref, selectedSection, localizations)
+          : null,
+      // For desktop/tablet, use a persistent drawer-like layout
+      body: Row(
+        children: [
+          // Settings navigation menu (left side) - visible on tablet/desktop
+          if (screenType != ScreenType.mobile)
+            Container(
+              width: 240,
+              decoration: BoxDecoration(
+                border: Border(
+                  right: BorderSide(
+                    color: Theme.of(context).dividerColor,
+                    width: 1.0,
+                  ),
+                ),
+              ),
+              child: _buildSettingsOptions(
+                  context, ref, selectedSection, localizations),
+            ),
+
+          // Settings content area
+          Expanded(
+            child: _getSettingsContent(selectedSection),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Build the settings drawer for mobile
+  Widget _buildSettingsDrawer(
+    BuildContext context,
+    WidgetRef ref,
+    String selectedSection,
+    AppLocalizations localizations,
+  ) {
+    return Drawer(
+      child: SafeArea(
+        child: Column(
+          children: [
+            // Drawer header
+            Container(
+              padding: const EdgeInsets.all(16.0),
+              alignment: Alignment.centerLeft,
+              child: Text(
+                localizations.translate('settings'),
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+            ),
+            Divider(),
+            // Settings options
+            Expanded(
+              child: _buildSettingsOptions(
+                  context, ref, selectedSection, localizations),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Build the list of settings options
+  Widget _buildSettingsOptions(
+    BuildContext context,
+    WidgetRef ref,
+    String selectedSection,
+    AppLocalizations localizations,
+  ) {
+    return ListView(
+      children: [
+        _buildSettingTile(
+          context,
+          ref,
+          'volt_settings',
+          localizations.translate('volt_settings'),
+          Icons.settings,
+          selectedSection == 'volt_settings',
+        ),
+        _buildSettingTile(
+          context,
+          ref,
+          'user_info',
+          localizations.translate('user_info'),
+          Icons.person,
+          selectedSection == 'user_info',
+        ),
+        _buildSettingTile(
+          context,
+          ref,
+          'training_zones',
+          localizations.translate('training_zones'),
+          Icons.favorite,
+          selectedSection == 'training_zones',
+        ),
+        _buildSettingTile(
+          context,
+          ref,
+          'activity_alerts',
+          localizations.translate('activity_alerts'),
+          Icons.notifications_active,
+          selectedSection == 'activity_alerts',
+        ),
+        _buildSettingTile(
+          context,
+          ref,
+          'sensors',
+          localizations.translate('sensors'),
+          Icons.bluetooth,
+          selectedSection == 'sensors',
+        ),
+        _buildSettingTile(
+          context,
+          ref,
+          'subscription',
+          localizations.translate('subscription'),
+          Icons.card_membership,
+          selectedSection == 'subscription',
+        ),
+      ],
     );
   }
 
@@ -129,9 +162,11 @@ class SettingsRootScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final color = isSelected ? theme.primaryColor : null;
 
-    // Using a safe approach for setting background color when selected
-    final Color bgColor =
-        isSelected ? theme.primaryColor.withAlpha(20) : Colors.transparent;
+    // Use RGBA for background color when selected to avoid withOpacity deprecation
+    final backgroundColor = isSelected
+        ? Color.fromRGBO(theme.primaryColor.red, theme.primaryColor.green,
+            theme.primaryColor.blue, 0.1)
+        : Colors.transparent;
 
     return ListTile(
       leading: Icon(icon, color: color),
@@ -143,64 +178,16 @@ class SettingsRootScreen extends ConsumerWidget {
         ),
       ),
       selected: isSelected,
-      selectedTileColor: bgColor,
+      selectedTileColor: backgroundColor,
       onTap: () {
+        // Set the selected section
         ref.read(settingsSectionProvider.notifier).state = sectionId;
-      },
-    );
-  }
 
-  Widget _buildBottomNavigation(
-    BuildContext context,
-    WidgetRef ref,
-    String currentSection,
-    AppLocalizations localizations,
-  ) {
-    return BottomNavigationBar(
-      currentIndex: _getNavIndex(currentSection),
-      onTap: (index) {
-        final sections = [
-          'volt_settings',
-          'user_info',
-          'training_zones',
-          'activity_alerts',
-          'sensors',
-          'subscription',
-        ];
-        // Make sure we don't go out of bounds
-        if (index < sections.length) {
-          ref.read(settingsSectionProvider.notifier).state = sections[index];
+        // On mobile, close the drawer after selection
+        if (getScreenType(context) == ScreenType.mobile) {
+          Navigator.of(context).pop();
         }
       },
-      type: BottomNavigationBarType.fixed, // Important for more than 3 items
-      selectedItemColor: Theme.of(context).primaryColor,
-      unselectedItemColor: Colors.grey,
-      items: [
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.settings),
-          label: localizations.translate('volt_settings'),
-        ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.person),
-          label: localizations.translate('user_info'),
-        ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.favorite),
-          label: localizations.translate('training_zones'),
-        ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.notifications_active),
-          label: localizations.translate('activity_alerts'),
-        ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.bluetooth),
-          label: localizations.translate('sensors'),
-        ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.card_membership),
-          label: localizations.translate('subscription'),
-        ),
-      ],
     );
   }
 
@@ -223,22 +210,22 @@ class SettingsRootScreen extends ConsumerWidget {
     }
   }
 
-  int _getNavIndex(String section) {
+  String _getSettingsTitle(String section, AppLocalizations localizations) {
     switch (section) {
       case 'volt_settings':
-        return 0;
+        return localizations.translate('volt_settings');
       case 'user_info':
-        return 1;
+        return localizations.translate('user_info');
       case 'training_zones':
-        return 2;
+        return localizations.translate('training_zones');
       case 'activity_alerts':
-        return 3;
+        return localizations.translate('activity_alerts');
       case 'sensors':
-        return 4;
+        return localizations.translate('sensors');
       case 'subscription':
-        return 5;
+        return localizations.translate('subscription');
       default:
-        return 0;
+        return localizations.translate('settings');
     }
   }
 }

@@ -20,15 +20,15 @@ class ResponsiveDashboard extends ConsumerStatefulWidget {
 class _ResponsiveDashboardState extends ConsumerState<ResponsiveDashboard> {
   @override
   Widget build(BuildContext context) {
+    // Fixed method signature - removed WidgetRef parameter
     final localizations = AppLocalizations.of(context);
     final currentTabIndex = ref.watch(mainTabIndexProvider);
     final screenType = getScreenType(context);
 
-    // Define main screens
+    // Define main screens - no settings here since it's accessed from the header
     final mainScreens = [
       _buildDashboardContent(context, localizations),
       const ActivityHubScreen(),
-      SettingsModule.createRootScreen(),
     ];
 
     // Use different layouts based on screen size
@@ -50,6 +50,19 @@ class _ResponsiveDashboardState extends ConsumerState<ResponsiveDashboard> {
       int currentTabIndex,
       List<Widget> screens) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text(_getTitle(currentTabIndex, localizations)),
+        actions: [
+          // Add settings button in appbar for quick access
+          IconButton(
+            icon: const Icon(Icons.settings),
+            tooltip: localizations.translate('settings'),
+            onPressed: () {
+              _openSettingsScreen(context);
+            },
+          ),
+        ],
+      ),
       body: Row(
         children: [
           // Sidebar navigation
@@ -67,10 +80,6 @@ class _ResponsiveDashboardState extends ConsumerState<ResponsiveDashboard> {
               NavigationRailDestination(
                 icon: const Icon(Icons.directions_run),
                 label: Text(localizations.translate('activity')),
-              ),
-              NavigationRailDestination(
-                icon: const Icon(Icons.settings),
-                label: Text(localizations.translate('settings')),
               ),
             ],
           ),
@@ -97,61 +106,11 @@ class _ResponsiveDashboardState extends ConsumerState<ResponsiveDashboard> {
         title: Text(_getTitle(currentTabIndex, localizations)),
         actions: [
           // Add settings button in appbar for quick access
-          if (currentTabIndex !=
-              2) // Don't show settings button if already in settings
-            IconButton(
-              icon: const Icon(Icons.settings),
-              onPressed: () {
-                ref.read(mainTabIndexProvider.notifier).state =
-                    2; // Navigate to settings
-              },
-            ),
-        ],
-      ),
-      body: screens[currentTabIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: currentTabIndex,
-        onTap: (index) {
-          ref.read(mainTabIndexProvider.notifier).state = index;
-        },
-        items: [
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.dashboard),
-            label: localizations.translate('dashboard'),
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.directions_run),
-            label: localizations.translate('activity'),
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.settings),
-            label: localizations.translate('settings'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMobileLayout(
-      BuildContext context,
-      AppLocalizations localizations,
-      int currentTabIndex,
-      List<Widget> screens) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_getTitle(currentTabIndex, localizations)),
-        actions: [
-          // Add theme toggle in appbar for mobile
           IconButton(
-            icon: Icon(Theme.of(context).brightness == Brightness.dark
-                ? Icons.light_mode
-                : Icons.dark_mode),
+            icon: const Icon(Icons.settings),
+            tooltip: localizations.translate('settings'),
             onPressed: () {
-              // This would typically use a theme manager to toggle
-              // For now, just show a snackbar
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content:
-                      Text(localizations.translate('theme_toggle_message'))));
+              _openSettingsScreen(context);
             },
           ),
         ],
@@ -171,11 +130,59 @@ class _ResponsiveDashboardState extends ConsumerState<ResponsiveDashboard> {
             icon: const Icon(Icons.directions_run),
             label: localizations.translate('activity'),
           ),
-          BottomNavigationBarItem(
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMobileLayout(
+      BuildContext context,
+      AppLocalizations localizations,
+      int currentTabIndex,
+      List<Widget> screens) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(_getTitle(currentTabIndex, localizations)),
+        actions: [
+          // Add settings button in appbar for quick access
+          IconButton(
             icon: const Icon(Icons.settings),
-            label: localizations.translate('settings'),
+            tooltip: localizations.translate('settings'),
+            onPressed: () {
+              _openSettingsScreen(context);
+            },
           ),
         ],
+      ),
+      body: screens[currentTabIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: currentTabIndex,
+        onTap: (index) {
+          ref.read(mainTabIndexProvider.notifier).state = index;
+        },
+        items: [
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.dashboard),
+            label: localizations.translate('dashboard'),
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.directions_run),
+            label: localizations.translate('activity'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Open the settings screen as a new page
+  void _openSettingsScreen(BuildContext context) {
+    // Reset to default settings section when opening
+    ref.read(settingsSectionProvider.notifier).state = 'volt_settings';
+
+    // Navigate to settings screen
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => SettingsModule.createRootScreen(),
       ),
     );
   }
@@ -186,8 +193,6 @@ class _ResponsiveDashboardState extends ConsumerState<ResponsiveDashboard> {
         return localizations.translate('dashboard');
       case 1:
         return localizations.translate('activity');
-      case 2:
-        return localizations.translate('settings');
       default:
         return localizations.translate('app_name');
     }
@@ -195,6 +200,7 @@ class _ResponsiveDashboardState extends ConsumerState<ResponsiveDashboard> {
 
   Widget _buildDashboardContent(
       BuildContext context, AppLocalizations localizations) {
+    // Dashboard content implementation remains the same
     final screenType = getScreenType(context);
 
     return SafeArea(
@@ -240,20 +246,16 @@ class _ResponsiveDashboardState extends ConsumerState<ResponsiveDashboard> {
                 height: 120,
                 decoration: BoxDecoration(
                   color: Theme.of(context).brightness == Brightness.dark
-                      ? const Color.fromRGBO(
-                          50, 50, 50, 1.0) // Dark gray for dark mode
-                      : const Color.fromRGBO(
-                          238, 238, 238, 1.0), // Light gray for light mode
+                      ? const Color.fromRGBO(50, 50, 50, 1.0)
+                      : const Color.fromRGBO(238, 238, 238, 1.0),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   localizations.translate('no_activities_yet'),
                   style: TextStyle(
                     color: Theme.of(context).brightness == Brightness.dark
-                        ? const Color.fromRGBO(
-                            200, 200, 200, 1.0) // Light gray for dark mode
-                        : const Color.fromRGBO(
-                            100, 100, 100, 1.0), // Dark gray for light mode
+                        ? const Color.fromRGBO(200, 200, 200, 1.0)
+                        : const Color.fromRGBO(100, 100, 100, 1.0),
                   ),
                 ),
               ),
@@ -278,6 +280,7 @@ class _ResponsiveDashboardState extends ConsumerState<ResponsiveDashboard> {
     );
   }
 
+  // Other dashboard methods remain the same...
   Widget _buildWideActionCards(
       BuildContext context, AppLocalizations localizations) {
     return Row(
@@ -362,7 +365,9 @@ class _ResponsiveDashboardState extends ConsumerState<ResponsiveDashboard> {
                 width: 50,
                 height: 50,
                 decoration: BoxDecoration(
-                  color: orangeColor.withOpacity(0.2),
+                  // Fixed: Use .r, .g, .b instead of .red, .green, .blue
+                  color: Color.fromRGBO(
+                      orangeColor.r, orangeColor.g, orangeColor.b, 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
@@ -385,10 +390,8 @@ class _ResponsiveDashboardState extends ConsumerState<ResponsiveDashboard> {
                       subtitle,
                       style: TextStyle(
                         color: Theme.of(context).brightness == Brightness.dark
-                            ? const Color.fromRGBO(170, 170, 170,
-                                1.0) // Lighter gray for dark mode
-                            : const Color.fromRGBO(100, 100, 100,
-                                1.0), // Darker gray for light mode
+                            ? const Color.fromRGBO(170, 170, 170, 1.0)
+                            : const Color.fromRGBO(100, 100, 100, 1.0),
                       ),
                     ),
                   ],
@@ -397,10 +400,8 @@ class _ResponsiveDashboardState extends ConsumerState<ResponsiveDashboard> {
               Icon(
                 Icons.arrow_forward_ios,
                 color: Theme.of(context).brightness == Brightness.dark
-                    ? const Color.fromRGBO(
-                        170, 170, 170, 1.0) // Lighter gray for dark mode
-                    : const Color.fromRGBO(
-                        130, 130, 130, 1.0), // Darker gray for light mode
+                    ? const Color.fromRGBO(170, 170, 170, 1.0)
+                    : const Color.fromRGBO(130, 130, 130, 1.0),
                 size: 16,
               ),
             ],
