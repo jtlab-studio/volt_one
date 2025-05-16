@@ -40,8 +40,6 @@ class ThemeManager extends ChangeNotifier {
   AppTheme getCurrentTheme() {
     if (_themeStyle == ThemeStyle.glassmorphic) {
       return _createGlassmorphicTheme();
-    } else if (_themeStyle == ThemeStyle.neumorphic) {
-      return _createNeumorphicTheme();
     } else {
       // Default to standard
       return _createStandardTheme();
@@ -145,6 +143,7 @@ class ThemeManager extends ChangeNotifier {
         brightness: Brightness.light,
         primaryColor: AppColors.primary,
         colorScheme: ColorScheme.light(
+          // Fixed: Using .r, .g, .b instead of .red, .green, .blue
           primary: Color.fromRGBO(AppColors.primary.r, AppColors.primary.g,
               AppColors.primary.b, 0.9), // Slightly translucent primary color
           secondary: Color.fromRGBO(
@@ -325,107 +324,11 @@ class ThemeManager extends ChangeNotifier {
       ),
     );
   }
-
-  // Neumorphic theme definition
-  AppTheme _createNeumorphicTheme() {
-    // Simplified neumorphic theme
-    return AppTheme(
-      style: ThemeStyle.neumorphic,
-      light: ThemeData(
-        brightness: Brightness.light,
-        primaryColor: AppColors.primary,
-        colorScheme: const ColorScheme.light(
-          primary: AppColors.primary,
-          secondary: AppColors.secondary,
-          surface: Color(0xFFE0E5EC),
-          error: AppColors.error,
-        ),
-        scaffoldBackgroundColor: const Color(0xFFE0E5EC),
-        textTheme: appTextTheme,
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFFE0E5EC),
-          foregroundColor: Color(0xFF303030),
-          elevation: 0.0,
-        ),
-        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-          backgroundColor: Color(0xFFE0E5EC),
-          selectedItemColor: AppColors.primary,
-          unselectedItemColor: Colors.grey,
-          elevation: 8.0,
-        ),
-        cardTheme: CardTheme(
-          elevation: 8.0,
-          shadowColor: const Color(
-              0xFFD6D6D6), // Fixed: replaced Colors.grey[300] with constant color
-          color: const Color(0xFFE0E5EC),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            foregroundColor: Colors.white,
-            backgroundColor: AppColors.primary,
-            elevation: 8.0,
-            shadowColor: const Color(
-                0xFFD6D6D6), // Fixed: replaced Colors.grey[300] with constant color
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        ),
-      ),
-      dark: ThemeData(
-        brightness: Brightness.dark,
-        primaryColor: AppColors.primary,
-        colorScheme: const ColorScheme.dark(
-          primary: AppColors.primary,
-          secondary: AppColors.secondary,
-          surface: Color(0xFF303030),
-          error: AppColors.error,
-        ),
-        scaffoldBackgroundColor: const Color(0xFF303030),
-        textTheme: appTextTheme,
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF303030),
-          foregroundColor: Colors.white,
-          elevation: 0.0,
-        ),
-        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-          backgroundColor: Color(0xFF303030),
-          selectedItemColor: AppColors.primary,
-          unselectedItemColor: Colors.grey,
-          elevation: 8.0,
-        ),
-        cardTheme: CardTheme(
-          elevation: 8.0,
-          shadowColor: const Color(
-              0x8A000000), // Fixed: replaced Colors.black54 with constant color
-          color: const Color(0xFF303030),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            foregroundColor: Colors.white,
-            backgroundColor: AppColors.primary,
-            elevation: 8.0,
-            shadowColor: const Color(
-                0x8A000000), // Fixed: replaced Colors.black54 with constant color
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 // InheritedWidget to provide ThemeManager down the widget tree
 class ThemeManagerProvider extends InheritedNotifier<ThemeManager> {
-  const ThemeManagerProvider({
+  ThemeManagerProvider({
     Key? key,
     required Widget child,
   }) : super(

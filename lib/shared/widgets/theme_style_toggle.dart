@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import '../../core/theme_manager.dart';
-import '../../theme/app_theme.dart';
+import '../../core/theme/app_theme.dart'; // Import from core/theme/app_theme.dart only
 
 class ThemeStyleToggle extends StatelessWidget {
   const ThemeStyleToggle({super.key});
@@ -77,28 +77,6 @@ class ThemeStyleToggle extends StatelessWidget {
             ],
           ),
         ),
-        PopupMenuItem(
-          value: ThemeStyle.neumorphic,
-          child: Row(
-            children: [
-              Icon(
-                Icons.bubble_chart,
-                color: currentStyle == ThemeStyle.neumorphic
-                    ? Theme.of(context).primaryColor
-                    : null,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'Neumorphic',
-                style: TextStyle(
-                  fontWeight: currentStyle == ThemeStyle.neumorphic
-                      ? FontWeight.bold
-                      : FontWeight.normal,
-                ),
-              ),
-            ],
-          ),
-        ),
       ],
     );
   }
@@ -108,10 +86,7 @@ class ThemeStyleToggle extends StatelessWidget {
     switch (style) {
       case ThemeStyle.glassmorphic:
         return const Icon(Icons.blur_on);
-      case ThemeStyle.neumorphic:
-        return const Icon(Icons.bubble_chart);
       case ThemeStyle.standard:
-      default:
         return const Icon(Icons.crop_square);
     }
   }

@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/router.dart';
-import '../../../theme/app_theme.dart';
+import '../../../core/theme/app_theme.dart'; // Import from core/theme only
 import '../../../core/theme_manager.dart';
 import 'dart:io' show Platform;
 
@@ -159,12 +159,7 @@ class VoltSettingsScreen extends ConsumerWidget {
                           ),
                           decoration: BoxDecoration(
                             border: Border.all(
-                              color: Color.fromRGBO(
-                                Colors.grey.value >> 16 & 0xFF,
-                                Colors.grey.value >> 8 & 0xFF,
-                                Colors.grey.value & 0xFF,
-                                0.3,
-                              ),
+                              color: const Color.fromRGBO(128, 128, 128, 0.3),
                             ),
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -295,20 +290,17 @@ class VoltSettingsScreen extends ConsumerWidget {
     Color? borderColor;
 
     if (isSelected) {
+      final primaryColor = theme.primaryColor;
+      // Use r, g, b instead of deprecated red, green, blue
       bgColor = Color.fromRGBO(
-        theme.primaryColor.value >> 16 & 0xFF,
-        theme.primaryColor.value >> 8 & 0xFF,
-        theme.primaryColor.value & 0xFF,
+        primaryColor.r,
+        primaryColor.g,
+        primaryColor.b,
         0.15,
       );
       borderColor = theme.primaryColor;
     } else {
-      borderColor = Color.fromRGBO(
-        Colors.grey.value >> 16 & 0xFF,
-        Colors.grey.value >> 8 & 0xFF,
-        Colors.grey.value & 0xFF,
-        0.3,
-      );
+      borderColor = const Color.fromRGBO(128, 128, 128, 0.3);
     }
 
     return InkWell(
