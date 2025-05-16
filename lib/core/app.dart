@@ -95,7 +95,7 @@ class _VoltAppState extends ConsumerState<VoltApp> {
       themeMode: _themeManager.themeMode,
       navigatorKey: navigatorKey,
       home:
-          const ResponsiveDashboard(), // Use ResponsiveDashboard as the main entry point
+          const ResponsiveDashboard(), // Back to using ResponsiveDashboard directly
       localizationsDelegates: localizationsDelegates,
       supportedLocales: supportedLocales,
       // Set the app locale from the provider

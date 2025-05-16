@@ -1,3 +1,5 @@
+// lib/modules/settings/screens/settings_root_screen.dart - Fixed type conversion issues
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/app_localizations.dart';
@@ -9,6 +11,7 @@ import 'activity_alerts_screen.dart';
 import 'sensors_screen.dart';
 import 'subscription_screen.dart';
 import 'training_zones_screen.dart';
+import '../../../shared/widgets/global_app_bar.dart'; // Import the global app bar
 
 class SettingsRootScreen extends ConsumerWidget {
   const SettingsRootScreen({super.key});
@@ -19,74 +22,41 @@ class SettingsRootScreen extends ConsumerWidget {
     final selectedSection = ref.watch(settingsSectionProvider);
     final screenType = getScreenType(context);
 
-    // For all screen sizes, use a persistent drawer layout
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_getSettingsTitle(selectedSection, localizations)),
-        // Allow back navigation from Settings
+      // Use our GlobalAppBar with the cog icon
+      appBar: GlobalAppBar(
+        title: _getSettingsTitle(selectedSection, localizations),
+        // No back button but we'll have the drawer for settings
         automaticallyImplyLeading: true,
       ),
-      // Use a drawer for the settings menu that is permanently visible on larger screens
-      drawer: screenType == ScreenType.mobile
-          ? _buildSettingsDrawer(context, ref, selectedSection, localizations)
-          : null,
-      // For desktop/tablet, use a persistent drawer-like layout
-      body: Row(
-        children: [
-          // Settings navigation menu (left side) - visible on tablet/desktop
-          if (screenType != ScreenType.mobile)
-            Container(
-              width: 240,
-              decoration: BoxDecoration(
-                border: Border(
-                  right: BorderSide(
-                    color: Theme.of(context).dividerColor,
-                    width: 1.0,
+
+      // Use a Row for desktop/tablet layout with a sidebar, single content for mobile
+      body: screenType == ScreenType.mobile
+          ? _getSettingsContent(selectedSection)
+          : Row(
+              children: [
+                // Settings navigation menu (left side) - visible on tablet/desktop
+                Container(
+                  width: 240,
+                  decoration: BoxDecoration(
+                    border: Border(
+                      right: BorderSide(
+                        color: Theme.of(context).dividerColor,
+                        width: 1.0,
+                      ),
+                    ),
                   ),
+                  child: _buildSettingsOptions(
+                      context, ref, selectedSection, localizations),
                 ),
-              ),
-              child: _buildSettingsOptions(
-                  context, ref, selectedSection, localizations),
-            ),
 
-          // Settings content area
-          Expanded(
-            child: _getSettingsContent(selectedSection),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Build the settings drawer for mobile
-  Widget _buildSettingsDrawer(
-    BuildContext context,
-    WidgetRef ref,
-    String selectedSection,
-    AppLocalizations localizations,
-  ) {
-    return Drawer(
-      child: SafeArea(
-        child: Column(
-          children: [
-            // Drawer header
-            Container(
-              padding: const EdgeInsets.all(16.0),
-              alignment: Alignment.centerLeft,
-              child: Text(
-                localizations.translate('settings'),
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
+                // Settings content area
+                Expanded(
+                  child: _getSettingsContent(selectedSection),
+                ),
+              ],
             ),
-            Divider(),
-            // Settings options
-            Expanded(
-              child: _buildSettingsOptions(
-                  context, ref, selectedSection, localizations),
-            ),
-          ],
-        ),
-      ),
+      // Don't add a bottom navigation bar - we're using the global one
     );
   }
 
@@ -164,8 +134,8 @@ class SettingsRootScreen extends ConsumerWidget {
 
     // Use RGBA for background color when selected to avoid withOpacity deprecation
     final backgroundColor = isSelected
-        ? Color.fromRGBO(theme.primaryColor.red, theme.primaryColor.green,
-            theme.primaryColor.blue, 0.1)
+        ? Color.fromRGBO(theme.primaryColor.r.toInt(),
+            theme.primaryColor.g.toInt(), theme.primaryColor.b.toInt(), 0.1)
         : Colors.transparent;
 
     return ListTile(
@@ -182,11 +152,6 @@ class SettingsRootScreen extends ConsumerWidget {
       onTap: () {
         // Set the selected section
         ref.read(settingsSectionProvider.notifier).state = sectionId;
-
-        // On mobile, close the drawer after selection
-        if (getScreenType(context) == ScreenType.mobile) {
-          Navigator.of(context).pop();
-        }
       },
     );
   }

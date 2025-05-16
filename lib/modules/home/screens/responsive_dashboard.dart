@@ -5,8 +5,10 @@ import '../../../responsive/screen_type.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../activity/activity_hub_screen.dart';
 import '../../settings/settings_module.dart';
+import '../../../shared/widgets/global_app_bar.dart';
+import '../../../shared/widgets/settings_drawer.dart';
 
-// Main tab index provider
+// Main tab index provider for dashboard tabs
 final mainTabIndexProvider = StateProvider<int>((ref) => 0);
 
 class ResponsiveDashboard extends ConsumerStatefulWidget {
@@ -20,7 +22,6 @@ class ResponsiveDashboard extends ConsumerStatefulWidget {
 class _ResponsiveDashboardState extends ConsumerState<ResponsiveDashboard> {
   @override
   Widget build(BuildContext context) {
-    // Fixed method signature - removed WidgetRef parameter
     final localizations = AppLocalizations.of(context);
     final currentTabIndex = ref.watch(mainTabIndexProvider);
     final screenType = getScreenType(context);
@@ -50,19 +51,10 @@ class _ResponsiveDashboardState extends ConsumerState<ResponsiveDashboard> {
       int currentTabIndex,
       List<Widget> screens) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_getTitle(currentTabIndex, localizations)),
-        actions: [
-          // Add settings button in appbar for quick access
-          IconButton(
-            icon: const Icon(Icons.settings),
-            tooltip: localizations.translate('settings'),
-            onPressed: () {
-              _openSettingsScreen(context);
-            },
-          ),
-        ],
+      appBar: GlobalAppBar(
+        title: _getTitle(currentTabIndex, localizations),
       ),
+      endDrawer: const SettingsDrawer(),
       body: Row(
         children: [
           // Sidebar navigation
@@ -102,19 +94,10 @@ class _ResponsiveDashboardState extends ConsumerState<ResponsiveDashboard> {
       int currentTabIndex,
       List<Widget> screens) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_getTitle(currentTabIndex, localizations)),
-        actions: [
-          // Add settings button in appbar for quick access
-          IconButton(
-            icon: const Icon(Icons.settings),
-            tooltip: localizations.translate('settings'),
-            onPressed: () {
-              _openSettingsScreen(context);
-            },
-          ),
-        ],
+      appBar: GlobalAppBar(
+        title: _getTitle(currentTabIndex, localizations),
       ),
+      endDrawer: const SettingsDrawer(),
       body: screens[currentTabIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentTabIndex,
@@ -141,19 +124,10 @@ class _ResponsiveDashboardState extends ConsumerState<ResponsiveDashboard> {
       int currentTabIndex,
       List<Widget> screens) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_getTitle(currentTabIndex, localizations)),
-        actions: [
-          // Add settings button in appbar for quick access
-          IconButton(
-            icon: const Icon(Icons.settings),
-            tooltip: localizations.translate('settings'),
-            onPressed: () {
-              _openSettingsScreen(context);
-            },
-          ),
-        ],
+      appBar: GlobalAppBar(
+        title: _getTitle(currentTabIndex, localizations),
       ),
+      endDrawer: const SettingsDrawer(),
       body: screens[currentTabIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentTabIndex,
@@ -170,19 +144,6 @@ class _ResponsiveDashboardState extends ConsumerState<ResponsiveDashboard> {
             label: localizations.translate('activity'),
           ),
         ],
-      ),
-    );
-  }
-
-  // Open the settings screen as a new page
-  void _openSettingsScreen(BuildContext context) {
-    // Reset to default settings section when opening
-    ref.read(settingsSectionProvider.notifier).state = 'volt_settings';
-
-    // Navigate to settings screen
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => SettingsModule.createRootScreen(),
       ),
     );
   }
@@ -211,7 +172,7 @@ class _ResponsiveDashboardState extends ConsumerState<ResponsiveDashboard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Welcome section
+              // Content remains the same...
               const SizedBox(height: 8),
               Text(
                 localizations.translate('welcome_back'),
@@ -280,7 +241,6 @@ class _ResponsiveDashboardState extends ConsumerState<ResponsiveDashboard> {
     );
   }
 
-  // Other dashboard methods remain the same...
   Widget _buildWideActionCards(
       BuildContext context, AppLocalizations localizations) {
     return Row(
@@ -365,9 +325,9 @@ class _ResponsiveDashboardState extends ConsumerState<ResponsiveDashboard> {
                 width: 50,
                 height: 50,
                 decoration: BoxDecoration(
-                  // Fixed: Use .r, .g, .b instead of .red, .green, .blue
-                  color: Color.fromRGBO(
-                      orangeColor.r, orangeColor.g, orangeColor.b, 0.2),
+                  // Fixed: Converting Color values to int
+                  color: Color.fromRGBO(orangeColor.r.toInt(),
+                      orangeColor.g.toInt(), orangeColor.b.toInt(), 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
