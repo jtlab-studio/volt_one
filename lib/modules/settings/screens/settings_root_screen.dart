@@ -1,5 +1,3 @@
-// lib/modules/settings/screens/settings_root_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/app_localizations.dart';
@@ -23,7 +21,10 @@ class SettingsRootScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(localizations.translate('settings')),
-        automaticallyImplyLeading: !isTablet, // Show back button on phones
+        // We want back button to return to main app
+        automaticallyImplyLeading: true,
+        // No need for actions in the settings screens
+        actions: const [],
       ),
       body: SafeArea(
         child: isTablet
@@ -95,7 +96,7 @@ class SettingsRootScreen extends ConsumerWidget {
             : _getSettingsContent(
                 selectedSection), // Full-screen content on phones
       ),
-      // Only show bottom navigation on phones
+      // Only show bottom navigation on phones, not on tablets
       bottomNavigationBar: isTablet
           ? null
           : _buildBottomNavigation(
@@ -114,11 +115,12 @@ class SettingsRootScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final color = isSelected ? theme.primaryColor : null;
 
-    // Using Color.fromRGBO instead of withOpacity
-    final selectedTileColor = isSelected
-        ? Color.fromRGBO(theme.primaryColor.red, theme.primaryColor.green,
-            theme.primaryColor.blue, 0.1)
-        : null;
+    // Create a transparent color by default
+    final Color transparentColor = Colors.transparent;
+
+    // Using a safe approach for setting background color when selected
+    final Color? bgColor =
+        isSelected ? theme.primaryColor.withOpacity(0.1) : transparentColor;
 
     return ListTile(
       leading: Icon(icon, color: color),
@@ -130,7 +132,7 @@ class SettingsRootScreen extends ConsumerWidget {
         ),
       ),
       selected: isSelected,
-      selectedTileColor: selectedTileColor,
+      selectedTileColor: bgColor,
       onTap: () {
         ref.read(settingsSectionProvider.notifier).state = sectionId;
       },
@@ -158,7 +160,9 @@ class SettingsRootScreen extends ConsumerWidget {
           ref.read(settingsSectionProvider.notifier).state = sections[index];
         }
       },
-      type: BottomNavigationBarType.fixed,
+      type: BottomNavigationBarType.fixed, // Important for more than 3 items
+      selectedItemColor: Theme.of(context).primaryColor,
+      unselectedItemColor: Colors.grey,
       items: [
         BottomNavigationBarItem(
           icon: const Icon(Icons.settings),

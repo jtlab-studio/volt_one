@@ -1,3 +1,5 @@
+// lib/modules/settings/settings_module.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'screens/settings_root_screen.dart';

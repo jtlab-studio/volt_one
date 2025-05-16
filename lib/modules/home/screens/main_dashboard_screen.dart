@@ -4,10 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/app_localizations.dart';
 import '../../../shared/widgets/bottom_navigation_helper.dart';
+import '../../../shared/widgets/global_app_bar.dart'; // Import GlobalAppBar
 import '../../activity/activity_hub_screen.dart';
 import '../../routes/routes_screen.dart';
 import '../../tribe/tribe_screen.dart';
-import '../../settings/settings_module.dart';
+import '../../../modules/settings/settings_module.dart'; // Import settings module
 import '../../activity/screens/start_activity_screen.dart';
 import '../../activity/screens/activity_history_screen.dart';
 
@@ -55,13 +56,12 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
     final inRoutesHub = ref.watch(inRoutesHubProvider);
     final inTribeHub = ref.watch(inTribeHubProvider);
 
-    // Screens for main navigation (removed Profile, added Settings)
+    // Screens for main navigation (only 4 tabs now - removed Settings)
     final mainScreens = [
       _buildDashboard(context, localizations),
       inActivityHub ? _buildActivityHub() : const ActivityHubScreen(),
       inRoutesHub ? _buildRoutesHub() : const RoutesScreen(),
       inTribeHub ? _buildTribeHub() : const TribeScreen(),
-      SettingsModule.createRootScreen(), // Settings screen instead of Profile
     ];
 
     return PopScope(
@@ -74,12 +74,10 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
         }
       },
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(_getTitle(currentTabIndex, inActivityHub, inRoutesHub,
-              inTribeHub, localizations)),
-          // No burger menu button, no actions
+        appBar: GlobalAppBar(
+          title: _getTitle(currentTabIndex, inActivityHub, inRoutesHub,
+              inTribeHub, localizations),
         ),
-        // No endDrawer (removed burger menu)
         body: SafeArea(
           // Don't add bottom padding - navigation has its own
           bottom: false,
@@ -148,7 +146,7 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
     }
   }
 
-  // Main bottom navigation bar
+  // Main bottom navigation bar - updated to only have 4 tabs
   Widget _buildMainBottomNavBar(
       BuildContext context, int currentIndex, AppLocalizations localizations) {
     return BottomNavigationHelper.createMainBottomNavBar(
@@ -170,11 +168,6 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
         BottomNavigationBarItem(
           icon: const Icon(Icons.people),
           label: localizations.translate('tribe'),
-        ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.settings), // Changed from person to settings
-          label: localizations
-              .translate('settings'), // Changed from profile to settings
         ),
       ],
       (index) {
@@ -213,7 +206,6 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
           'activity',
           'routes',
           'tribe',
-          'settings' // Changed from profile to settings
         ];
         ref.read(currentScreenProvider.notifier).state = screenIds[index];
       },
@@ -827,9 +819,6 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
         return localizations.translate('routes');
       case 3:
         return localizations.translate('tribe');
-      case 4:
-        return localizations
-            .translate('settings'); // Changed from profile to settings
       default:
         return localizations.translate('app_name');
     }

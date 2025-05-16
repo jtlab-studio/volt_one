@@ -1,27 +1,27 @@
 // lib/shared/widgets/global_app_bar.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'theme_style_toggle.dart';
+import '../../modules/settings/settings_module.dart';
 
-class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
+class GlobalAppBar extends ConsumerWidget implements PreferredSizeWidget {
   final String title;
   final List<Widget>? actions;
-  final bool showBurgerMenu;
-  final GlobalKey<ScaffoldState>? scaffoldKey;
+  final bool showSettingsMenu;
   final double height;
 
   const GlobalAppBar({
     super.key,
     required this.title,
     this.actions,
-    this.showBurgerMenu = true,
-    this.scaffoldKey,
+    this.showSettingsMenu = true,
     this.height = kToolbarHeight,
   });
 
   @override
-  Widget build(BuildContext context) {
-    // Combined actions: theme style toggle + custom actions + the burger menu if enabled
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Combined actions: theme style toggle + custom actions + the settings icon if enabled
     final List<Widget> combinedActions = [
       // Add theme style toggle button
       const ThemeStyleToggle(),
@@ -29,16 +29,18 @@ class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
       // Then add any custom actions
       ...(actions ?? []),
 
-      // Finally add burger menu if enabled
-      if (showBurgerMenu)
+      // Finally add settings menu if enabled
+      if (showSettingsMenu)
         IconButton(
-          icon: const Icon(Icons.menu),
+          icon: const Icon(Icons.settings),
+          tooltip: 'Settings',
           onPressed: () {
-            if (scaffoldKey != null) {
-              scaffoldKey!.currentState!.openEndDrawer();
-            } else {
-              Scaffold.of(context).openEndDrawer();
-            }
+            // Navigate to settings screen
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => SettingsModule.createRootScreen(),
+              ),
+            );
           },
         ),
     ];

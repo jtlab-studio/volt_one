@@ -9,18 +9,28 @@ class ThemeStyleToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get theme manager and current style
-    final themeManager = ThemeManagerProvider.of(context);
-    final currentStyle = themeManager.themeStyle;
+    // Try to get theme manager, but handle gracefully if not available
+    ThemeManager? themeManager;
+    ThemeStyle currentStyle = ThemeStyle.standard; // Default fallback
 
-    debugPrint("Building ThemeStyleToggle with current style: $currentStyle");
+    try {
+      themeManager = ThemeManagerProvider.of(context);
+      currentStyle = themeManager.themeStyle;
+    } catch (e) {
+      debugPrint("ThemeStyleToggle: Could not access ThemeManagerProvider: $e");
+      // Continue with default style
+    }
 
     return PopupMenuButton<ThemeStyle>(
       icon: _getIconForStyle(currentStyle),
       tooltip: 'Change theme style',
       onSelected: (ThemeStyle style) {
-        debugPrint("Setting theme style to: $style");
-        themeManager.setThemeStyle(style);
+        if (themeManager != null) {
+          debugPrint("Setting theme style to: $style");
+          themeManager.setThemeStyle(style);
+        } else {
+          debugPrint("Cannot change theme style: ThemeManager not available");
+        }
       },
       itemBuilder: (context) => [
         PopupMenuItem(
@@ -67,17 +77,42 @@ class ThemeStyleToggle extends StatelessWidget {
             ],
           ),
         ),
+        PopupMenuItem(
+          value: ThemeStyle.neumorphic,
+          child: Row(
+            children: [
+              Icon(
+                Icons.bubble_chart,
+                color: currentStyle == ThemeStyle.neumorphic
+                    ? Theme.of(context).primaryColor
+                    : null,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Neumorphic',
+                style: TextStyle(
+                  fontWeight: currentStyle == ThemeStyle.neumorphic
+                      ? FontWeight.bold
+                      : FontWeight.normal,
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
 
-  // Helper to get the appropriate icon for the current style - using if/else instead of switch
+  // Helper to get the appropriate icon for the current style
   Widget _getIconForStyle(ThemeStyle style) {
-    if (style == ThemeStyle.glassmorphic) {
-      return const Icon(Icons.blur_on);
-    } else {
-      // Default to standard icon
-      return const Icon(Icons.crop_square);
+    switch (style) {
+      case ThemeStyle.glassmorphic:
+        return const Icon(Icons.blur_on);
+      case ThemeStyle.neumorphic:
+        return const Icon(Icons.bubble_chart);
+      case ThemeStyle.standard:
+      default:
+        return const Icon(Icons.crop_square);
     }
   }
 }

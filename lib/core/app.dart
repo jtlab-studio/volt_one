@@ -1,4 +1,4 @@
-// lib/core/app.dart - Updated for settings
+// lib/core/app.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'router.dart';
 import 'theme_manager.dart';
 import 'l10n/app_localizations.dart';
-import '../modules/home/home_screen.dart'; // Import correct class
+import '../modules/home/home_screen.dart';
 
 class VoltApp extends ConsumerStatefulWidget {
   const VoltApp({super.key});
@@ -20,10 +20,24 @@ class _VoltAppState extends ConsumerState<VoltApp> {
   late ThemeManager _themeManager;
 
   @override
+  void initState() {
+    super.initState();
+    // Initialize the theme manager
+    _themeManager = ThemeManager();
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Get the theme manager and listen for changes
-    _themeManager = ThemeManagerProvider.of(context);
+    // Use the initialized _themeManager or try to get from context
+    try {
+      _themeManager = ThemeManagerProvider.of(context);
+    } catch (e) {
+      // If ThemeManagerProvider is not found in context, we'll use the
+      // instance initialized in initState
+      debugPrint("Using fallback ThemeManager: $e");
+    }
     _themeManager.addListener(_onThemeChanged);
   }
 

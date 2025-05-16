@@ -1,5 +1,3 @@
-// lib/modules/settings/screens/volt_settings_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,10 +17,13 @@ class VoltSettingsScreen extends ConsumerWidget {
 
     // Get theme manager
     ThemeManager? themeManager;
+    ThemeStyle currentStyle = ThemeStyle.standard; // Default fallback
+    ThemeMode currentThemeMode = ThemeMode.system; // Default fallback
+
     try {
-      themeManager = MediaQuery.of(context).size.width >= 600
-          ? ThemeManagerProvider.of(context)
-          : null;
+      themeManager = ThemeManagerProvider.of(context);
+      currentStyle = themeManager.themeStyle;
+      currentThemeMode = themeManager.themeMode;
     } catch (e) {
       // Handle potential errors when accessing ThemeManagerProvider
       debugPrint("Error accessing ThemeManagerProvider: $e");
@@ -53,7 +54,7 @@ class VoltSettingsScreen extends ConsumerWidget {
                       context,
                       localizations.translate('dark_mode'),
                       localizations.translate('dark_mode_desc'),
-                      themeManager.themeMode == ThemeMode.dark,
+                      currentThemeMode == ThemeMode.dark,
                       (value) {
                         themeManager?.setThemeMode(
                           value ? ThemeMode.dark : ThemeMode.light,
@@ -79,16 +80,24 @@ class VoltSettingsScreen extends ConsumerWidget {
                           context,
                           Icons.crop_square,
                           localizations.translate('standard'),
-                          themeManager.themeStyle == ThemeStyle.standard,
-                          () => themeManager.setThemeStyle(ThemeStyle.standard),
+                          currentStyle == ThemeStyle.standard,
+                          () {
+                            if (themeManager != null) {
+                              themeManager.setThemeStyle(ThemeStyle.standard);
+                            }
+                          },
                         ),
                         _buildThemeStyleOption(
                           context,
                           Icons.blur_on,
                           localizations.translate('glassmorphic'),
-                          themeManager.themeStyle == ThemeStyle.glassmorphic,
-                          () => themeManager
-                              .setThemeStyle(ThemeStyle.glassmorphic),
+                          currentStyle == ThemeStyle.glassmorphic,
+                          () {
+                            if (themeManager != null) {
+                              themeManager
+                                  .setThemeStyle(ThemeStyle.glassmorphic);
+                            }
+                          },
                         ),
                       ],
                     ),
@@ -151,9 +160,9 @@ class VoltSettingsScreen extends ConsumerWidget {
                           decoration: BoxDecoration(
                             border: Border.all(
                               color: Color.fromRGBO(
-                                Colors.grey.red,
-                                Colors.grey.green,
-                                Colors.grey.blue,
+                                Colors.grey.value >> 16 & 0xFF,
+                                Colors.grey.value >> 8 & 0xFF,
+                                Colors.grey.value & 0xFF,
                                 0.3,
                               ),
                             ),
@@ -287,17 +296,17 @@ class VoltSettingsScreen extends ConsumerWidget {
 
     if (isSelected) {
       bgColor = Color.fromRGBO(
-        theme.primaryColor.red,
-        theme.primaryColor.green,
-        theme.primaryColor.blue,
+        theme.primaryColor.value >> 16 & 0xFF,
+        theme.primaryColor.value >> 8 & 0xFF,
+        theme.primaryColor.value & 0xFF,
         0.15,
       );
       borderColor = theme.primaryColor;
     } else {
       borderColor = Color.fromRGBO(
-        Colors.grey.red,
-        Colors.grey.green,
-        Colors.grey.blue,
+        Colors.grey.value >> 16 & 0xFF,
+        Colors.grey.value >> 8 & 0xFF,
+        Colors.grey.value & 0xFF,
         0.3,
       );
     }
@@ -536,15 +545,14 @@ class VoltSettingsScreen extends ConsumerWidget {
                       },
                     ),
                   ),
-                  ButtonBar(
-                    children: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: Text(localizations.translate('cancel')),
-                      ),
-                    ],
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text(localizations.translate('cancel')),
+                    ),
                   ),
                 ],
               ),
