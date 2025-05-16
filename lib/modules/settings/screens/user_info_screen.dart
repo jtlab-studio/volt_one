@@ -1,10 +1,9 @@
-// lib/modules/settings/screens/user_info_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/app_localizations.dart';
 import '../models/user_profile.dart';
 import '../providers/user_profile_provider.dart';
+import '../settings_module.dart'; // Added import for settingsSectionProvider
 
 class UserInfoScreen extends ConsumerWidget {
   const UserInfoScreen({super.key});
@@ -26,8 +25,7 @@ class UserInfoScreen extends ConsumerWidget {
                 // Avatar
                 CircleAvatar(
                   radius: 50,
-                  backgroundColor:
-                      Theme.of(context).primaryColor.withOpacity(0.2),
+                  backgroundColor: Theme.of(context).primaryColor.withAlpha(20),
                   child: Icon(
                     Icons.person,
                     size: 64,
@@ -291,6 +289,7 @@ class UserInfoScreen extends ConsumerWidget {
     UserProfile profile,
   ) {
     final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
 
     return Row(
       children: [
@@ -307,13 +306,14 @@ class UserInfoScreen extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(vertical: 16),
               decoration: BoxDecoration(
                 color: profile.gender == Gender.male
-                    ? theme.primaryColor.withOpacity(0.15)
-                    : Colors.grey.withOpacity(0.05),
+                    ? Color.fromRGBO(primaryColor.red, primaryColor.green,
+                        primaryColor.blue, 0.15)
+                    : Colors.grey.withAlpha(5),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
                   color: profile.gender == Gender.male
-                      ? theme.primaryColor
-                      : Colors.grey.withOpacity(0.3),
+                      ? primaryColor
+                      : Colors.grey.withAlpha(30),
                 ),
               ),
               child: Column(
@@ -321,7 +321,7 @@ class UserInfoScreen extends ConsumerWidget {
                   Icon(
                     Icons.male,
                     color: profile.gender == Gender.male
-                        ? theme.primaryColor
+                        ? primaryColor
                         : Colors.grey,
                     size: 36,
                   ),
@@ -329,9 +329,8 @@ class UserInfoScreen extends ConsumerWidget {
                   Text(
                     'Male',
                     style: TextStyle(
-                      color: profile.gender == Gender.male
-                          ? theme.primaryColor
-                          : null,
+                      color:
+                          profile.gender == Gender.male ? primaryColor : null,
                       fontWeight: profile.gender == Gender.male
                           ? FontWeight.bold
                           : FontWeight.normal,
@@ -358,13 +357,14 @@ class UserInfoScreen extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(vertical: 16),
               decoration: BoxDecoration(
                 color: profile.gender == Gender.female
-                    ? theme.primaryColor.withOpacity(0.15)
-                    : Colors.grey.withOpacity(0.05),
+                    ? Color.fromRGBO(primaryColor.red, primaryColor.green,
+                        primaryColor.blue, 0.15)
+                    : Colors.grey.withAlpha(5),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
                   color: profile.gender == Gender.female
-                      ? theme.primaryColor
-                      : Colors.grey.withOpacity(0.3),
+                      ? primaryColor
+                      : Colors.grey.withAlpha(30),
                 ),
               ),
               child: Column(
@@ -372,7 +372,7 @@ class UserInfoScreen extends ConsumerWidget {
                   Icon(
                     Icons.female,
                     color: profile.gender == Gender.female
-                        ? theme.primaryColor
+                        ? primaryColor
                         : Colors.grey,
                     size: 36,
                   ),
@@ -380,9 +380,8 @@ class UserInfoScreen extends ConsumerWidget {
                   Text(
                     'Female',
                     style: TextStyle(
-                      color: profile.gender == Gender.female
-                          ? theme.primaryColor
-                          : null,
+                      color:
+                          profile.gender == Gender.female ? primaryColor : null,
                       fontWeight: profile.gender == Gender.female
                           ? FontWeight.bold
                           : FontWeight.normal,
@@ -409,13 +408,14 @@ class UserInfoScreen extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(vertical: 16),
               decoration: BoxDecoration(
                 color: profile.gender == Gender.notSpecified
-                    ? theme.primaryColor.withOpacity(0.15)
-                    : Colors.grey.withOpacity(0.05),
+                    ? Color.fromRGBO(primaryColor.red, primaryColor.green,
+                        primaryColor.blue, 0.15)
+                    : Colors.grey.withAlpha(5),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
                   color: profile.gender == Gender.notSpecified
-                      ? theme.primaryColor
-                      : Colors.grey.withOpacity(0.3),
+                      ? primaryColor
+                      : Colors.grey.withAlpha(30),
                 ),
               ),
               child: Column(
@@ -423,7 +423,7 @@ class UserInfoScreen extends ConsumerWidget {
                   Icon(
                     Icons.person,
                     color: profile.gender == Gender.notSpecified
-                        ? theme.primaryColor
+                        ? primaryColor
                         : Colors.grey,
                     size: 36,
                   ),
@@ -433,7 +433,7 @@ class UserInfoScreen extends ConsumerWidget {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: profile.gender == Gender.notSpecified
-                          ? theme.primaryColor
+                          ? primaryColor
                           : null,
                       fontWeight: profile.gender == Gender.notSpecified
                           ? FontWeight.bold

@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/app_localizations.dart';
+import '../../../responsive/screen_type.dart';
 import '../settings_module.dart';
 import 'volt_settings_screen.dart';
 import 'user_info_screen.dart';
@@ -18,22 +19,24 @@ class SettingsRootScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final localizations = AppLocalizations.of(context);
     final selectedSection = ref.watch(settingsSectionProvider);
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isTablet = screenWidth >= 600;
+    final screenType = getScreenType(context);
+
+    // Check if it's a tablet or desktop
+    final isLargeScreen =
+        screenType == ScreenType.desktop || screenType == ScreenType.tablet;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(localizations.translate('settings')),
-        // We want back button to return to main app
-        automaticallyImplyLeading: true,
-        // No need for actions in the settings screens
-        actions: const [],
-      ),
+      appBar: isLargeScreen
+          ? null // No app bar for large screens (using side navigation)
+          : AppBar(
+              title: Text(localizations.translate('settings')),
+              automaticallyImplyLeading: true,
+            ),
       body: SafeArea(
-        child: isTablet
+        child: isLargeScreen
             ? Row(
                 children: [
-                  // Settings navigation menu (left side) - Only on tablets
+                  // Settings navigation menu (left side) - Only on tablets/desktop
                   Container(
                     width: 240,
                     decoration: BoxDecoration(
@@ -107,8 +110,8 @@ class SettingsRootScreen extends ConsumerWidget {
             : _getSettingsContent(
                 selectedSection), // Full-screen content on phones
       ),
-      // Only show bottom navigation on phones, not on tablets
-      bottomNavigationBar: isTablet
+      // Only show bottom navigation on phones, not on tablets/desktop
+      bottomNavigationBar: isLargeScreen
           ? null
           : _buildBottomNavigation(
               context, ref, selectedSection, localizations),
@@ -126,12 +129,9 @@ class SettingsRootScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final color = isSelected ? theme.primaryColor : null;
 
-    // Create a transparent color by default
-    final Color transparentColor = Colors.transparent;
-
     // Using a safe approach for setting background color when selected
-    final Color? bgColor =
-        isSelected ? theme.primaryColor.withOpacity(0.1) : transparentColor;
+    final Color bgColor =
+        isSelected ? theme.primaryColor.withAlpha(20) : Colors.transparent;
 
     return ListTile(
       leading: Icon(icon, color: color),

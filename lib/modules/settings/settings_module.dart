@@ -1,9 +1,7 @@
-// lib/modules/settings/settings_module.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'screens/settings_root_screen.dart';
-import 'screens/zones_hub_screen.dart';
+import 'screens/training_zones_screen.dart'; // Updated import
 
 /// Entry point for the Settings module
 class SettingsModule {
@@ -16,10 +14,10 @@ class SettingsModule {
   static Widget createRootScreen() {
     return const SettingsRootScreen();
   }
-  
+
   // Factory method to create the zones hub screen
   static Widget createZonesHubScreen() {
-    return const ZonesHubScreen();
+    return const TrainingZonesScreen(); // Updated class reference
   }
 }
 

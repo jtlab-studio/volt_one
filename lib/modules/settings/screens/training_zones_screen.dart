@@ -6,7 +6,6 @@ import '../../../core/l10n/app_localizations.dart';
 import '../../../responsive/screen_type.dart';
 import 'hr_zones_screen.dart';
 import 'power_zones_screen.dart';
-import 'pace_zones_screen.dart';
 
 // Provider for tracking which zones tab is active
 final zoneTabTypeProvider = StateProvider<String>((ref) => 'hr');
@@ -66,15 +65,6 @@ class TrainingZonesScreen extends ConsumerWidget {
                   currentTab == 'power',
                   Colors.orange,
                 ),
-                _buildSideTab(
-                  context,
-                  ref,
-                  'pace',
-                  localizations.translate('pace_zones'),
-                  Icons.speed,
-                  currentTab == 'pace',
-                  Colors.green,
-                ),
               ],
             ),
           ),
@@ -89,7 +79,7 @@ class TrainingZonesScreen extends ConsumerWidget {
       // Mobile layout with top tabs
       return Column(
         children: [
-          // Tab selector for HR, Power, and Pace zones
+          // Tab selector for HR and Power zones
           _buildZoneTypeTabs(context, ref, currentTab, localizations),
 
           // Zone content based on selected tab
@@ -169,17 +159,6 @@ class TrainingZonesScreen extends ConsumerWidget {
               Colors.orange,
             ),
           ),
-          Expanded(
-            child: _buildZoneTypeTab(
-              context,
-              ref,
-              'pace',
-              localizations.translate('pace_zones'),
-              Icons.speed,
-              currentTab == 'pace',
-              Colors.green,
-            ),
-          ),
         ],
       ),
     );
@@ -220,7 +199,7 @@ class TrainingZonesScreen extends ConsumerWidget {
             Icon(
               icon,
               color: isSelected ? iconColor : Colors.grey,
-              size: 16,
+              size: 24,
             ),
             const SizedBox(height: 4),
             Text(
@@ -228,10 +207,10 @@ class TrainingZonesScreen extends ConsumerWidget {
               style: TextStyle(
                 color: color,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                fontSize: 12,
+                fontSize: 14,
               ),
               textAlign: TextAlign.center,
-              maxLines: 1,
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
           ],
