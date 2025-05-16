@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'consistent_bottom_navigation.dart';
-import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_colors.dart'; // Updated to correctly reference core/theme
 
 /// Utility class to help with creating consistent bottom navigation bars across screens
 class BottomNavigationHelper {
@@ -15,14 +15,12 @@ class BottomNavigationHelper {
     return Consumer(
       builder: (context, ref, child) {
         // Use AppColors directly
-
         return ConsistentBottomNavigationBar(
           currentIndex: currentIndex,
           onTap: onTap,
           items: items,
           selectedItemColor: selectedItemColor ?? AppColors.primary,
-          unselectedItemColor:
-              unselectedItemColor ?? Colors.grey,
+          unselectedItemColor: unselectedItemColor ?? Colors.grey,
         );
       },
     );
@@ -41,8 +39,6 @@ class BottomNavigationHelper {
   }) {
     return Consumer(
       builder: (context, ref, child) {
-        // Use AppColors directly
-
         // If there's a special center button, we'll create a Stack with both elements
         if (centerButton != null) {
           // Clone the items list to avoid modifying the original
@@ -68,10 +64,8 @@ class BottomNavigationHelper {
                 currentIndex: currentIndex,
                 onTap: onTap,
                 items: modifiedItems,
-                selectedItemColor:
-                    selectedItemColor ?? Colors.blue,
-                unselectedItemColor:
-                    unselectedItemColor ?? Colors.grey,
+                selectedItemColor: selectedItemColor ?? Colors.blue,
+                unselectedItemColor: unselectedItemColor ?? Colors.grey,
                 backgroundColor: backgroundColor,
               ),
 
@@ -90,15 +84,10 @@ class BottomNavigationHelper {
           onTap: onTap,
           items: items,
           selectedItemColor: selectedItemColor ?? AppColors.primary,
-          unselectedItemColor:
-              unselectedItemColor ?? Colors.grey,
+          unselectedItemColor: unselectedItemColor ?? Colors.grey,
           backgroundColor: backgroundColor,
         );
       },
     );
   }
 }
-
-
-
-
