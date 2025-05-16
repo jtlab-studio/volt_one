@@ -1,5 +1,3 @@
-// lib/modules/profile/screens/profile_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/l10n/app_localizations.dart';
@@ -47,7 +45,7 @@ class ProfileScreen extends ConsumerWidget {
 
   Widget _buildProfileBottomNavBar(
       BuildContext context, WidgetRef ref, String currentSection) {
-    // Use AppColors directly
+    final localizations = AppLocalizations.of(context);
 
     return BottomNavigationBar(
       currentIndex: _getProfileNavIndex(currentSection),
@@ -77,26 +75,26 @@ class ProfileScreen extends ConsumerWidget {
       iconSize: 24,
       selectedFontSize: 12,
       unselectedFontSize: 12,
-      items: const [
+      items: [
         BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'User Info',
+          icon: const Icon(Icons.person),
+          label: localizations.translate('user_info'),
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.favorite),
-          label: 'HR Zones',
+          icon: const Icon(Icons.favorite),
+          label: 'HR', // Use simple "HR" label
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.flash_on),
-          label: 'Power Zones',
+          icon: const Icon(Icons.flash_on),
+          label: 'Power', // Use simple "Power" label
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.speed),
-          label: 'Pace Zones',
+          icon: const Icon(Icons.speed),
+          label: 'Pace', // Use simple "Pace" label
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.settings),
-          label: 'App Settings',
+          icon: const Icon(Icons.settings),
+          label: localizations.translate('app_settings'),
         ),
       ],
     );
@@ -119,7 +117,3 @@ class ProfileScreen extends ConsumerWidget {
     }
   }
 }
-
-
-
-

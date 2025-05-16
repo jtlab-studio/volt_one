@@ -1,5 +1,3 @@
-// lib/modules/profile/screens/hr_zones_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/app_localizations.dart';
@@ -28,12 +26,12 @@ class HRZonesScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'Heart Rate Zones',
+            'Heart Rate Zones', // Fixed heading
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 24),
 
-          // LTHR Section
+          // LTHR Section with enhanced information
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -41,7 +39,7 @@ class HRZonesScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "LTHR", // Changed from "Lactate Threshold Heart Rate"
+                    "Lactate Threshold Heart Rate", // Full title instead of "LTHR"
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -49,10 +47,11 @@ class HRZonesScreen extends ConsumerWidget {
 
                   const SizedBox(height: 8),
 
-                  Text(
-                    localizations.translate('lthr_help'),
+                  // Enhanced description similar to Critical Power/Pace
+                  const Text(
+                    'Your Lactate Threshold Heart Rate (LTHR) is the heart rate at which lactate begins to accumulate in your blood faster than it can be cleared. It represents the highest intensity you can sustain for approximately 30-60 minutes of continuous exercise.',
                     style: TextStyle(
-                      color: Colors.grey[600],
+                      color: Colors.grey,
                       fontSize: 12,
                     ),
                   ),
@@ -186,7 +185,7 @@ class HRZonesScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    localizations.translate('heart_rate_zones'),
+                    'Heart Rate Zones', // Fixed: Using "Heart Rate Zones" instead of translation
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -307,11 +306,11 @@ class HRZonesScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(AppLocalizations.of(context).translate('lthr')),
+        title: const Text('Lactate Threshold Heart Rate'),
         content: TextField(
           controller: controller,
-          decoration: InputDecoration(
-            labelText: AppLocalizations.of(context).translate('lthr'),
+          decoration: const InputDecoration(
+            labelText: 'Heart Rate',
             suffixText: 'bpm',
           ),
           keyboardType: TextInputType.number,

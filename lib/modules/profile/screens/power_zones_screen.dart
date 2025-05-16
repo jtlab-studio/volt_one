@@ -16,7 +16,7 @@ class PowerZonesScreen extends ConsumerWidget {
     final userProfile = ref.watch(userProfileProvider);
 
     // Default critical power if not set in profile
-    final criticalPower = userProfile.criticalPower; // Removed null coalescing
+    final criticalPower = userProfile.criticalPower;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
@@ -121,8 +121,7 @@ class PowerZonesScreen extends ConsumerWidget {
                     children: [
                       const Text('Number of Power Zones'),
                       DropdownButton<int>(
-                        value:
-                            userProfile.powerZones, // Removed null coalescing
+                        value: userProfile.powerZones,
                         items: [3, 4, 5, 6, 7].map((zoneCount) {
                           return DropdownMenuItem<int>(
                             value: zoneCount,
@@ -162,8 +161,7 @@ class PowerZonesScreen extends ConsumerWidget {
                         ),
                       ),
                       Switch(
-                        value: userProfile
-                            .autoCalculatePowerZones, // Removed null coalescing
+                        value: userProfile.autoCalculatePowerZones,
                         onChanged: (value) {
                           ref.read(userProfileProvider.notifier).update(
                                 (state) => state.copyWith(
@@ -199,7 +197,7 @@ class PowerZonesScreen extends ConsumerWidget {
                   const SizedBox(height: 16),
 
                   // Show either auto-calculated zones or editable zones
-                  userProfile.autoCalculatePowerZones // Removed null coalescing
+                  userProfile.autoCalculatePowerZones
                       ? _buildCalculatedPowerZones(context, localizations,
                           criticalPower, userProfile.powerZones)
                       : _buildEditablePowerZones(context, ref, localizations,
