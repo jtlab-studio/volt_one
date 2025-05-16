@@ -1,4 +1,4 @@
-// lib/core/app.dart
+// lib/core/app.dart - Updated for settings
 
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'router.dart';
 import 'theme_manager.dart';
 import 'l10n/app_localizations.dart';
+import '../modules/home/home_screen.dart'; // Import correct class
 
 class VoltApp extends ConsumerStatefulWidget {
   const VoltApp({super.key});
@@ -81,7 +82,7 @@ class _VoltAppState extends ConsumerState<VoltApp> {
       darkTheme: appTheme.dark,
       themeMode: _themeManager.themeMode,
       navigatorKey: navigatorKey,
-      home: const VoltRootWidget(),
+      home: const VoltRootWidget(), // Use VoltRootWidget from router.dart
       localizationsDelegates: localizationsDelegates,
       supportedLocales: supportedLocales,
       // Set the app locale from the provider

@@ -113,11 +113,6 @@ class LanguageSelector extends ConsumerWidget {
         'name': 'Español (Latinoamérica)',
         'flag': '🌎'
       },
-      {
-        'locale': const Locale('es', 'CL'),
-        'name': 'Español (Chile)',
-        'flag': '🇨🇱'
-      },
       {'locale': const Locale('de', ''), 'name': 'Deutsch', 'flag': '🇩🇪'},
       {'locale': const Locale('fr', ''), 'name': 'Français', 'flag': '🇫🇷'},
       {'locale': const Locale('it', ''), 'name': 'Italiano', 'flag': '🇮🇹'},
