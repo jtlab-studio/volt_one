@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
-import '../theme/app_colors.dart';
-import '../theme/app_text_theme.dart';
+import 'theme/app_theme.dart';
+import 'theme/app_colors.dart';
+import 'theme/app_text_theme.dart';
 
 // Create a class to manage theme throughout the app
 class ThemeManager extends ChangeNotifier {
@@ -135,9 +135,9 @@ class ThemeManager extends ChangeNotifier {
   // Glassmorphic theme definition
   AppTheme _createGlassmorphicTheme() {
     // Create frosted glass colors
-    final lightGlassColor =
+    const lightGlassColor =
         Color.fromRGBO(255, 255, 255, 0.6); // Translucent white
-    final darkGlassColor = Color.fromRGBO(0, 0, 0, 0.5); // Translucent black
+    const darkGlassColor = Color.fromRGBO(0, 0, 0, 0.5); // Translucent black
 
     return AppTheme(
       style: ThemeStyle.glassmorphic,
@@ -145,27 +145,24 @@ class ThemeManager extends ChangeNotifier {
         brightness: Brightness.light,
         primaryColor: AppColors.primary,
         colorScheme: ColorScheme.light(
-          primary: Color.fromRGBO(
-              AppColors.primary.value >> 16 & 0xFF,
-              AppColors.primary.value >> 8 & 0xFF,
-              AppColors.primary.value & 0xFF,
-              0.9), // Slightly translucent primary color
+          primary: Color.fromRGBO(AppColors.primary.r, AppColors.primary.g,
+              AppColors.primary.b, 0.9), // Slightly translucent primary color
           secondary: Color.fromRGBO(
-              AppColors.secondary.value >> 16 & 0xFF,
-              AppColors.secondary.value >> 8 & 0xFF,
-              AppColors.secondary.value & 0xFF,
+              AppColors.secondary.r,
+              AppColors.secondary.g,
+              AppColors.secondary.b,
               0.9), // Slightly translucent secondary
           surface: lightGlassColor,
           error: AppColors.error,
         ),
-        scaffoldBackgroundColor:
-            Color.fromRGBO(255, 255, 255, 0.95), // Almost transparent white
+        scaffoldBackgroundColor: const Color.fromRGBO(
+            255, 255, 255, 0.95), // Almost transparent white
         textTheme: appTextTheme,
         appBarTheme: AppBarTheme(
           backgroundColor: Color.fromRGBO(
-              AppColors.primary.value >> 16 & 0xFF,
-              AppColors.primary.value >> 8 & 0xFF,
-              AppColors.primary.value & 0xFF,
+              AppColors.primary.r,
+              AppColors.primary.g,
+              AppColors.primary.b,
               0.6), // Very translucent
           foregroundColor: Colors.white,
           elevation: 0, // No elevation for glassmorphic
@@ -175,29 +172,30 @@ class ThemeManager extends ChangeNotifier {
           color: lightGlassColor, // Translucent card color
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20), // Very rounded corners
-            side: BorderSide(
+            side: const BorderSide(
                 color: Color.fromRGBO(255, 255, 255, 0.4),
                 width: 1.5), // Subtle border
           ),
         ),
-        bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
           backgroundColor: lightGlassColor, // Translucent background
           selectedItemColor: AppColors.primary,
-          unselectedItemColor: Colors.grey.shade700,
+          unselectedItemColor:
+              Color(0xFF616161), // Replaced Colors.grey.shade700
           elevation: 0, // No elevation for glassmorphic
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             foregroundColor: Colors.white,
             backgroundColor: Color.fromRGBO(
-                AppColors.primary.value >> 16 & 0xFF,
-                AppColors.primary.value >> 8 & 0xFF,
-                AppColors.primary.value & 0xFF,
+                AppColors.primary.r,
+                AppColors.primary.g,
+                AppColors.primary.b,
                 0.7), // Translucent button
             elevation: 0, // No elevation for glassmorphic
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(30), // Pill-shaped buttons
-              side: BorderSide(
+              side: const BorderSide(
                   color: Color.fromRGBO(255, 255, 255, 0.7),
                   width: 1.5), // White border
             ),
@@ -205,7 +203,7 @@ class ThemeManager extends ChangeNotifier {
         ),
         // Add blur effect to dialog backgrounds
         dialogTheme: DialogTheme(
-          backgroundColor: Color.fromRGBO(255, 255, 255, 0.8),
+          backgroundColor: const Color.fromRGBO(255, 255, 255, 0.8),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
           ),
@@ -214,25 +212,22 @@ class ThemeManager extends ChangeNotifier {
         // Translucent inputs
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
-          fillColor: Color.fromRGBO(255, 255, 255, 0.7),
+          fillColor: const Color.fromRGBO(255, 255, 255, 0.7),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15),
-            borderSide:
-                BorderSide(color: Color.fromRGBO(255, 255, 255, 0.6), width: 1),
+            borderSide: const BorderSide(
+                color: Color.fromRGBO(255, 255, 255, 0.6), width: 1),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15),
-            borderSide:
-                BorderSide(color: Color.fromRGBO(255, 255, 255, 0.6), width: 1),
+            borderSide: const BorderSide(
+                color: Color.fromRGBO(255, 255, 255, 0.6), width: 1),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15),
             borderSide: BorderSide(
-                color: Color.fromRGBO(
-                    AppColors.primary.value >> 16 & 0xFF,
-                    AppColors.primary.value >> 8 & 0xFF,
-                    AppColors.primary.value & 0xFF,
-                    0.9),
+                color: Color.fromRGBO(AppColors.primary.r, AppColors.primary.g,
+                    AppColors.primary.b, 0.9),
                 width: 2),
           ),
         ),
@@ -241,27 +236,24 @@ class ThemeManager extends ChangeNotifier {
         brightness: Brightness.dark,
         primaryColor: AppColors.primary,
         colorScheme: ColorScheme.dark(
-          primary: Color.fromRGBO(
-              AppColors.primary.value >> 16 & 0xFF,
-              AppColors.primary.value >> 8 & 0xFF,
-              AppColors.primary.value & 0xFF,
-              0.9), // Slightly translucent primary
+          primary: Color.fromRGBO(AppColors.primary.r, AppColors.primary.g,
+              AppColors.primary.b, 0.9), // Slightly translucent primary
           secondary: Color.fromRGBO(
-              AppColors.secondary.value >> 16 & 0xFF,
-              AppColors.secondary.value >> 8 & 0xFF,
-              AppColors.secondary.value & 0xFF,
+              AppColors.secondary.r,
+              AppColors.secondary.g,
+              AppColors.secondary.b,
               0.9), // Slightly translucent secondary
           surface: darkGlassColor,
           error: AppColors.error,
         ),
         scaffoldBackgroundColor:
-            Color.fromRGBO(0, 0, 0, 0.95), // Almost transparent black
+            const Color.fromRGBO(0, 0, 0, 0.95), // Almost transparent black
         textTheme: appTextTheme,
         appBarTheme: AppBarTheme(
           backgroundColor: Color.fromRGBO(
-              AppColors.darkSurface.value >> 16 & 0xFF,
-              AppColors.darkSurface.value >> 8 & 0xFF,
-              AppColors.darkSurface.value & 0xFF,
+              AppColors.darkSurface.r,
+              AppColors.darkSurface.g,
+              AppColors.darkSurface.b,
               0.6), // Very translucent
           foregroundColor: Colors.white,
           elevation: 0, // No elevation for glassmorphic
@@ -271,29 +263,30 @@ class ThemeManager extends ChangeNotifier {
           color: darkGlassColor, // Translucent card color
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20), // Very rounded corners
-            side: BorderSide(
+            side: const BorderSide(
                 color: Color.fromRGBO(255, 255, 255, 0.2),
                 width: 1.5), // Subtle border
           ),
         ),
-        bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
           backgroundColor: darkGlassColor, // Translucent background
           selectedItemColor: AppColors.primary,
-          unselectedItemColor: Colors.grey.shade400,
+          unselectedItemColor:
+              Color(0xFFBDBDBD), // Replaced Colors.grey.shade400
           elevation: 0, // No elevation for glassmorphic
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             foregroundColor: Colors.white,
             backgroundColor: Color.fromRGBO(
-                AppColors.primary.value >> 16 & 0xFF,
-                AppColors.primary.value >> 8 & 0xFF,
-                AppColors.primary.value & 0xFF,
+                AppColors.primary.r,
+                AppColors.primary.g,
+                AppColors.primary.b,
                 0.7), // Translucent button
             elevation: 0, // No elevation for glassmorphic
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(30), // Pill-shaped buttons
-              side: BorderSide(
+              side: const BorderSide(
                   color: Color.fromRGBO(255, 255, 255, 0.4),
                   width: 1.5), // White border
             ),
@@ -301,7 +294,7 @@ class ThemeManager extends ChangeNotifier {
         ),
         // Add blur effect to dialog backgrounds
         dialogTheme: DialogTheme(
-          backgroundColor: Color.fromRGBO(0, 0, 0, 0.8),
+          backgroundColor: const Color.fromRGBO(0, 0, 0, 0.8),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
           ),
@@ -310,25 +303,22 @@ class ThemeManager extends ChangeNotifier {
         // Translucent inputs
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
-          fillColor: Color.fromRGBO(0, 0, 0, 0.7),
+          fillColor: const Color.fromRGBO(0, 0, 0, 0.7),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15),
-            borderSide:
-                BorderSide(color: Color.fromRGBO(255, 255, 255, 0.4), width: 1),
+            borderSide: const BorderSide(
+                color: Color.fromRGBO(255, 255, 255, 0.4), width: 1),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15),
-            borderSide:
-                BorderSide(color: Color.fromRGBO(255, 255, 255, 0.4), width: 1),
+            borderSide: const BorderSide(
+                color: Color.fromRGBO(255, 255, 255, 0.4), width: 1),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15),
             borderSide: BorderSide(
-                color: Color.fromRGBO(
-                    AppColors.primary.value >> 16 & 0xFF,
-                    AppColors.primary.value >> 8 & 0xFF,
-                    AppColors.primary.value & 0xFF,
-                    0.9),
+                color: Color.fromRGBO(AppColors.primary.r, AppColors.primary.g,
+                    AppColors.primary.b, 0.9),
                 width: 2),
           ),
         ),
@@ -365,7 +355,8 @@ class ThemeManager extends ChangeNotifier {
         ),
         cardTheme: CardTheme(
           elevation: 8.0,
-          shadowColor: Colors.grey[300],
+          shadowColor: const Color(
+              0xFFD6D6D6), // Fixed: replaced Colors.grey[300] with constant color
           color: const Color(0xFFE0E5EC),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -376,7 +367,8 @@ class ThemeManager extends ChangeNotifier {
             foregroundColor: Colors.white,
             backgroundColor: AppColors.primary,
             elevation: 8.0,
-            shadowColor: Colors.grey[300],
+            shadowColor: const Color(
+                0xFFD6D6D6), // Fixed: replaced Colors.grey[300] with constant color
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -407,7 +399,8 @@ class ThemeManager extends ChangeNotifier {
         ),
         cardTheme: CardTheme(
           elevation: 8.0,
-          shadowColor: Colors.black54,
+          shadowColor: const Color(
+              0x8A000000), // Fixed: replaced Colors.black54 with constant color
           color: const Color(0xFF303030),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -418,7 +411,8 @@ class ThemeManager extends ChangeNotifier {
             foregroundColor: Colors.white,
             backgroundColor: AppColors.primary,
             elevation: 8.0,
-            shadowColor: Colors.black54,
+            shadowColor: const Color(
+                0x8A000000), // Fixed: replaced Colors.black54 with constant color
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -431,11 +425,12 @@ class ThemeManager extends ChangeNotifier {
 
 // InheritedWidget to provide ThemeManager down the widget tree
 class ThemeManagerProvider extends InheritedNotifier<ThemeManager> {
-  // Use super parameter syntax
   const ThemeManagerProvider({
-    super.key,
-    required super.child,
+    Key? key,
+    required Widget child,
   }) : super(
+          key: key,
+          child: child,
           notifier: ThemeManager(),
         );
 
