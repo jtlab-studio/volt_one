@@ -3,59 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/app_localizations.dart';
-
-// A simple user profile model
-class UserProfile {
-  final String name;
-  final double weight; // kg
-  final double height; // cm
-  final double legLength; // cm - field for leg length
-  final Gender gender;
-  final int birthYear;
-
-  const UserProfile({
-    required this.name,
-    required this.weight,
-    required this.height,
-    this.legLength = 80.0, // Default value for leg length
-    required this.gender,
-    required this.birthYear,
-  });
-
-  // Create a copy with updated fields
-  UserProfile copyWith({
-    String? name,
-    double? weight,
-    double? height,
-    double? legLength,
-    Gender? gender,
-    int? birthYear,
-  }) {
-    return UserProfile(
-      name: name ?? this.name,
-      weight: weight ?? this.weight,
-      height: height ?? this.height,
-      legLength: legLength ?? this.legLength,
-      gender: gender ?? this.gender,
-      birthYear: birthYear ?? this.birthYear,
-    );
-  }
-}
-
-// Gender enum
-enum Gender { male, female, notSpecified }
-
-// Provider for user profile
-final userProfileProvider = StateProvider<UserProfile>((ref) {
-  return const UserProfile(
-    name: 'Runner',
-    weight: 70,
-    height: 175,
-    legLength: 80.0,
-    gender: Gender.notSpecified,
-    birthYear: 1990,
-  );
-});
+import '../models/user_profile.dart';
+import '../providers/user_profile_provider.dart';
 
 class UserInfoScreen extends ConsumerWidget {
   const UserInfoScreen({super.key});
@@ -94,8 +43,9 @@ class UserInfoScreen extends ConsumerWidget {
                   value: userProfile.name,
                   onSaved: (value) {
                     if (value != null && value.isNotEmpty) {
-                      ref.read(userProfileProvider.notifier).state =
-                          userProfile.copyWith(name: value);
+                      ref.read(userProfileProvider.notifier).update(
+                            (state) => state.copyWith(name: value),
+                          );
                     }
                   },
                 ),
@@ -144,8 +94,9 @@ class UserInfoScreen extends ConsumerWidget {
                     if (value != null && value.isNotEmpty) {
                       final weight = double.tryParse(value);
                       if (weight != null) {
-                        ref.read(userProfileProvider.notifier).state =
-                            userProfile.copyWith(weight: weight);
+                        ref.read(userProfileProvider.notifier).update(
+                              (state) => state.copyWith(weight: weight),
+                            );
                       }
                     }
                   },
@@ -164,8 +115,9 @@ class UserInfoScreen extends ConsumerWidget {
                     if (value != null && value.isNotEmpty) {
                       final height = double.tryParse(value);
                       if (height != null) {
-                        ref.read(userProfileProvider.notifier).state =
-                            userProfile.copyWith(height: height);
+                        ref.read(userProfileProvider.notifier).update(
+                              (state) => state.copyWith(height: height),
+                            );
                       }
                     }
                   },
@@ -184,8 +136,9 @@ class UserInfoScreen extends ConsumerWidget {
                     if (value != null && value.isNotEmpty) {
                       final legLength = double.tryParse(value);
                       if (legLength != null) {
-                        ref.read(userProfileProvider.notifier).state =
-                            userProfile.copyWith(legLength: legLength);
+                        ref.read(userProfileProvider.notifier).update(
+                              (state) => state.copyWith(legLength: legLength),
+                            );
                       }
                     }
                   },
@@ -239,8 +192,9 @@ class UserInfoScreen extends ConsumerWidget {
                     if (value != null && value.isNotEmpty) {
                       final birthYear = int.tryParse(value);
                       if (birthYear != null) {
-                        ref.read(userProfileProvider.notifier).state =
-                            userProfile.copyWith(birthYear: birthYear);
+                        ref.read(userProfileProvider.notifier).update(
+                              (state) => state.copyWith(birthYear: birthYear),
+                            );
                       }
                     }
                   },
@@ -266,7 +220,7 @@ class UserInfoScreen extends ConsumerWidget {
 
         const SizedBox(height: 24),
 
-        // Additional Information Card
+        // Additional Information Card - Now links to Training Zones
         Card(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
@@ -282,74 +236,12 @@ class UserInfoScreen extends ConsumerWidget {
                 const SizedBox(height: 16),
                 ListTile(
                   leading: const Icon(Icons.favorite),
-                  title: Text(localizations.translate('heart_rate_zones')),
+                  title: Text(localizations.translate('training_zones')),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
-                    // Navigate to HR zones settings
-                  },
-                ),
-                const Divider(),
-                ListTile(
-                  leading: const Icon(Icons.speed),
-                  title: Text(localizations.translate('pace_zones')),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () {
-                    // Navigate to pace zones settings
-                  },
-                ),
-                const Divider(),
-                ListTile(
-                  leading: const Icon(Icons.flash_on),
-                  title: Text(localizations.translate('power_zones')),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () {
-                    // Navigate to power zones settings
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-
-        const SizedBox(height: 24),
-
-        // Data Management Card
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  localizations.translate('data_management'),
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-                const SizedBox(height: 16),
-                ListTile(
-                  leading: const Icon(Icons.cloud_download),
-                  title: Text(localizations.translate('export_data')),
-                  subtitle:
-                      Text(localizations.translate('export_all_your_data')),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () {
-                    // Show export options
-                    _showExportOptions(context);
-                  },
-                ),
-                const Divider(),
-                ListTile(
-                  leading: const Icon(Icons.delete, color: Colors.red),
-                  title: Text(
-                    localizations.translate('delete_account'),
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                  subtitle:
-                      Text(localizations.translate('delete_account_warning')),
-                  onTap: () {
-                    // Show delete account confirmation
-                    _showDeleteAccountConfirmation(context);
+                    // Navigate to Training Zones setting
+                    ref.read(settingsSectionProvider.notifier).state =
+                        'training_zones';
                   },
                 ),
               ],
@@ -406,8 +298,9 @@ class UserInfoScreen extends ConsumerWidget {
         Expanded(
           child: InkWell(
             onTap: () {
-              ref.read(userProfileProvider.notifier).state =
-                  profile.copyWith(gender: Gender.male);
+              ref.read(userProfileProvider.notifier).update(
+                    (state) => state.copyWith(gender: Gender.male),
+                  );
             },
             borderRadius: BorderRadius.circular(8),
             child: Container(
@@ -456,8 +349,9 @@ class UserInfoScreen extends ConsumerWidget {
         Expanded(
           child: InkWell(
             onTap: () {
-              ref.read(userProfileProvider.notifier).state =
-                  profile.copyWith(gender: Gender.female);
+              ref.read(userProfileProvider.notifier).update(
+                    (state) => state.copyWith(gender: Gender.female),
+                  );
             },
             borderRadius: BorderRadius.circular(8),
             child: Container(
@@ -506,8 +400,9 @@ class UserInfoScreen extends ConsumerWidget {
         Expanded(
           child: InkWell(
             onTap: () {
-              ref.read(userProfileProvider.notifier).state =
-                  profile.copyWith(gender: Gender.notSpecified);
+              ref.read(userProfileProvider.notifier).update(
+                    (state) => state.copyWith(gender: Gender.notSpecified),
+                  );
             },
             borderRadius: BorderRadius.circular(8),
             child: Container(
@@ -589,202 +484,6 @@ class UserInfoScreen extends ConsumerWidget {
               ),
             ],
           ),
-        );
-      },
-    );
-  }
-
-  void _showExportOptions(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Text(
-                  'Export Data',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              ListTile(
-                leading: const Icon(Icons.file_download),
-                title: const Text('Export as CSV'),
-                onTap: () {
-                  Navigator.pop(context);
-                  // Show export progress
-                  _showExportProgress(context, 'CSV');
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.file_download),
-                title: const Text('Export as FIT files'),
-                onTap: () {
-                  Navigator.pop(context);
-                  // Show export progress
-                  _showExportProgress(context, 'FIT');
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.file_download),
-                title: const Text('Export as GPX files'),
-                onTap: () {
-                  Navigator.pop(context);
-                  // Show export progress
-                  _showExportProgress(context, 'GPX');
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.file_download),
-                title: const Text('Export as TCX files'),
-                onTap: () {
-                  Navigator.pop(context);
-                  // Show export progress
-                  _showExportProgress(context, 'TCX');
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  void _showExportProgress(BuildContext context, String format) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Exporting as $format'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const LinearProgressIndicator(),
-              const SizedBox(height: 16),
-              const Text('Preparing your data for export...'),
-            ],
-          ),
-        );
-      },
-    );
-
-    // Auto-dismiss after 2 seconds and show success
-    Future.delayed(const Duration(seconds: 2), () {
-      if (context.mounted) {
-        Navigator.pop(context); // Dismiss progress dialog
-
-        // Show success dialog
-        showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: const Text('Export Completed'),
-              content: Text(
-                  'Your data has been exported as $format files. You can find the files in the Downloads folder.'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text('OK'),
-                ),
-              ],
-            );
-          },
-        );
-      }
-    });
-  }
-
-  void _showDeleteAccountConfirmation(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Delete Account'),
-          content: const Text(
-            'Are you sure you want to delete your account? This action cannot be undone and will permanently delete all your data, including workout history.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                // Show secondary confirmation
-                _showDeleteAccountFinalConfirmation(context);
-              },
-              child: const Text('Delete Account',
-                  style: TextStyle(color: Colors.red)),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showDeleteAccountFinalConfirmation(BuildContext context) {
-    // Create a text controller for the confirmation text
-    final controller = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Confirm Account Deletion'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'To confirm account deletion, please type "DELETE" below:',
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: controller,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: 'Type DELETE in all caps',
-                ),
-                autofocus: true,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                if (controller.text == 'DELETE') {
-                  Navigator.pop(context);
-                  // Show success message
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                          'Account deletion initiated. You will receive an email confirmation.'),
-                    ),
-                  );
-                }
-              },
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.red,
-              ),
-              child: const Text('Delete Permanently'),
-            ),
-          ],
         );
       },
     );

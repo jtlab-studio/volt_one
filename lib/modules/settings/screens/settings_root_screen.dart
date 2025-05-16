@@ -1,3 +1,5 @@
+// lib/modules/settings/screens/settings_root_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/app_localizations.dart';
@@ -7,6 +9,7 @@ import 'user_info_screen.dart';
 import 'activity_alerts_screen.dart';
 import 'sensors_screen.dart';
 import 'subscription_screen.dart';
+import 'training_zones_screen.dart';
 
 class SettingsRootScreen extends ConsumerWidget {
   const SettingsRootScreen({super.key});
@@ -58,6 +61,14 @@ class SettingsRootScreen extends ConsumerWidget {
                           localizations.translate('user_info'),
                           Icons.person,
                           selectedSection == 'user_info',
+                        ),
+                        _buildSettingTile(
+                          context,
+                          ref,
+                          'training_zones',
+                          localizations.translate('training_zones'),
+                          Icons.favorite,
+                          selectedSection == 'training_zones',
                         ),
                         _buildSettingTile(
                           context,
@@ -151,6 +162,7 @@ class SettingsRootScreen extends ConsumerWidget {
         final sections = [
           'volt_settings',
           'user_info',
+          'training_zones',
           'activity_alerts',
           'sensors',
           'subscription',
@@ -171,6 +183,10 @@ class SettingsRootScreen extends ConsumerWidget {
         BottomNavigationBarItem(
           icon: const Icon(Icons.person),
           label: localizations.translate('user_info'),
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.favorite),
+          label: localizations.translate('training_zones'),
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.notifications_active),
@@ -194,6 +210,8 @@ class SettingsRootScreen extends ConsumerWidget {
         return const VoltSettingsScreen();
       case 'user_info':
         return const UserInfoScreen();
+      case 'training_zones':
+        return const TrainingZonesScreen();
       case 'activity_alerts':
         return const ActivityAlertsScreen();
       case 'sensors':
@@ -211,12 +229,14 @@ class SettingsRootScreen extends ConsumerWidget {
         return 0;
       case 'user_info':
         return 1;
-      case 'activity_alerts':
+      case 'training_zones':
         return 2;
-      case 'sensors':
+      case 'activity_alerts':
         return 3;
-      case 'subscription':
+      case 'sensors':
         return 4;
+      case 'subscription':
+        return 5;
       default:
         return 0;
     }
