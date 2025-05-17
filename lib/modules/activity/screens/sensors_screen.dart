@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../../core/l10n/app_localizations.dart';
 import '../../../models/ble_device.dart';
-import '../../../providers/ble_providers.dart';
-import '../../../providers/gps_providers.dart';
+import '../../../providers/ble_providers.dart' as ble;
+import '../../../providers/gps_providers.dart' as gps;
 import '../../../services/gps_service.dart';
 
 class SensorsScreen extends ConsumerStatefulWidget {
@@ -29,10 +29,10 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
     _initializeServices();
   }
 
-  Future<void> _initializeServices() async {
+  void _initializeServices() async {
     // Access BLE and GPS controller providers from Riverpod
-    final bleController = ref.read(bleControllerProvider);
-    final gpsController = ref.read(gpsControllerProvider);
+    final bleController = ref.read(ble.bleControllerProvider);
+    final gpsController = ref.read(gps.gpsControllerProvider);
 
     await bleController.initialize();
     await gpsController.initialize();
@@ -80,7 +80,7 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
   }
 
   Widget _buildScanButtonIcon() {
-    final scanningState = ref.watch(scanningStateProvider);
+    final scanningState = ref.watch(ble.scanningStateProvider);
 
     return scanningState.when(
       data: (isScanning) => isScanning
@@ -105,8 +105,8 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
   }
 
   void _startOrStopScanning() {
-    final bleController = ref.read(bleControllerProvider);
-    final scanningState = ref.watch(scanningStateProvider);
+    final bleController = ref.read(ble.bleControllerProvider);
+    final scanningState = ref.watch(ble.scanningStateProvider);
 
     scanningState.whenData((isScanning) {
       if (isScanning) {
@@ -118,8 +118,8 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
   }
 
   Widget _buildBluetoothTab(AppLocalizations localizations) {
-    final discoveredDevicesAsync = ref.watch(discoveredDevicesProvider);
-    final savedDevices = ref.watch(savedDevicesProvider);
+    final discoveredDevicesAsync = ref.watch(ble.discoveredDevicesProvider);
+    final savedDevices = ref.watch(ble.savedDevicesProvider);
 
     return Stack(
       children: [
@@ -153,7 +153,7 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
                       icon: const Icon(Icons.bluetooth_connected),
                       label: Text(localizations.translate('connect_all_saved')),
                       onPressed: () {
-                        final bleController = ref.read(bleControllerProvider);
+                        final bleController = ref.read(ble.bleControllerProvider);
                         bleController.connectToAllSavedDevices();
                       },
                     ),
@@ -196,7 +196,7 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
   }
 
   Widget _buildEmptyDevicesState(AppLocalizations localizations) {
-    final scanningState = ref.watch(scanningStateProvider);
+    final scanningState = ref.watch(ble.scanningStateProvider);
     final isScanning = scanningState.valueOrNull ?? false;
 
     return Center(
@@ -224,7 +224,7 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
               icon: const Icon(Icons.bluetooth_searching),
               label: Text(localizations.translate('start_scan')),
               onPressed: () {
-                final bleController = ref.read(bleControllerProvider);
+                final bleController = ref.read(ble.bleControllerProvider);
                 bleController.startScan();
               },
             )
@@ -264,7 +264,7 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
 
   Widget _buildDeviceListItem(
       BleDevice device, AppLocalizations localizations) {
-    final bleController = ref.read(bleControllerProvider);
+    final bleController = ref.read(ble.bleControllerProvider);
     final theme = Theme.of(context);
 
     // Get icon based on device type
@@ -372,6 +372,56 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
         },
       ),
     );
+  }: Text(
+                  localizations.translate('saved'),
+                  style: const TextStyle(fontSize: 10),
+                ),
+                padding: EdgeInsets.zero,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                visualDensity: VisualDensity.compact,
+                backgroundColor: theme.colorScheme.primaryContainer,
+              ),
+          ],
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Save/Unsave button
+            IconButton(
+              icon: Icon(
+                device.isSaved ? Icons.star : Icons.star_border,
+                color: device.isSaved ? Colors.amber : null,
+              ),
+              onPressed: () {
+                if (device.isSaved) {
+                  bleController.removeSavedDevice(device.id);
+                } else {
+                  bleController.saveDevice(device.id);
+                }
+              },
+            ),
+
+            // Connect/Disconnect button
+            IconButton(
+              icon: Icon(
+                device.connected ? Icons.bluetooth_connected : Icons.bluetooth,
+                color: device.connected ? theme.primaryColor : null,
+              ),
+              onPressed: () {
+                if (device.connected) {
+                  bleController.disconnectFromDevice(device.id);
+                } else {
+                  bleController.connectToDevice(device.id);
+                }
+              },
+            ),
+          ],
+        ),
+        onTap: () {
+          _showDeviceDetails(device, localizations);
+        },
+      ),
+    );
   }
 
   void _showDeviceDetails(BleDevice device, AppLocalizations localizations) {
@@ -427,7 +477,7 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
                           : localizations.translate('save_device'),
                     ),
                     onPressed: () {
-                      final bleController = ref.read(bleControllerProvider);
+                      final bleController = ref.read(ble.bleControllerProvider);
                       if (device.isSaved) {
                         bleController.removeSavedDevice(device.id);
                       } else {
@@ -448,7 +498,7 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
                           : localizations.translate('connect'),
                     ),
                     onPressed: () {
-                      final bleController = ref.read(bleControllerProvider);
+                      final bleController = ref.read(ble.bleControllerProvider);
                       if (device.connected) {
                         bleController.disconnectFromDevice(device.id);
                       } else {
@@ -498,7 +548,6 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
 
   Widget _buildGpsTab(AppLocalizations localizations) {
     final gpsStatusAsync = ref.watch(gpsStatusProvider);
-    final gpsSettingsAsync = ref.watch(gpsSettingsProvider);
     final gpsController = ref.read(gpsControllerProvider);
     final currentSettings = gpsController.getCurrentSettings();
 
@@ -600,7 +649,7 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
 
         const SizedBox(height: 16),
 
-        // Preset Modes Card
+        // Preset Modes Card - FIXED: Made RadioListTile widgets working
         Card(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -621,60 +670,80 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
                   ],
                 ),
               ),
-              RadioListTile<GPSAccuracy>(
-                title: const Text('Power-Saver'),
-                subtitle:
-                    Text('${gpsController.getBatteryUsageString()}, ~10 m CEP'),
-                value: GPSAccuracy.powerSaver,
-                groupValue: currentSettings.accuracy,
-                onChanged: (value) {
-                  if (value != null) {
-                    gpsController.updateSettings(
-                      currentSettings.copyWith(accuracy: value),
-                    );
-                  }
-                },
-              ),
-              RadioListTile<GPSAccuracy>(
-                title: const Text('Balanced'),
-                subtitle:
-                    Text('${gpsController.getBatteryUsageString()}, ~3 m CEP'),
-                value: GPSAccuracy.balanced,
-                groupValue: currentSettings.accuracy,
-                onChanged: (value) {
-                  if (value != null) {
-                    gpsController.updateSettings(
-                      currentSettings.copyWith(accuracy: value),
-                    );
-                  }
-                },
-              ),
-              RadioListTile<GPSAccuracy>(
-                title: const Text('High-Accuracy'),
-                subtitle: Text(
-                    '${gpsController.getBatteryUsageString()}, ~1-2 m CEP'),
-                value: GPSAccuracy.highAccuracy,
-                groupValue: currentSettings.accuracy,
-                onChanged: (value) {
-                  if (value != null) {
-                    gpsController.updateSettings(
-                      currentSettings.copyWith(accuracy: value),
-                    );
-                  }
-                },
-              ),
-              RadioListTile<GPSAccuracy>(
-                title: const Text('RTK'),
-                subtitle: Text(
-                    '${gpsController.getBatteryUsageString()}, < 0.5 m CEP'),
-                value: GPSAccuracy.rtk,
-                groupValue: currentSettings.accuracy,
-                onChanged: (value) {
-                  if (value != null) {
-                    gpsController.updateSettings(
-                      currentSettings.copyWith(accuracy: value),
-                    );
-                  }
+              Consumer(
+                builder: (context, ref, child) {
+                  // Get the current settings from the GPS settings provider to update UI on changes
+                  final settingsAsync = ref.watch(gpsSettingsProvider);
+                  return settingsAsync.when(
+                    data: (settings) {
+                      return Column(
+                        children: [
+                          RadioListTile<GPSAccuracy>(
+                            title: const Text('Power-Saver'),
+                            subtitle: Text(
+                                '${gpsController.getBatteryUsageString()}, ~10 m CEP'),
+                            value: GPSAccuracy.powerSaver,
+                            groupValue: settings.accuracy,
+                            onChanged: (value) {
+                              if (value != null) {
+                                gpsController.updateSettings(
+                                  settings.copyWith(accuracy: value),
+                                );
+                              }
+                            },
+                          ),
+                          RadioListTile<GPSAccuracy>(
+                            title: const Text('Balanced'),
+                            subtitle: Text(
+                                '${gpsController.getBatteryUsageString()}, ~3 m CEP'),
+                            value: GPSAccuracy.balanced,
+                            groupValue: settings.accuracy,
+                            onChanged: (value) {
+                              if (value != null) {
+                                gpsController.updateSettings(
+                                  settings.copyWith(accuracy: value),
+                                );
+                              }
+                            },
+                          ),
+                          RadioListTile<GPSAccuracy>(
+                            title: const Text('High-Accuracy'),
+                            subtitle: Text(
+                                '${gpsController.getBatteryUsageString()}, ~1-2 m CEP'),
+                            value: GPSAccuracy.highAccuracy,
+                            groupValue: settings.accuracy,
+                            onChanged: (value) {
+                              if (value != null) {
+                                gpsController.updateSettings(
+                                  settings.copyWith(accuracy: value),
+                                );
+                              }
+                            },
+                          ),
+                          RadioListTile<GPSAccuracy>(
+                            title: const Text('RTK'),
+                            subtitle: Text(
+                                '${gpsController.getBatteryUsageString()}, < 0.5 m CEP'),
+                            value: GPSAccuracy.rtk,
+                            groupValue: settings.accuracy,
+                            onChanged: (value) {
+                              if (value != null) {
+                                gpsController.updateSettings(
+                                  settings.copyWith(accuracy: value),
+                                );
+                              }
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                    loading: () => const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                    error: (_, __) => const Text(
+                      'Error loading GPS settings',
+                    ),
+                  );
                 },
               ),
             ],
@@ -704,53 +773,73 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
                   ],
                 ),
               ),
-              SwitchListTile(
-                title: const Text('Multi-frequency GNSS'),
-                subtitle: const Text('Uses both L1 and L5 bands'),
-                value: currentSettings.multiFrequency,
-                onChanged: (value) {
-                  gpsController.updateSettings(
-                    currentSettings.copyWith(multiFrequency: value),
-                  );
-                },
-              ),
-              SwitchListTile(
-                title: const Text('Raw GNSS Measurements'),
-                subtitle: const Text('For carrier-phase and RTK'),
-                value: currentSettings.rawMeasurements,
-                onChanged: (value) {
-                  gpsController.updateSettings(
-                    currentSettings.copyWith(rawMeasurements: value),
-                  );
-                },
-              ),
-              SwitchListTile(
-                title: const Text('Sensor Fusion'),
-                subtitle: const Text('Combines GPS with IMU sensors'),
-                value: currentSettings.sensorFusion,
-                onChanged: (value) {
-                  gpsController.updateSettings(
-                    currentSettings.copyWith(sensorFusion: value),
-                  );
-                },
-              ),
-              SwitchListTile(
-                title: const Text('RTK Corrections'),
-                subtitle: const Text('NTRIP correction streams'),
-                value: currentSettings.rtkCorrections,
-                onChanged: (value) {
-                  gpsController.updateSettings(
-                    currentSettings.copyWith(rtkCorrections: value),
-                  );
-                },
-              ),
-              SwitchListTile(
-                title: const Text('External GNSS Receiver'),
-                subtitle: const Text('Connect via Bluetooth'),
-                value: currentSettings.externalReceiver,
-                onChanged: (value) {
-                  gpsController.updateSettings(
-                    currentSettings.copyWith(externalReceiver: value),
+              // FIXED: Wrap the settings switches in a Consumer to update UI when settings change
+              Consumer(
+                builder: (context, ref, child) {
+                  final settingsAsync = ref.watch(gpsSettingsProvider);
+                  return settingsAsync.when(
+                    data: (settings) {
+                      return Column(
+                        children: [
+                          SwitchListTile(
+                            title: const Text('Multi-frequency GNSS'),
+                            subtitle: const Text('Uses both L1 and L5 bands'),
+                            value: settings.multiFrequency,
+                            onChanged: (value) {
+                              gpsController.updateSettings(
+                                settings.copyWith(multiFrequency: value),
+                              );
+                            },
+                          ),
+                          SwitchListTile(
+                            title: const Text('Raw GNSS Measurements'),
+                            subtitle: const Text('For carrier-phase and RTK'),
+                            value: settings.rawMeasurements,
+                            onChanged: (value) {
+                              gpsController.updateSettings(
+                                settings.copyWith(rawMeasurements: value),
+                              );
+                            },
+                          ),
+                          SwitchListTile(
+                            title: const Text('Sensor Fusion'),
+                            subtitle: const Text('Combines GPS with IMU sensors'),
+                            value: settings.sensorFusion,
+                            onChanged: (value) {
+                              gpsController.updateSettings(
+                                settings.copyWith(sensorFusion: value),
+                              );
+                            },
+                          ),
+                          SwitchListTile(
+                            title: const Text('RTK Corrections'),
+                            subtitle: const Text('NTRIP correction streams'),
+                            value: settings.rtkCorrections,
+                            onChanged: (value) {
+                              gpsController.updateSettings(
+                                settings.copyWith(rtkCorrections: value),
+                              );
+                            },
+                          ),
+                          SwitchListTile(
+                            title: const Text('External GNSS Receiver'),
+                            subtitle: const Text('Connect via Bluetooth'),
+                            value: settings.externalReceiver,
+                            onChanged: (value) {
+                              gpsController.updateSettings(
+                                settings.copyWith(externalReceiver: value),
+                              );
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                    loading: () => const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                    error: (_, __) => const Text(
+                      'Error loading GPS settings',
+                    ),
                   );
                 },
               ),
@@ -761,92 +850,98 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
         const SizedBox(height: 16),
 
         // Custom Trade-off Slider Card
-        gpsSettingsAsync.when(
-          data: (settings) {
-            double sliderValue = 0.5;
+        Consumer(
+          builder: (context, ref, child) {
+            final gpsSettingsAsync = ref.watch(gpsSettingsProvider);
+            
+            return gpsSettingsAsync.when(
+              data: (settings) {
+                double sliderValue = 0.5;
 
-            // Calculate slider value based on accuracy
-            switch (settings.accuracy) {
-              case GPSAccuracy.powerSaver:
-                sliderValue = 0.0;
-                break;
-              case GPSAccuracy.balanced:
-                sliderValue = 0.33;
-                break;
-              case GPSAccuracy.highAccuracy:
-                sliderValue = 0.67;
-                break;
-              case GPSAccuracy.rtk:
-                sliderValue = 1.0;
-                break;
-            }
+                // Calculate slider value based on accuracy
+                switch (settings.accuracy) {
+                  case GPSAccuracy.powerSaver:
+                    sliderValue = 0.0;
+                    break;
+                  case GPSAccuracy.balanced:
+                    sliderValue = 0.33;
+                    break;
+                  case GPSAccuracy.highAccuracy:
+                    sliderValue = 0.67;
+                    break;
+                  case GPSAccuracy.rtk:
+                    sliderValue = 1.0;
+                    break;
+                }
 
-            return Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Column(
+                return Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Custom Trade-off',
-                          style: Theme.of(context).textTheme.titleLarge,
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Custom Trade-off',
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                            Text(
+                              'Battery vs. Accuracy',
+                              style: TextStyle(color: Colors.grey[600]),
+                            ),
+                          ],
                         ),
-                        Text(
-                          'Battery vs. Accuracy',
-                          style: TextStyle(color: Colors.grey[600]),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            const Icon(Icons.battery_full),
+                            Expanded(
+                              child: Slider(
+                                value: sliderValue,
+                                onChanged: (value) {
+                                  GPSAccuracy accuracy;
+
+                                  if (value < 0.25) {
+                                    accuracy = GPSAccuracy.powerSaver;
+                                  } else if (value < 0.5) {
+                                    accuracy = GPSAccuracy.balanced;
+                                  } else if (value < 0.75) {
+                                    accuracy = GPSAccuracy.highAccuracy;
+                                  } else {
+                                    accuracy = GPSAccuracy.rtk;
+                                  }
+
+                                  gpsController.updateSettings(
+                                    settings.copyWith(accuracy: accuracy),
+                                  );
+                                },
+                              ),
+                            ),
+                            const Icon(Icons.gps_fixed),
+                          ],
                         ),
+                        Center(child: Text('${(sliderValue * 100).toInt()}%')),
                       ],
                     ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        const Icon(Icons.battery_full),
-                        Expanded(
-                          child: Slider(
-                            value: sliderValue,
-                            onChanged: (value) {
-                              GPSAccuracy accuracy;
-
-                              if (value < 0.25) {
-                                accuracy = GPSAccuracy.powerSaver;
-                              } else if (value < 0.5) {
-                                accuracy = GPSAccuracy.balanced;
-                              } else if (value < 0.75) {
-                                accuracy = GPSAccuracy.highAccuracy;
-                              } else {
-                                accuracy = GPSAccuracy.rtk;
-                              }
-
-                              gpsController.updateSettings(
-                                settings.copyWith(accuracy: accuracy),
-                              );
-                            },
-                          ),
-                        ),
-                        const Icon(Icons.gps_fixed),
-                      ],
-                    ),
-                    Center(child: Text('${(sliderValue * 100).toInt()}%')),
-                  ],
+                  ),
+                );
+              },
+              loading: () => const Card(
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+              ),
+              error: (error, stack) => Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text('Error: $error'),
                 ),
               ),
             );
           },
-          loading: () => const Card(
-            child: Padding(
-              padding: EdgeInsets.all(16),
-              child: Center(child: CircularProgressIndicator()),
-            ),
-          ),
-          error: (error, stack) => Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text('Error: $error'),
-            ),
-          ),
         ),
 
         const SizedBox(height: 16),
