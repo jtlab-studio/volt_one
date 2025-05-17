@@ -1,54 +1,57 @@
+// lib/shared/widgets/sensor_status_bar.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/ble_providers.dart';
+import '../../providers/gps_providers.dart';
 
-// Providers to track sensor connections
-final gpsConnectedProvider = StateProvider<bool>((ref) => false);
-final heartRateConnectedProvider = StateProvider<bool>((ref) => false);
-final strydConnectedProvider = StateProvider<bool>((ref) => false);
-
+/// Sensor status bar widget that displays connection status of sensors
 class SensorStatusBar extends ConsumerWidget {
   const SensorStatusBar({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isGpsConnected = ref.watch(gpsConnectedProvider);
-    final isHrmConnected = ref.watch(heartRateConnectedProvider);
-    final isStrydConnected = ref.watch(strydConnectedProvider);
+    final gpsConnected = ref.watch(gpsConnectedProvider);
+    final heartRateConnected = ref.watch(heartRateConnectedProvider);
+    final powerMeterConnected = ref.watch(powerMeterConnectedProvider);
 
-    // Use the same orange color as the start button
-    final orangeColor = const Color.fromRGBO(255, 152, 0, 1.0); // Colors.orange
+    // Use the same orange color as in the start_activity_screen.dart
+    final orangeColor = const Color.fromRGBO(255, 152, 0, 1.0);
     // Default color for disconnected sensors that matches the dark theme
-    final disconnectedColor =
-        const Color.fromRGBO(200, 200, 200, 0.7); // Gray with RGBA
+    final disconnectedColor = const Color.fromRGBO(200, 200, 200, 0.7);
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-      color: const Color.fromRGBO(
-          0, 0, 0, 0.35), // Using RGBA for semi-transparent black
+      color: const Color.fromRGBO(0, 0, 0, 0.35),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
+          // GPS indicator
           _buildIndicator(
             context,
             'GPS',
-            isGpsConnected,
+            gpsConnected,
             Icons.location_on,
             connectedColor: orangeColor,
             disconnectedColor: disconnectedColor,
           ),
+
+          // HRM indicator
           _buildIndicator(
             context,
             'HRM',
-            isHrmConnected,
+            heartRateConnected,
             Icons.favorite,
             connectedColor: orangeColor,
             disconnectedColor: disconnectedColor,
           ),
+
+          // Power meter indicator
           _buildIndicator(
             context,
             'STRYD',
-            isStrydConnected,
-            Icons.directions_run,
+            powerMeterConnected,
+            Icons.flash_on,
             connectedColor: orangeColor,
             disconnectedColor: disconnectedColor,
           ),
@@ -60,99 +63,8 @@ class SensorStatusBar extends ConsumerWidget {
   Widget _buildIndicator(
       BuildContext context, String label, bool isConnected, IconData icon,
       {required Color connectedColor, required Color disconnectedColor}) {
-    return Row(
-      children: [
-        Icon(
-          icon,
-          size: 16,
-          color: isConnected ? connectedColor : disconnectedColor,
-        ),
-        const SizedBox(width: 4),
-        Text(
-          label,
-          style: TextStyle(
-            color: isConnected ? connectedColor : disconnectedColor,
-            fontWeight: isConnected ? FontWeight.bold : FontWeight.normal,
-            fontSize: 12,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// For demonstration purposes, let's add a demo version with toggleable connections
-class SensorStatusBarDemo extends ConsumerWidget {
-  const SensorStatusBarDemo({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final isGpsConnected = ref.watch(gpsConnectedProvider);
-    final isHrmConnected = ref.watch(heartRateConnectedProvider);
-    final isStrydConnected = ref.watch(strydConnectedProvider);
-
-    // Use the same orange color as the start button
-    final orangeColor = const Color.fromRGBO(255, 152, 0, 1.0); // Colors.orange
-    // Default color for disconnected sensors that matches the dark theme
-    final disconnectedColor =
-        const Color.fromRGBO(200, 200, 200, 0.7); // Gray with RGBA
-
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-      color: const Color.fromRGBO(
-          0, 0, 0, 0.35), // Using RGBA for semi-transparent black
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildToggleableIndicator(
-            context,
-            ref,
-            'GPS',
-            isGpsConnected,
-            Icons.location_on,
-            gpsConnectedProvider,
-            connectedColor: orangeColor,
-            disconnectedColor: disconnectedColor,
-          ),
-          _buildToggleableIndicator(
-            context,
-            ref,
-            'HRM',
-            isHrmConnected,
-            Icons.favorite,
-            heartRateConnectedProvider,
-            connectedColor: orangeColor,
-            disconnectedColor: disconnectedColor,
-          ),
-          _buildToggleableIndicator(
-            context,
-            ref,
-            'STRYD',
-            isStrydConnected,
-            Icons.directions_run,
-            strydConnectedProvider,
-            connectedColor: orangeColor,
-            disconnectedColor: disconnectedColor,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildToggleableIndicator(
-      BuildContext context,
-      WidgetRef ref,
-      String label,
-      bool isConnected,
-      IconData icon,
-      StateProvider<bool> provider,
-      {required Color connectedColor,
-      required Color disconnectedColor}) {
-    return InkWell(
-      onTap: () {
-        // Toggle connection state
-        ref.read(provider.notifier).state = !isConnected;
-      },
+    return Tooltip(
+      message: isConnected ? '$label connected' : '$label not connected',
       child: Row(
         children: [
           Icon(
@@ -171,6 +83,84 @@ class SensorStatusBarDemo extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Legacy demo version with toggleable connections - can be removed in production
+class SensorStatusBarDemo extends ConsumerWidget {
+  const SensorStatusBarDemo({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // These providers should be replaced with the real connection status
+    final isGpsConnected = ref.watch(gpsConnectedProvider);
+    final isHrmConnected = ref.watch(heartRateConnectedProvider);
+    final isStrydConnected = ref.watch(powerMeterConnectedProvider);
+
+    // Use the same orange color as the start button
+    final orangeColor = const Color.fromRGBO(255, 152, 0, 1.0);
+    // Default color for disconnected sensors that matches the dark theme
+    final disconnectedColor = const Color.fromRGBO(200, 200, 200, 0.7);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+      color: const Color.fromRGBO(0, 0, 0, 0.35),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _buildToggleableIndicator(
+            context,
+            ref,
+            'GPS',
+            isGpsConnected,
+            Icons.location_on,
+            connectedColor: orangeColor,
+            disconnectedColor: disconnectedColor,
+          ),
+          _buildToggleableIndicator(
+            context,
+            ref,
+            'HRM',
+            isHrmConnected,
+            Icons.favorite,
+            connectedColor: orangeColor,
+            disconnectedColor: disconnectedColor,
+          ),
+          _buildToggleableIndicator(
+            context,
+            ref,
+            'STRYD',
+            isStrydConnected,
+            Icons.flash_on,
+            connectedColor: orangeColor,
+            disconnectedColor: disconnectedColor,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildToggleableIndicator(BuildContext context, WidgetRef ref,
+      String label, bool isConnected, IconData icon,
+      {required Color connectedColor, required Color disconnectedColor}) {
+    return Row(
+      children: [
+        Icon(
+          icon,
+          size: 16,
+          color: isConnected ? connectedColor : disconnectedColor,
+        ),
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: TextStyle(
+            color: isConnected ? connectedColor : disconnectedColor,
+            fontWeight: isConnected ? FontWeight.bold : FontWeight.normal,
+            fontSize: 12,
+          ),
+        ),
+      ],
     );
   }
 }

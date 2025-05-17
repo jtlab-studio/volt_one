@@ -17,6 +17,8 @@ dependencies:
   # State Management
   flutter_riverpod: ^2.6.0
   riverpod_annotation: ^2.4.0
+  provider: ^6.0.5
+
   
   # Navigation
   auto_route: ^10.0.1

@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/app_localizations.dart';
-// The theme toggle button import has been removed
+import '../../../core/theme/app_colors.dart';
+import '../../../models/ble_device.dart';
+import '../../../providers/ble_providers.dart';
+import '../../../providers/gps_providers.dart';
+import '../../../services/gps_service.dart';
+import '../../../shared/widgets/sensor_status_bar.dart';
 
 class SensorsScreen extends ConsumerStatefulWidget {
   const SensorsScreen({super.key});
@@ -13,11 +18,28 @@ class SensorsScreen extends ConsumerStatefulWidget {
 class _SensorsScreenState extends ConsumerState<SensorsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  bool _isInitialized = false;
+  bool _showConnectedOnly = false;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+
+    // Initialize BLE and GPS services
+    _initializeServices();
+  }
+
+  Future<void> _initializeServices() async {
+    final bleController = ref.read(bleControllerProvider);
+    final gpsController = ref.read(gpsControllerProvider);
+
+    await bleController.initialize();
+    await gpsController.initialize();
+
+    setState(() {
+      _isInitialized = true;
+    });
   }
 
   @override
@@ -40,7 +62,6 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
             Tab(text: localizations.translate('gps')),
           ],
         ),
-        // Theme toggle button removed from actions
       ),
       body: TabBarView(
         controller: _tabController,
@@ -51,65 +72,533 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
       ),
       floatingActionButton: _tabController.index == 0
           ? FloatingActionButton(
-              onPressed: () {
-                // Scan for devices
-              },
-              child: const Icon(Icons.bluetooth_searching),
+              onPressed: _isInitialized ? () => _startOrStopScanning() : null,
+              child: _buildScanButtonIcon(),
             )
           : null,
     );
   }
 
+  Widget _buildScanButtonIcon() {
+    final scanningState = ref.watch(scanningStateProvider);
+
+    return scanningState.when(
+      data: (isScanning) => isScanning
+          ? const Stack(
+              alignment: Alignment.center,
+              children: [
+                Icon(Icons.bluetooth_searching),
+                SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                ),
+              ],
+            )
+          : const Icon(Icons.bluetooth_searching),
+      loading: () => const Icon(Icons.bluetooth_searching),
+      error: (_, __) => const Icon(Icons.bluetooth_disabled),
+    );
+  }
+
+  void _startOrStopScanning() {
+    final bleController = ref.read(bleControllerProvider);
+    final scanningState = ref.watch(scanningStateProvider);
+
+    scanningState.whenData((isScanning) {
+      if (isScanning) {
+        bleController.stopScan();
+      } else {
+        bleController.startScan();
+      }
+    });
+  }
+
   Widget _buildBluetoothTab(AppLocalizations localizations) {
+    final discoveredDevicesAsync = ref.watch(discoveredDevicesProvider);
+    final savedDevices = ref.watch(savedDevicesProvider);
+
     return Stack(
       children: [
-        // Empty state
-        Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.bluetooth, size: 64, color: Colors.grey),
-              const SizedBox(height: 16),
-              Text(
-                localizations.translate('no_devices_found'),
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                localizations.translate('scan_for_devices'),
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey[600]),
-              ),
-            ],
-          ),
-        ),
+        // Devices list or empty state
+        Column(
+          children: [
+            if (savedDevices.isNotEmpty)
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Filter toggle
+                    Row(
+                      children: [
+                        Switch(
+                          value: _showConnectedOnly,
+                          onChanged: (value) {
+                            setState(() {
+                              _showConnectedOnly = value;
+                            });
+                          },
+                        ),
+                        Text(localizations.translate('connected_devices')),
+                      ],
+                    ),
 
-        // "Connect All Saved" button at the top
-        Positioned(
-          top: 16,
-          left: 16,
-          right: 16,
-          child: ElevatedButton.icon(
-            icon: const Icon(Icons.bluetooth_connected),
-            label: Text(localizations.translate('connect_all_saved')),
-            onPressed: () {
-              // Connect to all saved devices
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor:
-                  const Color.fromRGBO(76, 175, 80, 1.0), // AppColors.success
-              foregroundColor: Colors.white,
+                    // Connect all button
+                    TextButton.icon(
+                      icon: const Icon(Icons.bluetooth_connected),
+                      label: Text(localizations.translate('connect_all_saved')),
+                      onPressed: () {
+                        final bleController = ref.read(bleControllerProvider);
+                        bleController.connectToAllSavedDevices();
+                      },
+                    ),
+                  ],
+                ),
+              ),
+
+            // Device list content
+            Expanded(
+              child: discoveredDevicesAsync.when(
+                data: (devices) {
+                  if (devices.isEmpty) {
+                    return _buildEmptyDevicesState(localizations);
+                  } else {
+                    // Filter devices if needed
+                    final filteredDevices = _showConnectedOnly
+                        ? devices.where((d) => d.connected).toList()
+                        : devices;
+
+                    if (filteredDevices.isEmpty) {
+                      return Center(
+                        child:
+                            Text(localizations.translate('no_devices_found')),
+                      );
+                    }
+
+                    return _buildDevicesList(filteredDevices, localizations);
+                  }
+                },
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (error, stack) => Center(
+                  child: Text('Error: $error'),
+                ),
+              ),
             ),
-          ),
+          ],
         ),
       ],
     );
   }
 
+  Widget _buildEmptyDevicesState(AppLocalizations localizations) {
+    final scanningState = ref.watch(scanningStateProvider);
+    final isScanning = scanningState.valueOrNull ?? false;
+
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.bluetooth, size: 64, color: Colors.grey),
+          const SizedBox(height: 16),
+          Text(
+            localizations.translate('no_devices_found'),
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Text(
+              localizations.translate('scan_for_devices'),
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+          ),
+          const SizedBox(height: 32),
+          if (!isScanning)
+            ElevatedButton.icon(
+              icon: const Icon(Icons.bluetooth_searching),
+              label: Text(localizations.translate('start_scan')),
+              onPressed: () {
+                final bleController = ref.read(bleControllerProvider);
+                bleController.startScan();
+              },
+            )
+          else
+            const CircularProgressIndicator(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDevicesList(
+      List<BleDevice> devices, AppLocalizations localizations) {
+    // Sort devices: Connected first, then saved, then by RSSI
+    final sortedDevices = [...devices];
+    sortedDevices.sort((a, b) {
+      // Connected devices first
+      if (a.connected && !b.connected) return -1;
+      if (!a.connected && b.connected) return 1;
+
+      // Then saved devices
+      if (a.isSaved && !b.isSaved) return -1;
+      if (!a.isSaved && b.isSaved) return 1;
+
+      // Then by RSSI (higher signal strength first)
+      return b.rssi.compareTo(a.rssi);
+    });
+
+    return ListView.builder(
+      padding: const EdgeInsets.only(bottom: 80), // Space for the FAB
+      itemCount: sortedDevices.length,
+      itemBuilder: (context, index) {
+        final device = sortedDevices[index];
+        return _buildDeviceListItem(device, localizations);
+      },
+    );
+  }
+
+  Widget _buildDeviceListItem(
+      BleDevice device, AppLocalizations localizations) {
+    final bleController = ref.read(bleControllerProvider);
+    final theme = Theme.of(context);
+
+    // Get icon based on device type
+    IconData typeIcon;
+    switch (device.type) {
+      case BleDevice.TYPE_HEART_RATE:
+        typeIcon = Icons.favorite;
+        break;
+      case BleDevice.TYPE_POWER:
+        typeIcon = Icons.flash_on;
+        break;
+      case BleDevice.TYPE_CADENCE:
+        typeIcon = Icons.speed;
+        break;
+      case BleDevice.TYPE_COMBINED:
+        typeIcon = Icons.sensors;
+        break;
+      default:
+        typeIcon = Icons.bluetooth;
+    }
+
+    // Signal strength icon
+    Widget signalIcon;
+    if (device.rssi > -60) {
+      signalIcon = const Icon(Icons.signal_cellular_4_bar, size: 16);
+    } else if (device.rssi > -70) {
+      signalIcon = const Icon(Icons.signal_cellular_3_bar, size: 16);
+    } else if (device.rssi > -80) {
+      signalIcon = const Icon(Icons.signal_cellular_2_bar, size: 16);
+    } else {
+      signalIcon = const Icon(Icons.signal_cellular_1_bar, size: 16);
+    }
+
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: ListTile(
+        leading: Icon(
+          typeIcon,
+          color: device.connected ? theme.primaryColor : theme.disabledColor,
+          size: 28,
+        ),
+        title: Text(
+          device.name.isNotEmpty ? device.name : 'Unknown Device',
+          style: TextStyle(
+            fontWeight: device.connected || device.isSaved
+                ? FontWeight.bold
+                : FontWeight.normal,
+          ),
+        ),
+        subtitle: Row(
+          children: [
+            signalIcon,
+            const SizedBox(width: 4),
+            Text('${device.rssi} dBm'),
+            const SizedBox(width: 8),
+            if (device.isSaved)
+              Chip(
+                label: Text(
+                  localizations.translate('saved'),
+                  style: const TextStyle(fontSize: 10),
+                ),
+                padding: EdgeInsets.zero,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                visualDensity: VisualDensity.compact,
+                backgroundColor: theme.colorScheme.primaryContainer,
+              ),
+          ],
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Save/Unsave button
+            IconButton(
+              icon: Icon(
+                device.isSaved ? Icons.star : Icons.star_border,
+                color: device.isSaved ? Colors.amber : null,
+              ),
+              onPressed: () {
+                if (device.isSaved) {
+                  bleController.removeSavedDevice(device.id);
+                } else {
+                  bleController.saveDevice(device.id);
+                }
+              },
+            ),
+
+            // Connect/Disconnect button
+            IconButton(
+              icon: Icon(
+                device.connected ? Icons.bluetooth_connected : Icons.bluetooth,
+                color: device.connected ? theme.primaryColor : null,
+              ),
+              onPressed: () {
+                if (device.connected) {
+                  bleController.disconnectFromDevice(device.id);
+                } else {
+                  bleController.connectToDevice(device.id);
+                }
+              },
+            ),
+          ],
+        ),
+        onTap: () {
+          _showDeviceDetails(device, localizations);
+        },
+      ),
+    );
+  }
+
+  void _showDeviceDetails(BleDevice device, AppLocalizations localizations) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                device.name,
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 8),
+              Text('ID: ${device.id}'),
+              Text('Type: ${_getDeviceTypeString(device.type, localizations)}'),
+              Text('RSSI: ${device.rssi} dBm'),
+              Text(
+                  'Status: ${device.connected ? localizations.translate('connected') : localizations.translate('disconnected')}'),
+              if (device.lastConnected != null)
+                Text(
+                    'Last Connected: ${_formatDateTime(device.lastConnected!)}'),
+              const SizedBox(height: 16),
+              if (device.services.isNotEmpty) ...[
+                Text(
+                  'Services:',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  height: 100,
+                  child: ListView(
+                    children: device.services
+                        .map((service) => Text('• $service'))
+                        .toList(),
+                  ),
+                ),
+              ],
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton.icon(
+                    icon: Icon(
+                      device.isSaved ? Icons.star : Icons.star_border,
+                    ),
+                    label: Text(
+                      device.isSaved
+                          ? localizations.translate('remove_saved')
+                          : localizations.translate('save_device'),
+                    ),
+                    onPressed: () {
+                      final bleController = ref.read(bleControllerProvider);
+                      if (device.isSaved) {
+                        bleController.removeSavedDevice(device.id);
+                      } else {
+                        bleController.saveDevice(device.id);
+                      }
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ElevatedButton.icon(
+                    icon: Icon(
+                      device.connected
+                          ? Icons.bluetooth_disabled
+                          : Icons.bluetooth_connected,
+                    ),
+                    label: Text(
+                      device.connected
+                          ? localizations.translate('disconnect')
+                          : localizations.translate('connect'),
+                    ),
+                    onPressed: () {
+                      final bleController = ref.read(bleControllerProvider);
+                      if (device.connected) {
+                        bleController.disconnectFromDevice(device.id);
+                      } else {
+                        bleController.connectToDevice(device.id);
+                      }
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  String _getDeviceTypeString(String type, AppLocalizations localizations) {
+    switch (type) {
+      case BleDevice.TYPE_HEART_RATE:
+        return localizations.translate('heart_rate');
+      case BleDevice.TYPE_POWER:
+        return localizations.translate('power');
+      case BleDevice.TYPE_CADENCE:
+        return localizations.translate('cadence');
+      case BleDevice.TYPE_COMBINED:
+        return "Combined";
+      default:
+        return "Unknown";
+    }
+  }
+
+  String _formatDateTime(DateTime dateTime) {
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+
+    if (difference.inDays > 0) {
+      return '${difference.inDays} days ago';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours} hours ago';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes} minutes ago';
+    } else {
+      return 'Just now';
+    }
+  }
+
   Widget _buildGpsTab(AppLocalizations localizations) {
+    final gpsStatusAsync = ref.watch(gpsStatusProvider);
+    final gpsSettingsAsync = ref.watch(gpsSettingsProvider);
+    final gpsController = ref.read(gpsControllerProvider);
+    final currentSettings = gpsController.getCurrentSettings();
+
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        // GPS status card
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  localizations.translate('gps_status'),
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 8),
+                gpsStatusAsync.when(
+                  data: (status) {
+                    Color statusColor;
+                    String statusText;
+
+                    switch (status) {
+                      case GPSStatus.disabled:
+                        statusColor = Colors.red;
+                        statusText = "GPS Disabled";
+                        break;
+                      case GPSStatus.noPermission:
+                        statusColor = Colors.red;
+                        statusText = "No Permission";
+                        break;
+                      case GPSStatus.initializing:
+                        statusColor = Colors.orange;
+                        statusText = localizations.translate('initializing');
+                        break;
+                      case GPSStatus.enabled:
+                        statusColor = Colors.green;
+                        statusText = "GPS Ready";
+                        break;
+                      case GPSStatus.active:
+                        statusColor = Colors.green;
+                        statusText = "GPS Active";
+                        break;
+                    }
+
+                    return Row(
+                      children: [
+                        Icon(Icons.gps_fixed, color: statusColor),
+                        const SizedBox(width: 8),
+                        Text(
+                          statusText,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: statusColor,
+                          ),
+                        ),
+                        const Spacer(),
+                        if (status == GPSStatus.disabled)
+                          ElevatedButton(
+                            onPressed: () {
+                              Geolocator.openLocationSettings();
+                            },
+                            child: const Text("Enable GPS"),
+                          )
+                        else if (status == GPSStatus.noPermission)
+                          ElevatedButton(
+                            onPressed: () {
+                              Geolocator.requestPermission();
+                            },
+                            child: const Text("Grant Permission"),
+                          )
+                        else if (status == GPSStatus.enabled)
+                          ElevatedButton(
+                            onPressed: () {
+                              gpsController.startTracking();
+                            },
+                            child: const Text("Start Tracking"),
+                          )
+                        else if (status == GPSStatus.active)
+                          ElevatedButton(
+                            onPressed: () {
+                              gpsController.stopTracking();
+                            },
+                            child: const Text("Stop Tracking"),
+                          ),
+                      ],
+                    );
+                  },
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (error, stack) => Text('Error: $error'),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 16),
+
         // Preset Modes Card
         Card(
           child: Column(
@@ -131,33 +620,61 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
                   ],
                 ),
               ),
-              const RadioListTile(
-                title: Text('Power-Saver'),
-                subtitle: Text('≈ 50 mW, ~10 m CEP'),
-                value: 'power_saver',
-                groupValue: 'balanced',
-                onChanged: null,
+              RadioListTile<GPSAccuracy>(
+                title: const Text('Power-Saver'),
+                subtitle:
+                    Text('${gpsController.getBatteryUsageString()}, ~10 m CEP'),
+                value: GPSAccuracy.powerSaver,
+                groupValue: currentSettings.accuracy,
+                onChanged: (value) {
+                  if (value != null) {
+                    gpsController.updateSettings(
+                      currentSettings.copyWith(accuracy: value),
+                    );
+                  }
+                },
               ),
-              const RadioListTile(
-                title: Text('Balanced'),
-                subtitle: Text('≈ 410 mW, ~3 m CEP'),
-                value: 'balanced',
-                groupValue: 'balanced',
-                onChanged: null,
+              RadioListTile<GPSAccuracy>(
+                title: const Text('Balanced'),
+                subtitle:
+                    Text('${gpsController.getBatteryUsageString()}, ~3 m CEP'),
+                value: GPSAccuracy.balanced,
+                groupValue: currentSettings.accuracy,
+                onChanged: (value) {
+                  if (value != null) {
+                    gpsController.updateSettings(
+                      currentSettings.copyWith(accuracy: value),
+                    );
+                  }
+                },
               ),
-              const RadioListTile(
-                title: Text('High-Accuracy'),
-                subtitle: Text('≈ 2.2 W, ~1-2 m CEP'),
-                value: 'high_accuracy',
-                groupValue: 'balanced',
-                onChanged: null,
+              RadioListTile<GPSAccuracy>(
+                title: const Text('High-Accuracy'),
+                subtitle: Text(
+                    '${gpsController.getBatteryUsageString()}, ~1-2 m CEP'),
+                value: GPSAccuracy.highAccuracy,
+                groupValue: currentSettings.accuracy,
+                onChanged: (value) {
+                  if (value != null) {
+                    gpsController.updateSettings(
+                      currentSettings.copyWith(accuracy: value),
+                    );
+                  }
+                },
               ),
-              const RadioListTile(
-                title: Text('RTK'),
-                subtitle: Text('> 3 W, < 0.5 m CEP'),
-                value: 'rtk',
-                groupValue: 'balanced',
-                onChanged: null,
+              RadioListTile<GPSAccuracy>(
+                title: const Text('RTK'),
+                subtitle: Text(
+                    '${gpsController.getBatteryUsageString()}, < 0.5 m CEP'),
+                value: GPSAccuracy.rtk,
+                groupValue: currentSettings.accuracy,
+                onChanged: (value) {
+                  if (value != null) {
+                    gpsController.updateSettings(
+                      currentSettings.copyWith(accuracy: value),
+                    );
+                  }
+                },
               ),
             ],
           ),
@@ -189,32 +706,52 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
               SwitchListTile(
                 title: const Text('Multi-frequency GNSS'),
                 subtitle: const Text('Uses both L1 and L5 bands'),
-                value: true,
-                onChanged: (value) {},
+                value: currentSettings.multiFrequency,
+                onChanged: (value) {
+                  gpsController.updateSettings(
+                    currentSettings.copyWith(multiFrequency: value),
+                  );
+                },
               ),
               SwitchListTile(
                 title: const Text('Raw GNSS Measurements'),
                 subtitle: const Text('For carrier-phase and RTK'),
-                value: false,
-                onChanged: (value) {},
+                value: currentSettings.rawMeasurements,
+                onChanged: (value) {
+                  gpsController.updateSettings(
+                    currentSettings.copyWith(rawMeasurements: value),
+                  );
+                },
               ),
               SwitchListTile(
                 title: const Text('Sensor Fusion'),
                 subtitle: const Text('Combines GPS with IMU sensors'),
-                value: true,
-                onChanged: (value) {},
+                value: currentSettings.sensorFusion,
+                onChanged: (value) {
+                  gpsController.updateSettings(
+                    currentSettings.copyWith(sensorFusion: value),
+                  );
+                },
               ),
               SwitchListTile(
                 title: const Text('RTK Corrections'),
                 subtitle: const Text('NTRIP correction streams'),
-                value: false,
-                onChanged: (value) {},
+                value: currentSettings.rtkCorrections,
+                onChanged: (value) {
+                  gpsController.updateSettings(
+                    currentSettings.copyWith(rtkCorrections: value),
+                  );
+                },
               ),
               SwitchListTile(
                 title: const Text('External GNSS Receiver'),
                 subtitle: const Text('Connect via Bluetooth'),
-                value: false,
-                onChanged: (value) {},
+                value: currentSettings.externalReceiver,
+                onChanged: (value) {
+                  gpsController.updateSettings(
+                    currentSettings.copyWith(externalReceiver: value),
+                  );
+                },
               ),
             ],
           ),
@@ -223,40 +760,90 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
         const SizedBox(height: 16),
 
         // Custom Trade-off Slider Card
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Column(
+        gpsSettingsAsync.when(
+          data: (settings) {
+            double sliderValue = 0.5;
+
+            // Calculate slider value based on accuracy
+            switch (settings.accuracy) {
+              case GPSAccuracy.powerSaver:
+                sliderValue = 0.0;
+                break;
+              case GPSAccuracy.balanced:
+                sliderValue = 0.33;
+                break;
+              case GPSAccuracy.highAccuracy:
+                sliderValue = 0.67;
+                break;
+              case GPSAccuracy.rtk:
+                sliderValue = 1.0;
+                break;
+            }
+
+            return Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Custom Trade-off',
-                      style: Theme.of(context).textTheme.titleLarge,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Custom Trade-off',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        Text(
+                          'Battery vs. Accuracy',
+                          style: TextStyle(color: Colors.grey[600]),
+                        ),
+                      ],
                     ),
-                    Text(
-                      'Battery vs. Accuracy',
-                      style: TextStyle(color: Colors.grey[600]),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        const Icon(Icons.battery_full),
+                        Expanded(
+                          child: Slider(
+                            value: sliderValue,
+                            onChanged: (value) {
+                              GPSAccuracy accuracy;
+
+                              if (value < 0.25) {
+                                accuracy = GPSAccuracy.powerSaver;
+                              } else if (value < 0.5) {
+                                accuracy = GPSAccuracy.balanced;
+                              } else if (value < 0.75) {
+                                accuracy = GPSAccuracy.highAccuracy;
+                              } else {
+                                accuracy = GPSAccuracy.rtk;
+                              }
+
+                              gpsController.updateSettings(
+                                settings.copyWith(accuracy: accuracy),
+                              );
+                            },
+                          ),
+                        ),
+                        const Icon(Icons.gps_fixed),
+                      ],
                     ),
+                    Center(child: Text('${(sliderValue * 100).toInt()}%')),
                   ],
                 ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    const Icon(Icons.battery_full),
-                    Expanded(
-                      child: Slider(
-                        value: 0.5,
-                        onChanged: (value) {},
-                      ),
-                    ),
-                    const Icon(Icons.gps_fixed),
-                  ],
-                ),
-                const Center(child: Text('50%')),
-              ],
+              ),
+            );
+          },
+          loading: () => const Card(
+            child: Padding(
+              padding: EdgeInsets.all(16),
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          ),
+          error: (error, stack) => Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text('Error: $error'),
             ),
           ),
         ),
@@ -278,7 +865,65 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        // Show loading dialog
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) => const AlertDialog(
+                            title: Text('Running GPS Test'),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                CircularProgressIndicator(),
+                                SizedBox(height: 16),
+                                Text('Testing for 30 seconds...'),
+                              ],
+                            ),
+                          ),
+                        );
+
+                        // Run test
+                        final results = await gpsController.runFieldTest();
+
+                        // Close loading dialog
+                        if (mounted) {
+                          Navigator.pop(context);
+
+                          // Show results
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('GPS Test Results'),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (results['success'] == true) ...[
+                                    Text(
+                                        'Positions collected: ${results['positions']}'),
+                                    Text(
+                                        'Average accuracy: ${results['avgAccuracy'].toStringAsFixed(2)} m'),
+                                    Text(
+                                        'Best accuracy: ${results['minAccuracy'].toStringAsFixed(2)} m'),
+                                    Text(
+                                        'Worst accuracy: ${results['maxAccuracy'].toStringAsFixed(2)} m'),
+                                    Text(
+                                        'Test duration: ${results['time']} seconds'),
+                                  ] else
+                                    Text('Error: ${results['error']}'),
+                                ],
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: Text(localizations.translate('close')),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+                      },
                       child: const Text('Run Test'),
                     ),
                   ],
