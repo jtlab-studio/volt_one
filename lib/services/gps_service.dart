@@ -1,7 +1,5 @@
-// lib/services/gps_service.dart
-
 import 'dart:async';
-import 'package:flutter/material.dart';
+// FIXED: Removed unnecessary import of 'package:flutter/material.dart'
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';

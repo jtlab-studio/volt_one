@@ -1,5 +1,3 @@
-// lib/services/ble_service.dart
-
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -83,15 +81,7 @@ class BleService {
     // Listen for connection state changes
     // FIXED: Use proper API for connection state monitoring
     // Instead of FlutterBluePlus.connectionStateChanges, we use a different approach
-    FlutterBluePlus.connectedDevices.then((devices) {
-      for (var device in devices) {
-        // Set up a listener for each device's connection state
-        device.state.listen((state) {
-          _updateDeviceConnectionState(
-              device, state == BluetoothDeviceState.connected);
-        });
-      }
-    });
+    _setupConnectionListeners();
 
     // Listen for scan results
     FlutterBluePlus.scanResults.listen((results) {
@@ -125,6 +115,7 @@ class BleService {
   /// Check for any already connected devices
   Future<void> _updateConnectedDevicesStatus() async {
     try {
+      // FIXED: Changed from await to direct assignment - FlutterBluePlus.connectedDevices is not a Future
       final devices = FlutterBluePlus.connectedDevices;
       for (var device in devices) {
         _connectedDevices[device.remoteId.str] = device;
@@ -132,6 +123,23 @@ class BleService {
       }
     } catch (e) {
       debugPrint('Error getting connected devices: $e');
+    }
+  }
+
+  /// Setup listeners for connection state changes
+  void _setupConnectionListeners() {
+    try {
+      // FIXED: Changed from await to direct assignment - FlutterBluePlus.connectedDevices is not a Future
+      final devices = FlutterBluePlus.connectedDevices;
+      for (var device in devices) {
+        // Set up a listener for each device's connection state
+        device.connectionState.listen((state) {
+          _updateDeviceConnectionState(
+              device, state == BluetoothConnectionState.connected);
+        });
+      }
+    } catch (e) {
+      debugPrint('Error setting up connection listeners: $e');
     }
   }
 
@@ -205,29 +213,10 @@ class BleService {
 
       // Find or create BluetoothDevice
       BluetoothDevice? bleDevice;
-      if (_connectedDevices.containsKey(deviceId)) {
-        bleDevice = _connectedDevices[deviceId];
-      } else {
-        // Find device by ID from discovered devices
-        try {
-          final scanResults = await FlutterBluePlus.scanResults.first;
-          for (final scanResult in scanResults) {
-            if (scanResult.device.remoteId.str == deviceId) {
-              bleDevice = scanResult.device;
-              break;
-            }
-          }
-        } catch (e) {
-          debugPrint('Error finding device by ID: $e');
-        }
 
-        // If device not found in scan results, create it from ID
-        if (bleDevice == null) {
-          // FIXED: Remove unused 'id' variable
-          // Create device from ID correctly using BluetoothDevice constructor
-          bleDevice = BluetoothDevice.fromId(deviceId);
-        }
-      }
+      // FIXED: Simplified the if-else to use null-aware assignment
+      bleDevice =
+          _connectedDevices[deviceId] ?? await _findDeviceById(deviceId);
 
       if (bleDevice == null) return false;
 
@@ -273,6 +262,25 @@ class BleService {
     } catch (e) {
       debugPrint('Error connecting to device: $e');
       return false;
+    }
+  }
+
+  /// Find device by ID from scan results or create it
+  Future<BluetoothDevice?> _findDeviceById(String deviceId) async {
+    try {
+      // Find device by ID from discovered devices
+      final scanResults = await FlutterBluePlus.scanResults.first;
+      for (final scanResult in scanResults) {
+        if (scanResult.device.remoteId.str == deviceId) {
+          return scanResult.device;
+        }
+      }
+
+      // If device not found in scan results, create it from ID
+      return BluetoothDevice.fromId(deviceId);
+    } catch (e) {
+      debugPrint('Error finding device by ID: $e');
+      return null;
     }
   }
 

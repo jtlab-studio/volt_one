@@ -1,4 +1,4 @@
-// lib/modules/home/screens/main_dashboard_screen.dart
+// Updated main_dashboard_screen.dart without profile references
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,18 +8,12 @@ import '../../../shared/widgets/global_burger_menu.dart';
 import '../../../shared/widgets/bottom_navigation_helper.dart';
 import '../../../core/theme/theme_provider.dart';
 import '../../activity/activity_hub_screen.dart';
-import '../../profile/profile_screen.dart';
 import '../../routes/routes_screen.dart';
 import '../../tribe/tribe_screen.dart';
 import '../../activity/screens/start_activity_screen.dart';
 import '../../activity/screens/activity_history_screen.dart';
 import '../../activity/screens/activity_settings_screen.dart';
 import '../../activity/screens/sensors_screen.dart';
-import '../../profile/screens/hr_zones_screen.dart';
-import '../../profile/screens/power_zones_screen.dart' as power_zones;
-import '../../profile/screens/pace_zones_screen.dart' as pace_zones;
-import '../../profile/screens/user_info_screen.dart';
-import '../../profile/screens/app_settings_screen.dart';
 
 // Main tab index provider
 final mainTabIndexProvider = StateProvider<int>((ref) => 0);
@@ -35,9 +29,6 @@ final inTribeHubProvider = StateProvider<bool>((ref) => false);
 
 // Provider to track the current activity section
 final activitySectionProvider = StateProvider<String>((ref) => 'new_activity');
-
-// Provider to track the current profile section
-final profileSectionProvider = StateProvider<String>((ref) => 'user_info');
 
 // Provider to track the current routes section
 final routesSectionProvider = StateProvider<String>((ref) => 'my_routes');
@@ -132,18 +123,6 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
         ref.read(tribeSectionProvider.notifier).state = routeId;
         break;
 
-      // Profile Hub navigation
-      case 'user_info':
-      case 'hr_zones':
-      case 'power_zones':
-      case 'pace_zones':
-      case 'app_settings':
-        // Switch to Profile tab (index 4) in main view
-        ref.read(mainTabIndexProvider.notifier).state = 4;
-        // Set the specific section in Profile
-        ref.read(profileSectionProvider.notifier).state = routeId;
-        break;
-
       // Main tab navigation
       case 'activity':
         // Switch to Activity Hub
@@ -164,11 +143,6 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
         ref.read(mainTabIndexProvider.notifier).state = 3;
         // Enter Tribe Hub
         ref.read(inTribeHubProvider.notifier).state = true;
-        break;
-
-      case 'profile':
-        // Switch to Profile tab (index 4) in main view
-        ref.read(mainTabIndexProvider.notifier).state = 4;
         break;
 
       case 'dashboard':
@@ -219,8 +193,6 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
     final inActivityHub = ref.watch(inActivityHubProvider);
     final inRoutesHub = ref.watch(inRoutesHubProvider);
     final inTribeHub = ref.watch(inTribeHubProvider);
-    final inProfileHub = currentTabIndex == 4; // Profile tab is at index 4
-    // Remove the unused palette variable
 
     // Screens for main navigation
     final mainScreens = [
@@ -228,7 +200,6 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
       inActivityHub ? _buildActivityHub() : const ActivityHubScreen(),
       inRoutesHub ? _buildRoutesHub() : const RoutesScreen(),
       inTribeHub ? _buildTribeHub() : const TribeScreen(),
-      inProfileHub ? _buildProfileHub() : const ProfileScreen(),
     ];
 
     // Replace WillPopScope with PopScope
@@ -260,7 +231,6 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
           inActivityHub,
           inRoutesHub,
           inTribeHub,
-          inProfileHub,
           localizations,
         ),
         // This helps with keyboard behavior
@@ -276,7 +246,6 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
       bool inActivityHub,
       bool inRoutesHub,
       bool inTribeHub,
-      bool inProfileHub,
       AppLocalizations localizations) {
     if (inActivityHub && currentTabIndex == 1) {
       return _buildActivityBottomNavBar(context, localizations);
@@ -284,8 +253,6 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
       return _buildRoutesBottomNavBar(context, localizations);
     } else if (inTribeHub && currentTabIndex == 3) {
       return _buildTribeBottomNavBar(context, localizations);
-    } else if (inProfileHub) {
-      return _buildProfileBottomNavBar(context, localizations);
     } else {
       return _buildMainBottomNavBar(context, currentTabIndex, localizations);
     }
@@ -316,10 +283,6 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
         BottomNavigationBarItem(
           icon: const Icon(Icons.people),
           label: localizations.translate('tribe'),
-        ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.person),
-          label: localizations.translate('profile'),
         ),
       ],
       (index) {
@@ -353,13 +316,7 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
         }
 
         // Update the current screen ID for the burger menu highlighting
-        final screenIds = [
-          'dashboard',
-          'activity',
-          'routes',
-          'tribe',
-          'profile'
-        ];
+        final screenIds = ['dashboard', 'activity', 'routes', 'tribe'];
         ref.read(currentScreenProvider.notifier).state = screenIds[index];
       },
       selectedItemColor: palette.navSelectedTextColor,
@@ -589,60 +546,6 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
     );
   }
 
-  // Profile-specific bottom navigation bar
-  Widget _buildProfileBottomNavBar(
-      BuildContext context, AppLocalizations localizations) {
-    final currentSection = ref.watch(profileSectionProvider);
-    final palette =
-        ref.watch(colorPaletteProvider); // Use colorPaletteProvider instead
-
-    return BottomNavigationHelper.createMainBottomNavBar(
-      context,
-      _getProfileNavIndex(currentSection),
-      [
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.person),
-          label: localizations.translate('user_info'),
-        ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.favorite),
-          label: localizations.translate('heart_rate_zones'),
-        ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.flash_on),
-          label: localizations.translate('power_zones'),
-        ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.speed),
-          label: localizations.translate('pace_zones'),
-        ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.settings),
-          label: localizations.translate('app_settings'),
-        ),
-      ],
-      (index) {
-        // Map the tapped index to the corresponding section
-        final sections = [
-          'user_info',
-          'hr_zones',
-          'power_zones',
-          'pace_zones',
-          'app_settings'
-        ];
-        final selectedSection = sections[index];
-
-        // Update the profile section
-        ref.read(profileSectionProvider.notifier).state = selectedSection;
-
-        // Update the current screen ID for the burger menu highlighting
-        ref.read(currentScreenProvider.notifier).state = selectedSection;
-      },
-      selectedItemColor: palette.navSelectedTextColor,
-      unselectedItemColor: palette.navUnselectedTextColor,
-    );
-  }
-
   // When in Activity Hub, we show the specific content based on the selected section
   Widget _buildActivityHub() {
     final activitySection = ref.watch(activitySectionProvider);
@@ -792,26 +695,6 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
         ],
       ),
     );
-  }
-
-  // When in Profile Hub, show the content based on the selected section
-  Widget _buildProfileHub() {
-    final profileSection = ref.watch(profileSectionProvider);
-
-    switch (profileSection) {
-      case 'user_info':
-        return const UserInfoScreen();
-      case 'hr_zones':
-        return const HRZonesScreen();
-      case 'power_zones':
-        return const power_zones.PowerZonesScreen();
-      case 'pace_zones':
-        return const pace_zones.PaceZonesScreen();
-      case 'app_settings':
-        return const AppSettingsScreen();
-      default:
-        return const UserInfoScreen();
-    }
   }
 
   // Dashboard screen content
@@ -1035,25 +918,6 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
       }
     }
 
-    // If we're in the Profile Hub
-    if (tabIndex == 4) {
-      final profileSection = ref.watch(profileSectionProvider);
-      switch (profileSection) {
-        case 'user_info':
-          return localizations.translate('user_info');
-        case 'hr_zones':
-          return localizations.translate('hr_zones');
-        case 'power_zones':
-          return localizations.translate('power_zones');
-        case 'pace_zones':
-          return localizations.translate('pace_zones');
-        case 'app_settings':
-          return localizations.translate('app_settings');
-        default:
-          return localizations.translate('profile');
-      }
-    }
-
     // Standard titles for main tabs
     switch (tabIndex) {
       case 0:
@@ -1064,8 +928,6 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
         return localizations.translate('routes');
       case 3:
         return localizations.translate('tribe');
-      case 4:
-        return localizations.translate('profile');
       default:
         return localizations.translate('app_name');
     }
@@ -1122,24 +984,6 @@ class _MainDashboardScreenState extends ConsumerState<MainDashboardScreen> {
         return 4;
       default:
         return 0; // Default to feed
-    }
-  }
-
-  // Helper to determine which index is active in the profile navigation bar
-  int _getProfileNavIndex(String section) {
-    switch (section) {
-      case 'user_info':
-        return 0;
-      case 'hr_zones':
-        return 1;
-      case 'power_zones':
-        return 2;
-      case 'pace_zones':
-        return 3;
-      case 'app_settings':
-        return 4;
-      default:
-        return 0; // Default to user info
     }
   }
 }
