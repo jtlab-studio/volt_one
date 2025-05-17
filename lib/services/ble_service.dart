@@ -81,10 +81,16 @@ class BleService {
     });
 
     // Listen for connection state changes
-    // In FlutterBluePlus, use the connection state stream
-    FlutterBluePlus.connectionStateChanges.listen((event) {
-      _updateDeviceConnectionState(event.device,
-          event.connectionState == BluetoothConnectionState.connected);
+    // FIXED: Use proper API for connection state monitoring
+    // Instead of FlutterBluePlus.connectionStateChanges, we use a different approach
+    FlutterBluePlus.connectedDevices.then((devices) {
+      for (var device in devices) {
+        // Set up a listener for each device's connection state
+        device.state.listen((state) {
+          _updateDeviceConnectionState(
+              device, state == BluetoothDeviceState.connected);
+        });
+      }
     });
 
     // Listen for scan results
@@ -217,7 +223,7 @@ class BleService {
 
         // If device not found in scan results, create it from ID
         if (bleDevice == null) {
-          final id = DeviceIdentifier(deviceId);
+          // FIXED: Remove unused 'id' variable
           // Create device from ID correctly using BluetoothDevice constructor
           bleDevice = BluetoothDevice.fromId(deviceId);
         }
