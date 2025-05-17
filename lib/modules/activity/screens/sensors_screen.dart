@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart'; // Added missing import
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../models/ble_device.dart';
@@ -31,6 +32,7 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
   }
 
   Future<void> _initializeServices() async {
+    // Access BLE and GPS controller providers from Riverpod
     final bleController = ref.read(bleControllerProvider);
     final gpsController = ref.read(gpsControllerProvider);
 
@@ -286,16 +288,16 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
         typeIcon = Icons.bluetooth;
     }
 
-    // Signal strength icon
+    // Signal strength icon - using standard Material icons
     Widget signalIcon;
     if (device.rssi > -60) {
-      signalIcon = const Icon(Icons.signal_cellular_4_bar, size: 16);
+      signalIcon = Icon(Icons.signal_cellular_4_bar, size: 16);
     } else if (device.rssi > -70) {
-      signalIcon = const Icon(Icons.signal_cellular_3_bar, size: 16);
+      signalIcon = Icon(Icons.signal_cellular_alt_2_bar, size: 16);
     } else if (device.rssi > -80) {
-      signalIcon = const Icon(Icons.signal_cellular_2_bar, size: 16);
+      signalIcon = Icon(Icons.signal_cellular_alt_1_bar, size: 16);
     } else {
-      signalIcon = const Icon(Icons.signal_cellular_1_bar, size: 16);
+      signalIcon = Icon(Icons.signal_cellular_0_bar, size: 16);
     }
 
     return Card(
@@ -519,8 +521,9 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
                 const SizedBox(height: 8),
                 gpsStatusAsync.when(
                   data: (status) {
-                    Color statusColor;
-                    String statusText;
+                    // Initialize these with default values
+                    Color statusColor = Colors.grey;
+                    String statusText = "Unknown";
 
                     switch (status) {
                       case GPSStatus.disabled:

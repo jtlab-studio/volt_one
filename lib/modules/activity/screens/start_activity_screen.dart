@@ -8,6 +8,8 @@ import '../../../shared/widgets/metric_card.dart';
 import '../../../shared/widgets/sensor_status_bar.dart';
 import '../providers/activity_state_provider.dart';
 import '../models/activity_state.dart';
+import '../../../providers/ble_providers.dart'; // Added missing import
+import '../../../providers/gps_providers.dart'; // Added missing import
 
 class StartActivityScreen extends ConsumerStatefulWidget {
   const StartActivityScreen({super.key});
@@ -58,8 +60,7 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
     // Use theme-appropriate colors
     final backgroundColor =
         isDarkMode ? AppColors.darkBackground : theme.scaffoldBackgroundColor;
-    final cardColor = isDarkMode ? AppColors.darkCard : theme.cardColor;
-    final textColor = isDarkMode ? Colors.white : Colors.black87;
+    // Removed unused cardColor variable
 
     return Scaffold(
       // Use the theme's background color instead of hardcoded black
@@ -76,7 +77,7 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
                   Tab(text: localizations.translate('map')),
                 ],
                 // Use theme-appropriate colors
-                labelColor: textColor,
+                labelColor: isDarkMode ? Colors.white : Colors.black87,
                 indicatorColor: theme.primaryColor,
               ),
 
@@ -107,9 +108,9 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: Color.fromRGBO(
-                      orangeColor.red,
-                      orangeColor.green,
-                      orangeColor.blue,
+                      orangeColor.r,
+                      orangeColor.g,
+                      orangeColor.b,
                       0.85, // Using RGBA for opacity
                     ),
                   ),
