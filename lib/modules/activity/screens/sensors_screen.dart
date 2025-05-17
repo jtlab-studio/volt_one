@@ -153,7 +153,8 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
                       icon: const Icon(Icons.bluetooth_connected),
                       label: Text(localizations.translate('connect_all_saved')),
                       onPressed: () {
-                        final bleController = ref.read(ble.bleControllerProvider);
+                        final bleController =
+                            ref.read(ble.bleControllerProvider);
                         bleController.connectToAllSavedDevices();
                       },
                     ),
@@ -289,13 +290,13 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
     // Signal strength icon - using standard Material icons
     Widget signalIcon;
     if (device.rssi > -60) {
-      signalIcon = Icon(Icons.signal_cellular_4_bar, size: 16);
+      signalIcon = const Icon(Icons.signal_cellular_4_bar, size: 16);
     } else if (device.rssi > -70) {
-      signalIcon = Icon(Icons.signal_cellular_alt_2_bar, size: 16);
+      signalIcon = const Icon(Icons.signal_cellular_alt_2_bar, size: 16);
     } else if (device.rssi > -80) {
-      signalIcon = Icon(Icons.signal_cellular_alt_1_bar, size: 16);
+      signalIcon = const Icon(Icons.signal_cellular_alt_1_bar, size: 16);
     } else {
-      signalIcon = Icon(Icons.signal_cellular_0_bar, size: 16);
+      signalIcon = const Icon(Icons.signal_cellular_0_bar, size: 16);
     }
 
     return Card(
@@ -323,56 +324,6 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
             if (device.isSaved)
               Chip(
                 label: Text(
-                  localizations.translate('saved'),
-                  style: const TextStyle(fontSize: 10),
-                ),
-                padding: EdgeInsets.zero,
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                visualDensity: VisualDensity.compact,
-                backgroundColor: theme.colorScheme.primaryContainer,
-              ),
-          ],
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Save/Unsave button
-            IconButton(
-              icon: Icon(
-                device.isSaved ? Icons.star : Icons.star_border,
-                color: device.isSaved ? Colors.amber : null,
-              ),
-              onPressed: () {
-                if (device.isSaved) {
-                  bleController.removeSavedDevice(device.id);
-                } else {
-                  bleController.saveDevice(device.id);
-                }
-              },
-            ),
-
-            // Connect/Disconnect button
-            IconButton(
-              icon: Icon(
-                device.connected ? Icons.bluetooth_connected : Icons.bluetooth,
-                color: device.connected ? theme.primaryColor : null,
-              ),
-              onPressed: () {
-                if (device.connected) {
-                  bleController.disconnectFromDevice(device.id);
-                } else {
-                  bleController.connectToDevice(device.id);
-                }
-              },
-            ),
-          ],
-        ),
-        onTap: () {
-          _showDeviceDetails(device, localizations);
-        },
-      ),
-    );
-  }: Text(
                   localizations.translate('saved'),
                   style: const TextStyle(fontSize: 10),
                 ),
@@ -547,8 +498,8 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
   }
 
   Widget _buildGpsTab(AppLocalizations localizations) {
-    final gpsStatusAsync = ref.watch(gpsStatusProvider);
-    final gpsController = ref.read(gpsControllerProvider);
+    final gpsStatusAsync = ref.watch(gps.gpsStatusProvider);
+    final gpsController = ref.read(gps.gpsControllerProvider);
     final currentSettings = gpsController.getCurrentSettings();
 
     return ListView(
@@ -673,7 +624,7 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
               Consumer(
                 builder: (context, ref, child) {
                   // Get the current settings from the GPS settings provider to update UI on changes
-                  final settingsAsync = ref.watch(gpsSettingsProvider);
+                  final settingsAsync = ref.watch(gps.gpsSettingsProvider);
                   return settingsAsync.when(
                     data: (settings) {
                       return Column(
@@ -776,7 +727,7 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
               // FIXED: Wrap the settings switches in a Consumer to update UI when settings change
               Consumer(
                 builder: (context, ref, child) {
-                  final settingsAsync = ref.watch(gpsSettingsProvider);
+                  final settingsAsync = ref.watch(gps.gpsSettingsProvider);
                   return settingsAsync.when(
                     data: (settings) {
                       return Column(
@@ -803,7 +754,8 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
                           ),
                           SwitchListTile(
                             title: const Text('Sensor Fusion'),
-                            subtitle: const Text('Combines GPS with IMU sensors'),
+                            subtitle:
+                                const Text('Combines GPS with IMU sensors'),
                             value: settings.sensorFusion,
                             onChanged: (value) {
                               gpsController.updateSettings(
@@ -852,8 +804,8 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
         // Custom Trade-off Slider Card
         Consumer(
           builder: (context, ref, child) {
-            final gpsSettingsAsync = ref.watch(gpsSettingsProvider);
-            
+            final gpsSettingsAsync = ref.watch(gps.gpsSettingsProvider);
+
             return gpsSettingsAsync.when(
               data: (settings) {
                 double sliderValue = 0.5;
