@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'storage_service.dart';
@@ -288,9 +289,9 @@ class GPSService {
 
       // Get last known position
       try {
+        // Use the settings to get current position
         _lastPosition = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.best,
-          timeLimit: const Duration(seconds: 5),
+          locationSettings: _settings.toLocationSettings(),
         );
         _positionController.add(_lastPosition!);
       } catch (e) {
@@ -355,8 +356,9 @@ class GPSService {
   /// Get current location once
   Future<Position?> getCurrentLocation() async {
     try {
+      // Use the settings for getting the current position
       final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.best,
+        locationSettings: _settings.toLocationSettings(),
       );
       _lastPosition = position;
       _positionController.add(position);

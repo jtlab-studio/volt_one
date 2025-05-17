@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:geolocator/geolocator.dart'; // Added missing import
+import 'package:geolocator/geolocator.dart';
 import '../../../core/l10n/app_localizations.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../models/ble_device.dart';
 import '../../../providers/ble_providers.dart';
 import '../../../providers/gps_providers.dart';
 import '../../../services/gps_service.dart';
-import '../../../shared/widgets/sensor_status_bar.dart';
 
 class SensorsScreen extends ConsumerStatefulWidget {
   const SensorsScreen({super.key});
@@ -272,16 +270,16 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
     // Get icon based on device type
     IconData typeIcon;
     switch (device.type) {
-      case BleDevice.TYPE_HEART_RATE:
+      case BleDevice.typeHeartRate:
         typeIcon = Icons.favorite;
         break;
-      case BleDevice.TYPE_POWER:
+      case BleDevice.typePower:
         typeIcon = Icons.flash_on;
         break;
-      case BleDevice.TYPE_CADENCE:
+      case BleDevice.typeCadence:
         typeIcon = Icons.speed;
         break;
-      case BleDevice.TYPE_COMBINED:
+      case BleDevice.typeCombined:
         typeIcon = Icons.sensors;
         break;
       default:
@@ -470,13 +468,13 @@ class _SensorsScreenState extends ConsumerState<SensorsScreen>
 
   String _getDeviceTypeString(String type, AppLocalizations localizations) {
     switch (type) {
-      case BleDevice.TYPE_HEART_RATE:
+      case BleDevice.typeHeartRate:
         return localizations.translate('heart_rate');
-      case BleDevice.TYPE_POWER:
+      case BleDevice.typePower:
         return localizations.translate('power');
-      case BleDevice.TYPE_CADENCE:
+      case BleDevice.typeCadence:
         return localizations.translate('cadence');
-      case BleDevice.TYPE_COMBINED:
+      case BleDevice.typeCombined:
         return "Combined";
       default:
         return "Unknown";

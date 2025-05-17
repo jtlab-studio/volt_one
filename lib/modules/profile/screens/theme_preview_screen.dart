@@ -1,291 +1,252 @@
-// lib/modules/profile/screens/theme_preview_screen.dart
+// lib/core/theme/theme_provider.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/l10n/app_localizations.dart';
-import '../../../core/theme/theme_provider.dart';
-import '../../../core/theme/app_theme_extensions.dart';
+// Import still needed for AppColorPalette
+import 'app_text_theme.dart';
+import 'color_palettes.dart';
 
-class ThemePreviewScreen extends ConsumerWidget {
-  const ThemePreviewScreen({super.key});
+// Set default theme to light mode (moved from app_theme.dart to prevent ambiguity)
+final themeModeProvider = StateProvider<ThemeMode>((ref) => ThemeMode.light);
+
+// Provider for storing the selected color palette
+final selectedPaletteProvider = StateProvider<AppColorPalette>(
+    (ref) => ColorPalettes.blue); // Blue is the default palette
+
+/// Provider to handle theme settings
+class ThemeNotifier extends StateNotifier<AppColorPalette> {
+  ThemeNotifier() : super(ColorPalettes.blue);
+
+  void setPalette(AppColorPalette palette) {
+    state = palette;
+  }
+}
+
+/// State provider for theme settings
+final colorPaletteProvider =
+    StateNotifierProvider<ThemeNotifier, AppColorPalette>((ref) {
+  return ThemeNotifier();
+});
+
+/// Helper function to generate a MaterialColor from a Color
+MaterialColor createMaterialColor(Color color) {
+  List<double> strengths = <double>[.05, .1, .2, .3, .4, .5, .6, .7, .8, .9];
+  Map<int, Color> swatch = {};
+
+  // Get RGB components directly as integers
+  final int r = color.r;
+  final int g = color.g;
+  final int b = color.b;
+
+  for (var strength in strengths) {
+    final double ds = 0.5 - strength;
+    swatch[(strength * 1000).round()] = Color.fromRGBO(
+      r + ((ds < 0 ? r : (255 - r)) * ds).round(),
+      g + ((ds < 0 ? g : (255 - g)) * ds).round(),
+      b + ((ds < 0 ? b : (255 - b)) * ds).round(),
+      1,
+    );
+  }
+
+  // Create the primary swatch
+  return MaterialColor(color.value, swatch);
+}
+
+/// Helper method to darken a color (for dark theme derivation)
+Color darkenColor(Color color, double factor) {
+  assert(factor >= 0 && factor <= 1);
+
+  int r = (color.r * (1 - factor)).round();
+  int g = (color.g * (1 - factor)).round();
+  int b = (color.b * (1 - factor)).round();
+
+  return Color.fromRGBO(r, g, b, 1.0);
+}
+
+/// Provider for dynamically updating the theme based on user selections
+final dynamicThemeProvider = Provider<AppTheme>((ref) {
+  final palette = ref.watch(colorPaletteProvider);
+  // We need themeMode for some dynamic theme calculations, so keeping it
+  final themeMode = ref.watch(themeModeProvider);
+
+  return AppTheme(
+    light: ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.light,
+      primaryColor: palette.primaryColor,
+      primarySwatch: createMaterialColor(palette.primaryColor),
+      colorScheme: ColorScheme.light(
+        primary: palette.primaryColor,
+        secondary: palette.secondaryColor,
+        tertiary: palette.accentColor,
+        surface: palette.cardColorLight,
+        // Changed from background to surface to address deprecation
+        surfaceContainer: palette.backgroundColorLight,
+        error: palette.errorColor,
+      ),
+      scaffoldBackgroundColor: palette.backgroundColorLight,
+      appBarTheme: AppBarTheme(
+        backgroundColor: palette.appBarBackgroundLight,
+        foregroundColor: palette.appBarTextLight,
+        elevation: 0.0,
+      ),
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: palette.navBarBackgroundLight,
+        selectedItemColor: palette.navSelectedTextColor,
+        unselectedItemColor: palette.navUnselectedTextColor,
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          foregroundColor: palette.buttonTextColor,
+          backgroundColor: palette.buttonBackgroundColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      ),
+      cardTheme: CardTheme(
+        elevation: 2,
+        color: palette.cardColorLight,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+      textTheme: appTextTheme.apply(
+        bodyColor: palette.textColorLight,
+        displayColor: palette.textColorLight,
+      ),
+      iconTheme: IconThemeData(
+        color: palette.iconInactiveColor,
+      ),
+      // Apply other custom color settings
+      extensions: [
+        CustomColorTheme(
+          success: palette.successColor,
+          warning: palette.warningColor,
+          error: palette.errorColor,
+          iconActive: palette.iconActiveColor,
+          iconInactive: palette.iconInactiveColor,
+        ),
+      ],
+    ),
+    dark: ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.dark,
+      primaryColor: palette.primaryColor,
+      primarySwatch: createMaterialColor(palette.primaryColor),
+      colorScheme: ColorScheme.dark(
+        primary: palette.primaryColor,
+        secondary: palette.secondaryColor,
+        tertiary: palette.accentColor,
+        surface: palette.cardColorDark,
+        // Changed from background to surface to address deprecation
+        surfaceContainer: palette.backgroundColorDark,
+        error: palette.errorColor,
+      ),
+      scaffoldBackgroundColor: palette.backgroundColorDark,
+      appBarTheme: AppBarTheme(
+        backgroundColor: palette.appBarBackgroundDark,
+        foregroundColor: palette.appBarTextDark,
+        elevation: 0.0,
+      ),
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: palette.navBarBackgroundDark,
+        selectedItemColor: palette.navSelectedTextColor,
+        unselectedItemColor: palette.navUnselectedTextColor,
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          foregroundColor: palette.buttonTextColor,
+          backgroundColor: palette.buttonBackgroundColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      ),
+      cardTheme: CardTheme(
+        elevation: 2,
+        color: palette.cardColorDark,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+      textTheme: appTextTheme.apply(
+        bodyColor: palette.textColorDark,
+        displayColor: palette.textColorDark,
+      ),
+      iconTheme: IconThemeData(
+        color: palette.iconInactiveColor,
+      ),
+      // Apply custom color settings
+      extensions: [
+        CustomColorTheme(
+          success: palette.successColor,
+          warning: palette.warningColor,
+          error: palette.errorColor,
+          iconActive: palette.iconActiveColor,
+          iconInactive: palette.iconInactiveColor,
+        ),
+      ],
+    ),
+  );
+});
+
+/// Custom color theme extension to store additional colors
+class CustomColorTheme extends ThemeExtension<CustomColorTheme> {
+  final Color success;
+  final Color warning;
+  final Color error;
+  final Color iconActive;
+  final Color iconInactive;
+
+  CustomColorTheme({
+    required this.success,
+    required this.warning,
+    required this.error,
+    required this.iconActive,
+    required this.iconInactive,
+  });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final localizations = AppLocalizations.of(context);
-    final palette = ref.watch(colorPaletteProvider);
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Theme Preview: ${palette.name}'),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Color Palette Section
-            _buildSectionTitle(context, 'Color Palette'),
-            _buildColorSwatch(context, 'Primary', palette.primaryColor),
-            _buildColorSwatch(context, 'Secondary', palette.secondaryColor),
-            _buildColorSwatch(context, 'Accent', palette.accentColor),
-            _buildColorSwatch(context, 'Error', palette.errorColor),
-            _buildColorSwatch(context, 'Success', palette.successColor),
-            _buildColorSwatch(context, 'Warning', palette.warningColor),
-
-            const SizedBox(height: 24),
-
-            // UI Elements Section
-            _buildSectionTitle(context, 'UI Elements'),
-
-            // Typography
-            _buildSubsectionTitle(context, 'Typography'),
-            Text('Display Large', style: context.textTheme.displayLarge),
-            Text('Display Medium', style: context.textTheme.displayMedium),
-            Text('Display Small', style: context.textTheme.displaySmall),
-            Text('Headline Large', style: context.textTheme.headlineLarge),
-            Text('Headline Medium', style: context.textTheme.headlineMedium),
-            Text('Headline Small', style: context.textTheme.headlineSmall),
-            Text('Title Large', style: context.textTheme.titleLarge),
-            Text('Title Medium', style: context.textTheme.titleMedium),
-            Text('Title Small', style: context.textTheme.titleSmall),
-            Text('Body Large', style: context.textTheme.bodyLarge),
-            Text('Body Medium', style: context.textTheme.bodyMedium),
-            Text('Body Small', style: context.textTheme.bodySmall),
-            Text('Label Large', style: context.textTheme.labelLarge),
-
-            const SizedBox(height: 16),
-
-            // Buttons
-            _buildSubsectionTitle(context, 'Buttons'),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                ElevatedButton(
-                  onPressed: () {},
-                  child: const Text('Elevated'),
-                ),
-                FilledButton(
-                  onPressed: () {},
-                  child: const Text('Filled'),
-                ),
-                OutlinedButton(
-                  onPressed: () {},
-                  child: const Text('Outlined'),
-                ),
-                TextButton(
-                  onPressed: () {},
-                  child: const Text('Text'),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 16),
-
-            // Cards
-            _buildSubsectionTitle(context, 'Cards'),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Card Title', style: context.textTheme.titleMedium),
-                    const SizedBox(height: 8),
-                    Text(
-                      'This is a card with content that demonstrates how cards look with the selected theme.',
-                      style: context.textTheme.bodyMedium,
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        TextButton(
-                          onPressed: () {},
-                          child: const Text('Cancel'),
-                        ),
-                        const SizedBox(width: 8),
-                        FilledButton(
-                          onPressed: () {},
-                          child: const Text('Confirm'),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // Form Elements
-            _buildSubsectionTitle(context, 'Form Elements'),
-            const TextField(
-              decoration: InputDecoration(
-                labelText: 'Text Field',
-                hintText: 'Enter text',
-              ),
-            ),
-            const SizedBox(height: 8),
-            const TextField(
-              decoration: InputDecoration(
-                labelText: 'Disabled Field',
-                hintText: 'Cannot be edited',
-              ),
-              enabled: false,
-            ),
-            const SizedBox(height: 8),
-            DropdownButtonFormField<String>(
-              decoration: const InputDecoration(
-                labelText: 'Dropdown',
-              ),
-              items: ['Option 1', 'Option 2', 'Option 3']
-                  .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                  .toList(),
-              onChanged: (_) {},
-            ),
-            const SizedBox(height: 8),
-            CheckboxListTile(
-              title: const Text('Checkbox Item'),
-              value: true,
-              onChanged: (_) {},
-            ),
-            SwitchListTile(
-              title: const Text('Switch Item'),
-              value: true,
-              onChanged: (_) {},
-            ),
-            RadioListTile(
-              title: const Text('Radio Item'),
-              value: 'selected',
-              groupValue: 'selected',
-              onChanged: (_) {},
-            ),
-
-            const SizedBox(height: 24),
-
-            // Theme Consistency Demo
-            _buildSectionTitle(context, 'Navigation Example'),
-            Container(
-              height: 60,
-              decoration: BoxDecoration(
-                color: context.bottomNavBarColor,
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 4,
-                    offset: const Offset(0, -2),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.home, color: context.unselectedTabColor),
-                      Text('Home',
-                          style: TextStyle(
-                              color: context.unselectedTabColor, fontSize: 12)),
-                    ],
-                  ),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.directions_run,
-                          color: context.selectedTabColor),
-                      Text('Activity',
-                          style: TextStyle(
-                              color: context.selectedTabColor, fontSize: 12)),
-                    ],
-                  ),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.map, color: context.unselectedTabColor),
-                      Text('Routes',
-                          style: TextStyle(
-                              color: context.unselectedTabColor, fontSize: 12)),
-                    ],
-                  ),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.person, color: context.unselectedTabColor),
-                      Text('Profile',
-                          style: TextStyle(
-                              color: context.unselectedTabColor, fontSize: 12)),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+  ThemeExtension<CustomColorTheme> copyWith({
+    Color? success,
+    Color? warning,
+    Color? error,
+    Color? iconActive,
+    Color? iconInactive,
+  }) {
+    return CustomColorTheme(
+      success: success ?? this.success,
+      warning: warning ?? this.warning,
+      error: error ?? this.error,
+      iconActive: iconActive ?? this.iconActive,
+      iconInactive: iconInactive ?? this.iconInactive,
     );
   }
 
-  Widget _buildSectionTitle(BuildContext context, String title) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: context.textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const Divider(),
-        const SizedBox(height: 8),
-      ],
+  @override
+  ThemeExtension<CustomColorTheme> lerp(
+    ThemeExtension<CustomColorTheme>? other,
+    double t,
+  ) {
+    if (other is! CustomColorTheme) {
+      return this;
+    }
+
+    return CustomColorTheme(
+      success: Color.lerp(success, other.success, t)!,
+      warning: Color.lerp(warning, other.warning, t)!,
+      error: Color.lerp(error, other.error, t)!,
+      iconActive: Color.lerp(iconActive, other.iconActive, t)!,
+      iconInactive: Color.lerp(iconInactive, other.iconInactive, t)!,
     );
   }
+}
 
-  Widget _buildSubsectionTitle(BuildContext context, String title) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: context.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 8),
-      ],
-    );
-  }
+/// AppTheme class
+class AppTheme {
+  final ThemeData light;
+  final ThemeData dark;
 
-  Widget _buildColorSwatch(BuildContext context, String name, Color color) {
-    final textColor =
-        color.computeLuminance() > 0.5 ? Colors.black : Colors.white;
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            color: color,
-            child: Center(
-              child: Text(
-                '#${color.value.toRadixString(16).substring(2).toUpperCase()}',
-                style: TextStyle(
-                  color: textColor,
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Text(name, style: context.textTheme.titleMedium),
-        ],
-      ),
-    );
-  }
+  AppTheme({required this.light, required this.dark});
 }

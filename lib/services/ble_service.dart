@@ -1,3 +1,5 @@
+// lib/services/ble_service.dart
+
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -12,9 +14,6 @@ class BleService {
   static final BleService _instance = BleService._internal();
   factory BleService() => _instance;
   BleService._internal();
-
-  // Instance of FlutterBluePlus
-  final FlutterBluePlus _flutterBlue = FlutterBluePlus.instance;
 
   // Instance of StorageService
   final StorageService _storage = StorageService();
@@ -73,7 +72,7 @@ class BleService {
     // Load saved devices from storage
     await _loadSavedDevices();
 
-    // Listen for scan state changes
+    // Listen for adapter state changes
     FlutterBluePlus.adapterState.listen((state) {
       if (state == BluetoothAdapterState.on) {
         // Update state for any already connected devices
@@ -81,14 +80,15 @@ class BleService {
       }
     });
 
-    // Listen for devices connecting/disconnecting
-    FlutterBluePlus.events.connectionState.listen((event) {
+    // Listen for connection state changes
+    // In FlutterBluePlus, use the connection state stream
+    FlutterBluePlus.connectionStateChanges.listen((event) {
       _updateDeviceConnectionState(event.device,
           event.connectionState == BluetoothConnectionState.connected);
     });
 
     // Listen for scan results
-    FlutterBluePlus.events.scanResults.listen((results) {
+    FlutterBluePlus.scanResults.listen((results) {
       for (ScanResult result in results) {
         _addDiscoveredDevice(result);
       }
@@ -96,8 +96,9 @@ class BleService {
     });
 
     // Listen for scan state changes
-    FlutterBluePlus.events.scanMode.listen((mode) {
-      _isScanning = mode == ScanMode.lowLatency || mode == ScanMode.balanced;
+    // Use isScanning property to track scan state
+    FlutterBluePlus.isScanning.listen((isScanning) {
+      _isScanning = isScanning;
       _scanningStateController.add(_isScanning);
     });
 
@@ -118,7 +119,7 @@ class BleService {
   /// Check for any already connected devices
   Future<void> _updateConnectedDevicesStatus() async {
     try {
-      final devices = await FlutterBluePlus.connectedDevices;
+      final devices = FlutterBluePlus.connectedDevices;
       for (var device in devices) {
         _connectedDevices[device.remoteId.str] = device;
         _updateDeviceConnectionState(device, true);
@@ -203,7 +204,8 @@ class BleService {
       } else {
         // Find device by ID from discovered devices
         try {
-          for (final scanResult in await FlutterBluePlus.onScanResults.first) {
+          final scanResults = await FlutterBluePlus.scanResults.first;
+          for (final scanResult in scanResults) {
             if (scanResult.device.remoteId.str == deviceId) {
               bleDevice = scanResult.device;
               break;
@@ -216,12 +218,8 @@ class BleService {
         // If device not found in scan results, create it from ID
         if (bleDevice == null) {
           final id = DeviceIdentifier(deviceId);
-          bleDevice = BluetoothDevice(
-            remoteId: id,
-            // These are dummy values used by the constructor but not actually needed
-            localName: device.name,
-            type: BluetoothDeviceType.le,
-          );
+          // Create device from ID correctly using BluetoothDevice constructor
+          bleDevice = BluetoothDevice.fromId(deviceId);
         }
       }
 
@@ -369,15 +367,15 @@ class BleService {
   /// Check if a specific type of device is connected
   bool isDeviceTypeConnected(String type) {
     return connectedDevices.any((device) =>
-        device.type == type || device.type == BleDevice.TYPE_COMBINED);
+        device.type == type || device.type == BleDevice.typeCombined);
   }
 
   /// Get a connected device by type
   BleDevice? getConnectedDeviceByType(String type) {
     return connectedDevices.firstWhere(
-      (device) => device.type == type || device.type == BleDevice.TYPE_COMBINED,
+      (device) => device.type == type || device.type == BleDevice.typeCombined,
       orElse: () => connectedDevices.firstWhere(
-        (device) => device.type == BleDevice.TYPE_UNKNOWN,
+        (device) => device.type == BleDevice.typeUnknown,
         orElse: () => throw Exception('No device of type $type connected'),
       ),
     );
@@ -394,8 +392,8 @@ class BleService {
   void _addDiscoveredDevice(ScanResult result) {
     // Create a BLE device from scan result
     final deviceId = result.device.remoteId.str;
-    final deviceName = result.device.localName.isNotEmpty
-        ? result.device.localName
+    final deviceName = result.device.platformName.isNotEmpty
+        ? result.device.platformName
         : 'Unknown Device';
 
     // Check if already in the list
@@ -421,7 +419,7 @@ class BleService {
       final newDevice = BleDevice(
         id: deviceId,
         name: deviceName,
-        type: BleDevice.TYPE_UNKNOWN, // Will update after connection
+        type: BleDevice.typeUnknown, // Will update after connection
         rssi: result.rssi,
         connected: isConnected,
         isSaved: isSaved,
@@ -457,10 +455,10 @@ class BleService {
       // If device is connected but not in discovered devices, add it
       final newDevice = BleDevice(
         id: deviceId,
-        name: bleDevice.localName.isNotEmpty
-            ? bleDevice.localName
+        name: bleDevice.platformName.isNotEmpty
+            ? bleDevice.platformName
             : 'Unknown Device',
-        type: BleDevice.TYPE_UNKNOWN,
+        type: BleDevice.typeUnknown,
         connected: true,
         lastConnected: DateTime.now(),
         isSaved: _savedDevices.any((d) => d.id == deviceId),

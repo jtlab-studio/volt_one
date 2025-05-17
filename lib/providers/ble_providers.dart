@@ -1,159 +1,68 @@
 // lib/providers/ble_providers.dart
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/ble_device.dart';
 import '../services/ble_service.dart';
 
 part 'ble_providers.g.dart';
 
-/// Provider for the BleService
-@riverpod
-BleService bleService(BleServiceRef ref) {
-  return BleService();
-}
-
 /// Provider for the list of discovered BLE devices
-@riverpod
-class DiscoveredDevices extends _$DiscoveredDevices {
-  @override
-  Stream<List<BleDevice>> build() {
-    final bleService = ref.watch(bleServiceProvider);
-    return bleService.devicesStream;
-  }
-}
+class DiscoveredDevices extends StateNotifier<List<BleDevice>> {
+  final BleService _bleService;
 
-/// Provider for the list of connected BLE devices
-@riverpod
-List<BleDevice> connectedDevices(ConnectedDevicesRef ref) {
-  final bleService = ref.watch(bleServiceProvider);
-  return bleService.connectedDevices;
-}
-
-/// Provider for the list of saved BLE devices
-@riverpod
-List<BleDevice> savedDevices(SavedDevicesRef ref) {
-  final bleService = ref.watch(bleServiceProvider);
-  return bleService.savedDevices;
-}
-
-/// Provider for the BLE scanning state
-@riverpod
-class ScanningState extends _$ScanningState {
-  @override
-  Stream<bool> build() {
-    final bleService = ref.watch(bleServiceProvider);
-    return bleService.scanningStateStream;
+  DiscoveredDevices(this._bleService) : super([]) {
+    // Subscribe to device updates
+    _bleService.devicesStream.listen((devices) {
+      state = devices;
+    });
   }
 }
 
 /// Provider to track if a specific device type is connected
-@riverpod
-bool deviceTypeConnected(DeviceTypeConnectedRef ref, String type) {
+bool deviceTypeConnected(Ref ref, String type) {
   final connectedDevices = ref.watch(connectedDevicesProvider);
-  return connectedDevices.any((device) =>
-      device.type == type || device.type == BleDevice.TYPE_COMBINED);
+  return connectedDevices.any(
+      (device) => device.type == type || device.type == BleDevice.typeCombined);
 }
 
 /// Provider for BLE connection state changes
-@riverpod
-class ConnectionState extends _$ConnectionState {
-  @override
-  Stream<BleDevice> build() {
-    final bleService = ref.watch(bleServiceProvider);
-    return bleService.connectionStateStream;
+class ConnectionState extends StateNotifier<BleDevice?> {
+  final BleService _bleService;
+
+  ConnectionState(this._bleService) : super(null) {
+    // Subscribe to connection state changes
+    _bleService.connectionStateStream.listen((device) {
+      state = device;
+    });
   }
 }
 
-/// Provider to handle BLE functions
-@riverpod
-BLEController bleController(BleControllerRef ref) {
-  return BLEController(ref);
-}
+/// Provider to track BLE scanning state
+class ScanningState extends StateNotifier<bool> {
+  final BleService _bleService;
 
-/// Controller class for BLE operations
-class BLEController {
-  final Ref _ref;
-
-  BLEController(this._ref);
-
-  /// Get the BLE service
-  BleService get _bleService => _ref.read(bleServiceProvider);
-
-  /// Initialize the BLE service
-  Future<void> initialize() async {
-    await _bleService.initialize();
-  }
-
-  /// Start scanning for devices
-  Future<void> startScan(
-      {Duration duration = const Duration(seconds: 15)}) async {
-    await _bleService.startScan(duration: duration);
-  }
-
-  /// Stop scanning for devices
-  Future<void> stopScan() async {
-    await _bleService.stopScan();
-  }
-
-  /// Connect to a device
-  Future<bool> connectToDevice(String deviceId) async {
-    return await _bleService.connectToDevice(deviceId);
-  }
-
-  /// Disconnect from a device
-  Future<bool> disconnectFromDevice(String deviceId) async {
-    return await _bleService.disconnectFromDevice(deviceId);
-  }
-
-  /// Save a device
-  Future<bool> saveDevice(String deviceId) async {
-    return await _bleService.saveDevice(deviceId);
-  }
-
-  /// Remove a saved device
-  Future<bool> removeSavedDevice(String deviceId) async {
-    return await _bleService.removeSavedDevice(deviceId);
-  }
-
-  /// Connect to all saved devices
-  Future<void> connectToAllSavedDevices() async {
-    await _bleService.connectToAllSavedDevices();
-  }
-
-  /// Check if a heart rate monitor is connected
-  bool isHeartRateMonitorConnected() {
-    return _bleService.isDeviceTypeConnected(BleDevice.TYPE_HEART_RATE);
-  }
-
-  /// Check if a power meter is connected
-  bool isPowerMeterConnected() {
-    return _bleService.isDeviceTypeConnected(BleDevice.TYPE_POWER);
-  }
-
-  /// Check if a cadence sensor is connected
-  bool isCadenceSensorConnected() {
-    return _bleService.isDeviceTypeConnected(BleDevice.TYPE_CADENCE);
+  ScanningState(this._bleService) : super(false) {
+    // Subscribe to scanning state changes
+    _bleService.scanningStateStream.listen((isScanning) {
+      state = isScanning;
+    });
   }
 }
 
-/// Quick access providers for heart rate monitor connection state
-@riverpod
-bool heartRateConnected(HeartRateConnectedRef ref) {
+/// Provider to check if a heart rate monitor is connected
+bool heartRateConnected(Ref ref) {
   final bleController = ref.watch(bleControllerProvider);
   return bleController.isHeartRateMonitorConnected();
 }
 
-/// Quick access providers for power meter connection state
-@riverpod
-bool powerMeterConnected(PowerMeterConnectedRef ref) {
+/// Provider to check if a power meter is connected
+bool powerMeterConnected(Ref ref) {
   final bleController = ref.watch(bleControllerProvider);
   return bleController.isPowerMeterConnected();
 }
 
-/// Quick access providers for cadence sensor connection state
-@riverpod
-bool cadenceSensorConnected(CadenceSensorConnectedRef ref) {
+/// Provider to check if a cadence sensor is connected
+bool cadenceSensorConnected(Ref ref) {
   final bleController = ref.watch(bleControllerProvider);
   return bleController.isCadenceSensorConnected();
 }

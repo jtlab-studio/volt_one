@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'dart:convert'; // Keep this import as it's used in toJson/fromJson method
 
 /// Represents a Bluetooth Low Energy device
 class BleDevice {
@@ -57,44 +57,43 @@ class BleDevice {
     );
   }
 
-  /// Device type classification
-  static const String TYPE_HEART_RATE = 'heart_rate';
-  static const String TYPE_POWER = 'power';
-  static const String TYPE_CADENCE = 'cadence';
-  static const String TYPE_COMBINED =
-      'combined'; // Multiple sensor types in one
-  static const String TYPE_UNKNOWN = 'unknown';
+  /// Device type classification - using lowerCamelCase as recommended
+  static const String typeHeartRate = 'heart_rate';
+  static const String typePower = 'power';
+  static const String typeCadence = 'cadence';
+  static const String typeCombined = 'combined'; // Multiple sensor types in one
+  static const String typeUnknown = 'unknown';
 
   /// Determine device type based on services
   static String determineDeviceType(List<String> services) {
-    // Common service UUIDs for fitness devices
-    const String HEART_RATE_SERVICE = '0000180d-0000-1000-8000-00805f9b34fb';
-    const String CYCLING_POWER_SERVICE = '00001818-0000-1000-8000-00805f9b34fb';
-    const String RUNNING_SPEED_CADENCE_SERVICE =
+    // Common service UUIDs for fitness devices - using lowerCamelCase
+    const String heartRateService = '0000180d-0000-1000-8000-00805f9b34fb';
+    const String cyclingPowerService = '00001818-0000-1000-8000-00805f9b34fb';
+    const String runningSpeedCadenceService =
         '00001814-0000-1000-8000-00805f9b34fb';
-    const String CYCLING_SPEED_CADENCE_SERVICE =
+    const String cyclingSpeedCadenceService =
         '00001816-0000-1000-8000-00805f9b34fb';
 
     // Stryd often has a custom service
-    const String STRYD_SERVICE = 'fb005c80-02e7-f387-1cad-8acd2d8df0c8';
+    const String strydService = 'fb005c80-02e7-f387-1cad-8acd2d8df0c8';
 
-    bool hasHeartRate = services.contains(HEART_RATE_SERVICE);
-    bool hasPower = services.contains(CYCLING_POWER_SERVICE) ||
-        services.contains(STRYD_SERVICE);
-    bool hasCadence = services.contains(RUNNING_SPEED_CADENCE_SERVICE) ||
-        services.contains(CYCLING_SPEED_CADENCE_SERVICE);
+    bool hasHeartRate = services.contains(heartRateService);
+    bool hasPower = services.contains(cyclingPowerService) ||
+        services.contains(strydService);
+    bool hasCadence = services.contains(runningSpeedCadenceService) ||
+        services.contains(cyclingSpeedCadenceService);
 
     // Determine type based on available services
     if (hasHeartRate && (hasPower || hasCadence)) {
-      return TYPE_COMBINED;
+      return typeCombined;
     } else if (hasHeartRate) {
-      return TYPE_HEART_RATE;
+      return typeHeartRate;
     } else if (hasPower) {
-      return TYPE_POWER;
+      return typePower;
     } else if (hasCadence) {
-      return TYPE_CADENCE;
+      return typeCadence;
     } else {
-      return TYPE_UNKNOWN;
+      return typeUnknown;
     }
   }
 

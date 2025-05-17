@@ -1,4 +1,4 @@
-// lib/modules/activity/screens/start_activity_screen.dart
+// Fix for start_activity_screen.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,8 +8,8 @@ import '../../../shared/widgets/metric_card.dart';
 import '../../../shared/widgets/sensor_status_bar.dart';
 import '../providers/activity_state_provider.dart';
 import '../models/activity_state.dart';
-import '../../../providers/ble_providers.dart'; // Added missing import
-import '../../../providers/gps_providers.dart'; // Added missing import
+import '../../../providers/ble_providers.dart';
+import '../../../providers/gps_providers.dart';
 
 class StartActivityScreen extends ConsumerStatefulWidget {
   const StartActivityScreen({super.key});
@@ -23,7 +23,7 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
-  // Define orange color to be used consistently (using RGBA)
+  // Define orange color to be used consistently
   final Color orangeColor =
       const Color.fromRGBO(255, 152, 0, 1.0); // Colors.orange
 
@@ -60,7 +60,6 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
     // Use theme-appropriate colors
     final backgroundColor =
         isDarkMode ? AppColors.darkBackground : theme.scaffoldBackgroundColor;
-    // Removed unused cardColor variable
 
     return Scaffold(
       // Use the theme's background color instead of hardcoded black
@@ -108,9 +107,9 @@ class _StartActivityScreenState extends ConsumerState<StartActivityScreen>
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: Color.fromRGBO(
-                      orangeColor.r,
-                      orangeColor.g,
-                      orangeColor.b,
+                      orangeColor.red,
+                      orangeColor.green,
+                      orangeColor.blue,
                       0.85, // Using RGBA for opacity
                     ),
                   ),
